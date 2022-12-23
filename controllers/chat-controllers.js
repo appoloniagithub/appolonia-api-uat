@@ -510,7 +510,7 @@ const createMessage = async (data) => {
   });
 };
 
-const createNewChat = async (data) => {
+const createNewChat = async (data, textData) => {
   let { senderId, receiverId } = data;
   let membersData = await User.find({ _id: { $in: [senderId, receiverId] } }, [
     "firstName",
@@ -536,31 +536,55 @@ const createNewChat = async (data) => {
       throw new Error("Error Creating the Chat");
     } else {
       await createMessage({ ...data, conversationId: doc._id });
+      await createMessage({ ...textData, conversationId: doc._id });
     }
   });
 };
 
-const scanChatMessage = async (data) => {
+const checkChatExist = async (conversations, receiverId) => {
+  console.log(conversations, "in check chat exist");
+  for (i = 0; i < conversations.length; i++) {
+    for (j = 0; j < conversations[i].members.length; j++) {
+      console.log(
+        conversations[i].members[j],
+        "receiverId in j loop",
+        receiverId
+      );
+      if (conversations[i].members[j] == receiverId) {
+        return conversations[i]._id;
+      }
+    }
+  }
+  return false;
+};
+
+const scanChatMessage = async (data, textData) => {
   console.log(data, "in scan chat message");
   let { senderId, receiverId, message, scanId, format } = data;
-  receiverId = await User.find({
-    _id: { $in: [receiverId] },
-  });
+  // receiverId = await User.find({
+  //   _id: { $in: [receiverId] },
+  // });
   if ((senderId, receiverId, message)) {
     let conversations = await Conversation.find({
-      members: { $in: [senderId, receiverId] },
+      members: { $in: [senderId] },
     });
     console.log(conversations, "conversations in scan chat message");
-    if (conversations.length > 0) {
+    let getConvoId = await checkChatExist(conversations, receiverId);
+    console.log(getConvoId, "chat exist");
+    if (getConvoId) {
       let isSaved = await createMessage({
         ...data,
-        conversationId: conversations[0]._id,
+        conversationId: getConvoId,
+      });
+      let isSavedText = await createMessage({
+        ...textData,
+        conversationId: getConvoId,
       });
       console.log(isSaved, "is saved");
       return;
     } else {
       console.log(receiverId, "receiverId");
-      await createNewChat({ ...data, receiverId: receiverId._id });
+      await createNewChat(data, textData);
     }
   } else {
     console.log("missing required details");

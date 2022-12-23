@@ -138,9 +138,9 @@ const submitScans = async function (body) {
                   scanId: doc?._id,
                   format: "image",
                 };
-                let updateMessage = await chatController.scanChatMessage(
-                  msgObjImg
-                );
+                // let updateMessage = await chatController.scanChatMessage(
+                //   msgObjImg
+                // );
                 let msgObjText = {
                   senderId: userId,
                   receiverId: doctorId,
@@ -150,14 +150,11 @@ const submitScans = async function (body) {
                   scanId: doc?._id,
                 };
                 let updateText = await chatController.scanChatMessage(
+                  msgObjImg,
                   msgObjText
                 );
 
-                console.log(
-                  updateMessage,
-                  updateText,
-                  "update message in submit scan"
-                );
+                console.log(updateText, "update message in submit scan");
                 resolve({
                   serverError: 0,
                   message: "Successfully saved scans",
