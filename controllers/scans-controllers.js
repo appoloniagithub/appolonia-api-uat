@@ -41,8 +41,8 @@ const submitScans = async function (body) {
         body;
       try {
         if ((userId, doctorId)) {
+          let updatedFaceScanImages = [];
           if (faceScanImages && faceScanImages.length > 0) {
-            let updatedFaceScanImages = [];
             for (i = 0; i < faceScanImages.length; i++) {
               const base64Data = new Buffer.from(
                 faceScanImages[i].replace(/^data:image\/\w+;base64,/, ""),
@@ -71,8 +71,8 @@ const submitScans = async function (body) {
               updatedFaceScanImages.push(path);
             }
           }
+          let updatedTeethScanImages = [];
           if (teethScanImages && teethScanImages.length > 0) {
-            let updatedTeethScanImages = [];
             for (i = 0; i < teethScanImages.length; i++) {
               const base64Data = new Buffer.from(
                 teethScanImages[i].replace(/^data:image\/\w+;base64,/, ""),
@@ -99,77 +99,73 @@ const submitScans = async function (body) {
               });
               updatedTeethScanImages.push(path);
             }
-            console.log(
-              "updated",
-              updatedFaceScanImages,
-              updatedTeethScanImages
-            );
-            const updatedScan = new Scans({
-              userId: userId,
-              doctorId: doctorId,
-              doctorName: doctorName,
-              faceScanImages: updatedFaceScanImages,
-              teethScanImages: updatedTeethScanImages,
-              created: Date.now(),
-            });
-            await updatedScan.save(async (err, doc) => {
-              console.log(doc);
-
-              if (err) {
-                throw new Error("Error saving scans");
-              } else {
-                User.updateOne(
-                  { _id: userId },
-                  { $set: { lastScan: new Date() } },
-                  (err) => {
-                    if (err) {
-                      console.log(err);
-                    } else {
-                      console.log("user updated");
-                    }
-                  }
-                );
-
-                let msgObjImg = {
-                  senderId: userId,
-                  receiverId: doctorId,
-                  message: `https://appoloniaapps3.s3.amazonaws.com/${updatedTeethScanImages[0]}`,
-                  scanId: doc?._id,
-                  format: "image",
-                };
-                // let updateMessage = await chatController.scanChatMessage(
-                //   msgObjImg
-                // );
-                let msgObjText = {
-                  senderId: userId,
-                  receiverId: doctorId,
-                  message:
-                    "Hi Doctor, please review my scans and let me know your feedback.",
-                  format: "text",
-                  scanId: doc?._id,
-                };
-                let updateText = await chatController.scanChatMessage(
-                  msgObjImg,
-                  msgObjText
-                );
-
-                console.log(updateText, "update message in submit scan");
-                resolve({
-                  serverError: 0,
-                  message: "Successfully saved scans",
-                  data: {
-                    success: 1,
-                    scanId: doc?._id,
-                    faceScanImages: updatedFaceScanImages,
-                    teethScanImages: updatedTeethScanImages,
-                    scanFirstImage: updatedTeethScanImages[0],
-                  },
-                });
-              }
-              // if (data?.success == 1) {
-              // }
-            });
           }
+          console.log("updated", updatedFaceScanImages, updatedTeethScanImages);
+          const updatedScan = new Scans({
+            userId: userId,
+            doctorId: doctorId,
+            doctorName: doctorName,
+            faceScanImages: updatedFaceScanImages,
+            teethScanImages: updatedTeethScanImages,
+            created: Date.now(),
+          });
+          await updatedScan.save(async (err, doc) => {
+            console.log(doc);
+
+            if (err) {
+              throw new Error("Error saving scans");
+            } else {
+              User.updateOne(
+                { _id: userId },
+                { $set: { lastScan: new Date() } },
+                (err) => {
+                  if (err) {
+                    console.log(err);
+                  } else {
+                    console.log("user updated");
+                  }
+                }
+              );
+
+              let msgObjImg = {
+                senderId: userId,
+                receiverId: doctorId,
+                message: `https://appoloniaapps3.s3.amazonaws.com/${updatedTeethScanImages[0]}`,
+                scanId: doc?._id,
+                format: "image",
+              };
+              // let updateMessage = await chatController.scanChatMessage(
+              //   msgObjImg
+              // );
+              let msgObjText = {
+                senderId: userId,
+                receiverId: doctorId,
+                message:
+                  "Hi Doctor, please review my scans and let me know your feedback.",
+                format: "text",
+                scanId: doc?._id,
+              };
+              let updateText = await chatController.scanChatMessage(
+                msgObjImg,
+                msgObjText
+              );
+
+              console.log(updateText, "update message in submit scan");
+              resolve({
+                serverError: 0,
+                message: "Successfully saved scans",
+                data: {
+                  success: 1,
+                  scanId: doc?._id,
+                  faceScanImages: updatedFaceScanImages,
+                  teethScanImages: updatedTeethScanImages,
+                  scanFirstImage: updatedTeethScanImages[0],
+                },
+              });
+            }
+            // if (data?.success == 1) {
+            // }
+          });
         } else {
           // throw new Error("Provide all the details");
           resolve({
