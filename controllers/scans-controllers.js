@@ -41,10 +41,7 @@ const submitScans = async function (body) {
         body;
       try {
         if ((userId, doctorId)) {
-          if (
-            (faceScanImages && faceScanImages.length > 0) ||
-            (teethScanImages && teethScanImages.length > 0)
-          ) {
+          if (faceScanImages && faceScanImages.length > 0) {
             let updatedFaceScanImages = [];
             for (i = 0; i < faceScanImages.length; i++) {
               const base64Data = new Buffer.from(
@@ -73,6 +70,8 @@ const submitScans = async function (body) {
               });
               updatedFaceScanImages.push(path);
             }
+          }
+          if (teethScanImages && teethScanImages.length > 0) {
             let updatedTeethScanImages = [];
             for (i = 0; i < teethScanImages.length; i++) {
               const base64Data = new Buffer.from(
