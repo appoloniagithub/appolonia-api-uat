@@ -37,7 +37,8 @@ const updatedFilePaths = async (path, base64Data) => {
 const submitScans = async function (body) {
   try {
     return await new Promise(async function (resolve, reject) {
-      const { userId, doctorId, doctorName } = body;
+      const { userId, doctorId, doctorName, faceScanImages, teethScanImages } =
+        body;
       try {
         if ((userId, doctorId)) {
           if (
