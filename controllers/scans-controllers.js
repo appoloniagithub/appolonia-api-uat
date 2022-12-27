@@ -40,7 +40,7 @@ const submitScans = async function (body) {
       const { userId, doctorId, doctorName, faceScanImages, teethScanImages } =
         body;
       try {
-        if ((userId, doctorId, faceScanImages, teethScanImages)) {
+        if ((userId, doctorId)) {
           if (
             (faceScanImages && faceScanImages.length > 0) ||
             (teethScanImages && teethScanImages.length > 0)
