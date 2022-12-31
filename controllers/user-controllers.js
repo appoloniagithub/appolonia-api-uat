@@ -45,7 +45,7 @@ const Settings = require("../Models/Settings");
 const getUsers = async (req, res, next) => {
   let users;
   try {
-    users = await User.find({}, "-password");
+    users = await User.find();
   } catch (err) {
     res.json({ success: false, message: "Error Geting Users" });
     return;
@@ -1201,7 +1201,7 @@ const sendEmailOtp = (email, otp) => {
       requireTLS: true,
       service: "gmail",
       auth: {
-        user: "appoloniaapp@gmail.com", // generated ethereal user
+        user: "suppuchinni22@gmail.com", // generated ethereal user
         pass: SMTPPASS, // generated ethereal password
       },
     });
