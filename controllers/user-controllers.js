@@ -1201,7 +1201,7 @@ const sendEmailOtp = (email, otp) => {
       requireTLS: true,
       service: "gmail",
       auth: {
-        user: "suppuchinni22@gmail.com", // generated ethereal user
+        user: "appoloniaapp@gmail.com", // generated ethereal user
         pass: SMTPPASS, // generated ethereal password
       },
     });
