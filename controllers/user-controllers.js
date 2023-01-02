@@ -1702,13 +1702,13 @@ const login = async (req, res, next) => {
         return;
       } else {
         if (existingUser.phoneVerified === false) {
-          // let otp = otpGenerator.generate(4, {
-          //   lowerCaseAlphabets: false,
-          //   upperCaseAlphabets: false,
-          //   specialChars: false,
-          // });
+          let otp = otpGenerator.generate(4, {
+            lowerCaseAlphabets: false,
+            upperCaseAlphabets: false,
+            specialChars: false,
+          });
           try {
-            await sendEmailOtp(userFound?.email, otp);
+            await sendEmailOtp(email, otp);
           } catch (err) {
             console.log(err.message);
           }
