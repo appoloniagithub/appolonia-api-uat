@@ -1707,11 +1707,11 @@ const login = async (req, res, next) => {
             upperCaseAlphabets: false,
             specialChars: false,
           });
-          // try {
-          //   await sendEmailOtp(userFound?.email, otp);
-          // } catch (err) {
-          //   console.log(err.message);
-          // }
+          try {
+            await sendEmailOtp(userFound?.email, otp);
+          } catch (err) {
+            console.log(err.message);
+          }
           console.log(otp, "i am otp");
           let foundForgotPhone = await Filephoneverified.findOne({
             fileId: existingUser?._id,
