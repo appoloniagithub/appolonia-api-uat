@@ -306,8 +306,8 @@ const getConversationMessages = async (req, res) => {
         message: msg.message,
         format: msg.format,
         scanId: msg.scanId,
-        createdAt: msg.createdAt,
-        updatedAt: msg.updatedAt,
+        createdAt: moment(msg.createdAt).format("DD-MM-YY hh:mm"),
+        updatedAt: moment(msg.updatedAt).format("DD-MM-YY hh:mm"),
         isSender: msg.senderId === userId ? "1" : "0",
       };
     });
