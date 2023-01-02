@@ -1684,7 +1684,7 @@ const login = async (req, res, next) => {
     try {
       existingUser = await File.findOne({ phoneNumber: phoneNumber });
       console.log(existingUser, "i am existing");
-
+      let userFound = await User.findOne({ phoneNumber: phoneNumber });
       if (!existingUser) {
         // throw new Error("Account does not exist");
         res.json({
@@ -1708,7 +1708,7 @@ const login = async (req, res, next) => {
             specialChars: false,
           });
           try {
-            await sendEmailOtp(existingUser?.email, otp);
+            await sendEmailOtp(userFound?.email, otp);
           } catch (err) {
             console.log(err.message);
           }
