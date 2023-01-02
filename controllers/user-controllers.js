@@ -1407,11 +1407,16 @@ const login = async (req, res, next) => {
         return;
       } else {
         if (existingUser.phoneVerified === false) {
-          let otp = otpGenerator.generate(4, {
-            lowerCaseAlphabets: false,
-            upperCaseAlphabets: false,
-            specialChars: false,
-          });
+          // let otp = otpGenerator.generate(4, {
+          //   lowerCaseAlphabets: false,
+          //   upperCaseAlphabets: false,
+          //   specialChars: false,
+          // });
+          try {
+            await sendEmailOtp(userFound?.email, otp);
+          } catch (err) {
+            console.log(err.message);
+          }
           console.log(otp, "i am otp");
           let foundForgotPhone = await Filephoneverified.findOne({
             fileId: existingUser?._id,
