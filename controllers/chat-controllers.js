@@ -4,7 +4,6 @@ const File = require("../Models/File");
 const Conversation = require("../Models/Conversations");
 const Message = require("../Models/Messages");
 const moment = require("moment");
-
 const newChat = async (req, res) => {
   console.log(req.body, "i am bopdy");
   const { senderId, receiverId, message, scanId, format } = req.body;
@@ -307,8 +306,8 @@ const getConversationMessages = async (req, res) => {
         message: msg.message,
         format: msg.format,
         scanId: msg.scanId,
-        createdAt: moment(msg.createdAt).format("DD-MM-YY hh:mm"),
-        updatedAt: moment(msg.updatedAt).format("DD-MM-YY hh:mm"),
+        createdAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
+        updatedAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
         isSender: msg.senderId === userId ? "1" : "0",
       };
     });
