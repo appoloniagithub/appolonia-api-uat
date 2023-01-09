@@ -10,6 +10,7 @@ const settingRoutes = require("./Routes/Setting-routes");
 const chatRoutes = require("./Routes/Chat-routes");
 const libraryRoutes = require("./Routes/Library-routes");
 const customPagesRoutes = require("./Routes/Custompage-routes");
+const doctorRoutes = require("./Routes/Doctor-routes");
 
 //admin routes
 const patientRoutes = require("./Routes/Patient-routes");
@@ -54,6 +55,7 @@ app.use("/api/scans", scansRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/library", libraryRoutes);
 app.use("/api/custompages", customPagesRoutes);
+app.use("/api/doctors", doctorRoutes);
 
 //Admin
 app.use("/api/patient", patientRoutes);

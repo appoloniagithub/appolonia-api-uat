@@ -39,6 +39,41 @@ const getAllPatients = async (req, res) => {
   }
 };
 
+const getPatientById = async (req, res) => {
+  const { userId } = req.body;
+  try {
+    if (userId) {
+      let foundPatient = await User.findById({ _id: userId });
+      console.log(foundPatient);
+      if (foundPatient)
+        res.json({
+          serverError: 0,
+          message: "Patient Found",
+          data: {
+            success: 1,
+            foundPatient: foundPatient,
+          },
+        });
+    } else {
+      res.json({
+        serverError: 0,
+        message: "Patient Not Found",
+        data: {
+          success: 0,
+          foundPatient: foundPatient,
+        },
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.json({
+      serverError: 1,
+      message: err.message,
+      data: { success: 0 },
+    });
+  }
+};
+
 const addPatientNotes = async (req, res) => {
   console.log(req.body);
   const { doctorId, userId, point } = req.body;
@@ -145,4 +180,5 @@ module.exports = {
   getAllPatients,
   addPatientNotes,
   getNotes,
+  getPatientById,
 };

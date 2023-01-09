@@ -49,7 +49,7 @@ router.post(
   usersController.updateUserProfile
 );
 router.post("/deleteaccount", usersController.deleteAccount);
-
+router.get("/getallusers", authCheck, usersController.getUsers);
 router.get("/getalldoctors", authCheck, usersController.getAllDoctors);
 
 module.exports = router;

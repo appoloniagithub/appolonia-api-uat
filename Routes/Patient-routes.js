@@ -6,6 +6,7 @@ const patientController = require("../controllers/patient-controllers");
 const router = express.Router();
 
 router.get("/getallpatients", authCheck, patientController.getAllPatients);
+router.post("/getpatient", authCheck, patientController.getPatientById);
 router.post("/addpatientnotes", authCheck, patientController.addPatientNotes);
 router.post("/getnotes", authCheck, patientController.getNotes);
 
