@@ -48,8 +48,8 @@ const submitScans = async function (body) {
                 faceScanImages[i].replace(/^data:image\/\w+;base64,/, ""),
                 "base64"
               );
-
-              const path = `${userId}/${Date.now()}.png`;
+              const path = Date.now() + ".png";
+              //const path = `${userId}/${Date.now()}.png`;
               // let getPath = await updatedFilePaths(path, base64Data);
               // console.log("get path files", getPath);
               // updatedFaceScanImages.push(getPath);
@@ -78,7 +78,8 @@ const submitScans = async function (body) {
                 teethScanImages[i].replace(/^data:image\/\w+;base64,/, ""),
                 "base64"
               );
-              const path = `${userId}/${Date.now()}.png`;
+              const path = Date.now() + ".png";
+              //const path = `${userId}/${Date.now()}.png`;
               // let getPath = await updatedFilePaths(path, base64Data);
               // console.log("get path files", getPath);
               // updatedTeethScanImages.push(getPath);
@@ -127,16 +128,52 @@ const submitScans = async function (body) {
                 }
               );
 
+              // let msgObjImg = {
+              //   senderId: userId,
+              //   receiverId: doctorId,
+              //   message: `https://appoloniaapps3.s3.amazonaws.com/${scanFirstImage[0]}`,
+              //   scanId: doc?._id,
+              //   format: "image",
+              // };
+
+              // let msgObjText = {
+              //   senderId: userId,
+              //   receiverId: doctorId,
+              //   message:
+              //     "Hi Doctor, please review my scans and let me know your feedback.",
+              //   format: "text",
+              //   scanId: doc?._id,
+              // };
+              // let updateText = await chatController.scanChatMessage(
+              //   msgObjImg,
+              //   msgObjText
+              // );
+
+              // console.log(updateText, "update message in submit scan");
+              resolve({
+                serverError: 0,
+                message: "Successfully saved scans",
+                data: {
+                  success: 1,
+                  scanId: doc?._id,
+                  faceScanImages: updatedFaceScanImages,
+                  teethScanImages: updatedTeethScanImages,
+                  scanFirstImage: updatedTeethScanImages[0]
+                    ? updatedTeethScanImages[0]
+                    : updatedFaceScanImages[0],
+                },
+              });
+              let scanFirstImage = updatedTeethScanImages[0]
+                ? updatedTeethScanImages[0]
+                : updatedFaceScanImages[0];
               let msgObjImg = {
                 senderId: userId,
                 receiverId: doctorId,
-                message: `https://appoloniaapps3.s3.amazonaws.com/${updatedTeethScanImages[0]}`,
+                message: `https://appoloniaapps3.s3.amazonaws.com/${scanFirstImage}`,
                 scanId: doc?._id,
                 format: "image",
               };
-              // let updateMessage = await chatController.scanChatMessage(
-              //   msgObjImg
-              // );
+
               let msgObjText = {
                 senderId: userId,
                 receiverId: doctorId,
@@ -151,22 +188,7 @@ const submitScans = async function (body) {
               );
 
               console.log(updateText, "update message in submit scan");
-              resolve({
-                serverError: 0,
-                message: "Successfully saved scans",
-                data: {
-                  success: 1,
-                  scanId: doc?._id,
-                  faceScanImages: updatedFaceScanImages,
-                  teethScanImages: updatedTeethScanImages,
-                  scanFirstImage: updatedTeethScanImages[0]
-                    ? updatedTeethScanImages[0]
-                    : updatedFaceScanImages[0],
-                },
-              });
             }
-            // if (data?.success == 1) {
-            // }
           });
         } else {
           // throw new Error("Provide all the details");
