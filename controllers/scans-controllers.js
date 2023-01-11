@@ -49,7 +49,7 @@ const submitScans = async function (body) {
                 "base64"
               );
 
-              const path = Date.now() + ".png";
+              const path = `${userId}/${Date.now()}.png`;
               // let getPath = await updatedFilePaths(path, base64Data);
               // console.log("get path files", getPath);
               // updatedFaceScanImages.push(getPath);
@@ -78,7 +78,7 @@ const submitScans = async function (body) {
                 teethScanImages[i].replace(/^data:image\/\w+;base64,/, ""),
                 "base64"
               );
-              const path = Date.now() + ".png";
+              const path = `${userId}/${Date.now()}.png`;
               // let getPath = await updatedFilePaths(path, base64Data);
               // console.log("get path files", getPath);
               // updatedTeethScanImages.push(getPath);
@@ -159,7 +159,9 @@ const submitScans = async function (body) {
                   scanId: doc?._id,
                   faceScanImages: updatedFaceScanImages,
                   teethScanImages: updatedTeethScanImages,
-                  scanFirstImage: updatedTeethScanImages[0],
+                  scanFirstImage: updatedTeethScanImages[0]
+                    ? updatedTeethScanImages[0]
+                    : updatedFaceScanImages[0],
                 },
               });
             }

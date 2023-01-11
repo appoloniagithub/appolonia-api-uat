@@ -1133,7 +1133,7 @@ const signup = async (req, res, next) => {
               res.json({
                 serverError: 0,
                 message:
-                  "Thanks for verifying your Mobile Number. Our Team will be in touch soon to activate your account.",
+                  "Thanks for verifying your details. Our Team will be in touch soon to activate your account.",
                 data: {
                   success: 1,
                   phoneVerified: fileExist.phoneVerified === true ? 1 : 0,
@@ -1279,7 +1279,7 @@ const emailVerify = async (req, res) => {
                     res.json({
                       serverError: 0,
                       message:
-                        "Thanks for verifying your Mobile Number. Our Team will be in touch soon to activate your account.",
+                        "Thanks for verifying your details. Our Team will be in touch soon to activate your account.",
                       data: {
                         fileId: foundFile._id,
                         success: 1,
