@@ -47,6 +47,7 @@ const addDoctor = async (req, res) => {
         message: "Doctor with this email ID (or) phone number already exists",
         data: {
           success: 0,
+          status: 409,
         },
       });
       return;
@@ -58,9 +59,10 @@ const addDoctor = async (req, res) => {
           console.log(data);
           res.json({
             serverError: 0,
-            msg: "Doctor created successfully",
+            message: "Doctor created successfully",
             data: data,
             success: 1,
+            status: 200,
           });
         }
       });
@@ -68,11 +70,13 @@ const addDoctor = async (req, res) => {
   } else {
     res.json({
       serverError: 0,
-      msg: "Please enter all the mandatory fields",
-
-      success: 1,
+      message: "Please enter all the mandatory fields",
+      data: {
+        success: 0,
+        status: 400,
+      },
     });
-    //return;
+    return;
   }
 };
 
