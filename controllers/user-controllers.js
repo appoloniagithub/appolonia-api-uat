@@ -819,6 +819,7 @@ const signup = async (req, res, next) => {
     //isSignupWithFileNumber,
     fileId,
     dob,
+    image,
   } = req.body;
   console.log(req.body);
 
@@ -1907,6 +1908,11 @@ const login = async (req, res, next) => {
           userScans,
         ]);
         console.log(userScansResolved.length, "i am scans");
+
+        let staticImage =
+          "https://www.clipartmax.com/png/middle/344-3442642_clip-art-freeuse-library-profile-man-user-people-icon-icono-de-login.png";
+
+        // let imgObj = familyHead?.image ? familyHead?.image : staticImage;
         familyHead = {
           _id: familyHead?._id,
           firstName: familyHead?.firstName,
@@ -1925,11 +1931,12 @@ const login = async (req, res, next) => {
             ? familyHead?.assignedDoctorName
             : `${adminFoundResolved?.firstName} ${adminFoundResolved.lastName}`,
           role: familyHead?.role,
-          image: familyHead?.image
-            ? familyHead?.image
-            : "https://www.clipartmax.com/png/middle/344-3442642_clip-art-freeuse-library-profile-man-user-people-icon-icono-de-login.png",
+          //image: imgObj,
+          image:
+            (familyHead?.image).length === 0 ? staticImage : familyHead?.image,
           //scans: userScansResolved,
         };
+        console.log(familyHead?.image);
         console.log(familyHead, "i am head");
         res.json({
           serverError: 0,
@@ -2356,7 +2363,7 @@ const requestNewOtp = async (req, res) => {
       }
       res.json({
         serverError: 0,
-        message: "OTP Sent to Phone Number",
+        message: "New OTP has been sent on your Email & Phone",
         data: {
           fileId: fileId,
           otp: otp,
