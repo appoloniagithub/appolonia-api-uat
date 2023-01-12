@@ -78,9 +78,10 @@ const getUserdata = async (req, res) => {
       city: foundUser.city,
       dob: foundUser.dob,
       role: foundUser.role,
-      image: foundUser.image
-        ? foundUser.image
-        : "https://www.clipartmax.com/png/middle/344-3442642_clip-art-freeuse-library-profile-man-user-people-icon-icono-de-login.png",
+      image:
+        foundUser.image.length === 0
+          ? "https://www.clipartmax.com/png/middle/344-3442642_clip-art-freeuse-library-profile-man-user-people-icon-icono-de-login.png"
+          : foundUser.image,
     };
     res.json({
       serverError: 0,
