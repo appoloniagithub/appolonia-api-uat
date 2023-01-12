@@ -66,6 +66,9 @@ const getUserdata = async (req, res) => {
     // decryptedEmiratesId = CryptoJS.AES.decrypt(foundUser?.emiratesId, "love");
     // decryptedEmiratesId = decryptedEmiratesId.toString(CryptoJS.enc.Utf8);
     // console.log(decryptedFileNumber, decryptedEmiratesId, "decrupted");
+    let staticImage = [
+      "https://www.clipartmax.com/png/middle/344-3442642_clip-art-freeuse-library-profile-man-user-people-icon-icono-de-login.png",
+    ];
     foundUser = {
       _id: foundUser._id,
       firstName: foundUser.firstName,
@@ -78,10 +81,7 @@ const getUserdata = async (req, res) => {
       city: foundUser.city,
       dob: foundUser.dob,
       role: foundUser.role,
-      image:
-        foundUser.image.length === 0
-          ? "https://www.clipartmax.com/png/middle/344-3442642_clip-art-freeuse-library-profile-man-user-people-icon-icono-de-login.png"
-          : foundUser.image,
+      image: foundUser.image.length === 0 ? staticImage : foundUser.image,
     };
     res.json({
       serverError: 0,
