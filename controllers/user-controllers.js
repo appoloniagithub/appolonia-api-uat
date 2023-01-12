@@ -1912,8 +1912,9 @@ const login = async (req, res, next) => {
         ]);
         console.log(userScansResolved.length, "i am scans");
 
-        let staticImage =
-          "https://www.clipartmax.com/png/middle/344-3442642_clip-art-freeuse-library-profile-man-user-people-icon-icono-de-login.png";
+        let staticImage = [
+          "https://www.clipartmax.com/png/middle/344-3442642_clip-art-freeuse-library-profile-man-user-people-icon-icono-de-login.png",
+        ];
 
         // let imgObj = familyHead?.image ? familyHead?.image : staticImage;
         familyHead = {
