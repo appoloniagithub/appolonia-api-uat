@@ -10,8 +10,10 @@ const messagesSchema = new Schema(
     message: { type: String },
     format: { type: String },
     scanId: { type: String },
-  },
-  { timestamps: true }
+    createdAt: { type: String },
+    updatedAt: { type: String },
+  }
+  // { timestamps: true }
 );
 
 // userSchema.plugin(uniqueValidator);

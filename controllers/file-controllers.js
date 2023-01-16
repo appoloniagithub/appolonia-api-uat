@@ -207,59 +207,40 @@ const addFamilyMember = async (req, res) => {
       image:
         "https://www.clipartmax.com/png/middle/344-3442642_clip-art-freeuse-library-profile-man-user-people-icon-icono-de-login.png",
     });
-    let newFile = new File({
-      phoneNumber: phoneNumber,
-      clinicVerified: false,
-      phoneVerified: false,
-      activeRequested: false,
-      active: false,
-      countryCode: countryCode,
-      city,
-      emiratesId: hashedemiratesId,
-      uniqueId: emiratesId,
-      fileNumber: hashedfileNumber,
-      uniId: fileNumber,
-    });
+
     newMember.save((err, userDoc) => {
       if (err) {
         console.log(err);
         throw new Error("Error saving the user");
       } else {
-        newFile.save(async (err) => {
-          if (err) {
-            console.log(err);
-            throw new Error("Error creating the User");
-          } else {
-            File.updateOne(
-              { phoneNumber: phoneNumber },
-              {
-                $push: {
-                  familyMembers: {
-                    memberEmiratesId: hashedemiratesId,
-                    uniqueId: emiratesId,
-                    connected: false,
-                    userId: userDoc._id.toString(),
-                  },
-                },
+        File.updateOne(
+          { phoneNumber: phoneNumber },
+          {
+            $push: {
+              familyMembers: {
+                memberEmiratesId: hashedemiratesId,
+                uniqueId: emiratesId,
+                connected: false,
+                userId: userDoc._id.toString(),
               },
-              (err) => {
-                if (err) {
-                  throw new Error("Error creating the User");
-                } else {
-                  res.json({
-                    serverError: 0,
-                    message:
-                      "Family Member added. You would be notified from the clinic soon",
-                    data: {
-                      success: 1,
-                    },
-                  });
-                  return;
-                }
-              }
-            );
+            },
+          },
+          (err) => {
+            if (err) {
+              throw new Error("Error creating the User");
+            } else {
+              res.json({
+                serverError: 0,
+                message:
+                  "Family Member added. You would be notified from the clinic soon",
+                data: {
+                  success: 1,
+                },
+              });
+              return;
+            }
           }
-        });
+        );
       }
     });
   } catch (err) {

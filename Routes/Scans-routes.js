@@ -34,5 +34,6 @@ router.post("/getallscans", authCheck, async (req, res) => {
     console.log(err);
   }
 });
+router.post("/getscanid", authCheck, scansController.getScanId);
 
 module.exports = router;

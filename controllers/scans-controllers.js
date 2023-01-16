@@ -104,6 +104,7 @@ const submitScans = async function (body) {
           console.log("updated", updatedFaceScanImages, updatedTeethScanImages);
           const updatedScan = new Scans({
             userId: userId,
+            //patientName: userId?.firstName,
             doctorId: doctorId,
             doctorName: doctorName,
             faceScanImages: updatedFaceScanImages,
@@ -231,6 +232,8 @@ const getMyScans = async function (body) {
               data: {
                 success: 1,
                 scans: foundScans.reverse(),
+                userId: userId,
+                // patientName: userId?.firstName,
               },
             });
             //return;
@@ -306,8 +309,39 @@ const getAllScans = async function (body) {
   }
 };
 
+const getScanId = async (req, res) => {
+  const { userId, scanId } = req.body;
+  try {
+    if ((userId, scanId)) {
+      const foundScans = await Scans.find({ _id: scanId });
+      console.log(foundScans, "by scan ID");
+      if (foundScans) {
+        res.json({
+          serverError: 0,
+          message: "Scans found",
+          data: {
+            foundScans: foundScans,
+            success: 1,
+            // patientName: userId?.firstName,
+          },
+        });
+      } else {
+        res.json({
+          serverError: 1,
+          message: " No Scans found",
+          data: {
+            success: 0,
+          },
+        });
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
 module.exports = {
   submitScans,
   getMyScans,
   getAllScans,
+  getScanId,
 };

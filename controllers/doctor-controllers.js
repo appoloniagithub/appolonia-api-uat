@@ -186,6 +186,12 @@ const getDoctorById = async (req, res) => {
 };
 
 const updateDoctor = async (req, res) => {
+  console.log(req.body, "req");
+  let imageFiles = [];
+  if (req?.files?.length > 0) {
+    console.log(req.files, "here are the files");
+    imageFiles = req.files.map((file) => file.path);
+  }
   const {
     _id,
     firstName,
@@ -216,7 +222,7 @@ const updateDoctor = async (req, res) => {
     doctorSchema.findByIdAndUpdate(
       _id,
       {
-        $set: req.body,
+        $set: { ...req.body, image: imageFiles },
       },
       (error, data) => {
         if (error) {

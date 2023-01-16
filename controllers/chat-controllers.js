@@ -306,8 +306,8 @@ const getConversationMessages = async (req, res) => {
         message: msg.message,
         format: msg.format,
         scanId: msg.scanId,
-        createdAt: moment(msg.createdAt).format("DD-MM-YY hh:mm"),
-        updatedAt: moment(msg.createdAt).format("DD-MM-YY hh:mm"),
+        createdAt: msg.createdAt,
+        updatedAt: msg.updatedAt,
         isSender: msg.senderId === userId ? "1" : "0",
       };
     });
@@ -348,7 +348,9 @@ const getConversationMessages = async (req, res) => {
 const newMessage = async (req, res) => {
   console.log(req.body, "i am body");
   console.log(req.files, "i am files");
-  const { conversationId, senderId, message, scanId, format } = req.body;
+  const { conversationId, senderId, message, scanId, format, receiverId } =
+    req.body;
+
   try {
     // if ((conversationId, senderId, message)) {
     if (format === "scanImage") {
@@ -418,12 +420,15 @@ const newMessage = async (req, res) => {
         }
         let resolvedMessages = filesName.map((fileLink) => {
           console.log(fileLink, "i nam file link");
+
           let createdMessage = new Message({
             conversationId: conversationId,
             senderId: senderId,
             message: fileLink,
             format: format,
             scanId: scanId?.length > 0 ? scanId : "",
+            createdAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
+            updatedAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
           });
           try {
             let resolvedMessage = createdMessage.save();
@@ -440,6 +445,16 @@ const newMessage = async (req, res) => {
             message: "Message Sent",
             data: {
               success: 1,
+              data: {
+                conversationId: conversationId,
+                senderId: senderId,
+                message: filesName[0],
+                receiverId: receiverId,
+                format: format,
+                scanId: scanId?.length > 0 ? scanId : "",
+                createdAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
+                updatedAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
+              },
             },
           });
           return;
@@ -448,13 +463,28 @@ const newMessage = async (req, res) => {
           throw new Error("Something went wrong while resolving messages");
         }
       } else {
-        let createdMessage = new Message({
+        let msgObj = {
           conversationId: conversationId,
           senderId: senderId,
+
           message: message,
           format: format,
           scanId: scanId?.length > 0 ? scanId : "",
-        });
+          createdAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
+          updatedAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
+        };
+        let createdMessage = new Message(
+          msgObj
+          //{
+          //   conversationId: conversationId,
+          //   senderId: senderId,
+          //   message: message,
+          //   format: format,
+          //   scanId: scanId?.length > 0 ? scanId : "",
+          //   createdAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
+          //   updatedAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
+          // }
+        );
         createdMessage.save((err) => {
           if (err) {
             throw new Error("Error Creating the message");
@@ -464,6 +494,7 @@ const newMessage = async (req, res) => {
               message: "Message Sent",
               data: {
                 success: 1,
+                data: { ...msgObj, receiverId },
               },
             });
             return;

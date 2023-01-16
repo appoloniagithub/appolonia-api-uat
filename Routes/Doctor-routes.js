@@ -28,7 +28,11 @@ router.post(
   doctorsController.addDoctor
 );
 router.post("/getDoctorById", authCheck, doctorsController.getDoctorById);
-router.put("/updatedoctor", authCheck, doctorsController.updateDoctor);
+router.put(
+  "/updatedoctor",
+  [authCheck, upload.array("image")],
+  doctorsController.updateDoctor
+);
 router.post("/deletedoctor", authCheck, doctorsController.deleteDoctor);
 
 module.exports = router;
