@@ -443,18 +443,17 @@ const newMessage = async (req, res) => {
           res.json({
             serverError: 0,
             message: "Message Sent",
+
+            success: 1,
             data: {
-              success: 1,
-              data: {
-                conversationId: conversationId,
-                senderId: senderId,
-                message: filesName[0],
-                receiverId: receiverId,
-                format: format,
-                scanId: scanId?.length > 0 ? scanId : "",
-                createdAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
-                updatedAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
-              },
+              conversationId: conversationId,
+              senderId: senderId,
+              message: filesName[0],
+              receiverId: receiverId,
+              format: format,
+              scanId: scanId?.length > 0 ? scanId : "",
+              createdAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
+              updatedAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
             },
           });
           return;
