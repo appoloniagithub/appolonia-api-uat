@@ -112,7 +112,7 @@ const submitScans = async function (body) {
             created: Date.now(),
           });
           await updatedScan.save(async (err, doc) => {
-            console.log(doc);
+            console.log(doc, "doc");
 
             if (err) {
               throw new Error("Error saving scans");
@@ -128,49 +128,13 @@ const submitScans = async function (body) {
                   }
                 }
               );
-
-              // let msgObjImg = {
-              //   senderId: userId,
-              //   receiverId: doctorId,
-              //   message: `https://appoloniaapps3.s3.amazonaws.com/${scanFirstImage[0]}`,
-              //   scanId: doc?._id,
-              //   format: "image",
-              // };
-
-              // let msgObjText = {
-              //   senderId: userId,
-              //   receiverId: doctorId,
-              //   message:
-              //     "Hi Doctor, please review my scans and let me know your feedback.",
-              //   format: "text",
-              //   scanId: doc?._id,
-              // };
-              // let updateText = await chatController.scanChatMessage(
-              //   msgObjImg,
-              //   msgObjText
-              // );
-
-              // console.log(updateText, "update message in submit scan");
-              resolve({
-                serverError: 0,
-                message: "Successfully saved scans",
-                data: {
-                  success: 1,
-                  scanId: doc?._id,
-                  faceScanImages: updatedFaceScanImages,
-                  teethScanImages: updatedTeethScanImages,
-                  scanFirstImage: updatedTeethScanImages[0]
-                    ? updatedTeethScanImages[0]
-                    : updatedFaceScanImages[0],
-                },
-              });
               let scanFirstImage = updatedTeethScanImages[0]
                 ? updatedTeethScanImages[0]
                 : updatedFaceScanImages[0];
               let msgObjImg = {
                 senderId: userId,
                 receiverId: doctorId,
-                message: `https://appoloniaapps3.s3.amazonaws.com/${scanFirstImage}`,
+                message: `https://appoloniaapps3.s3.amazonaws.com/${scanFirstImage[0]}`,
                 scanId: doc?._id,
                 format: "image",
               };
@@ -181,7 +145,7 @@ const submitScans = async function (body) {
                 message:
                   "Hi Doctor, please review my scans and let me know your feedback.",
                 format: "text",
-                scanId: doc?._id,
+                //scanId: doc?._id,
               };
               let updateText = await chatController.scanChatMessage(
                 msgObjImg,
@@ -189,6 +153,40 @@ const submitScans = async function (body) {
               );
 
               console.log(updateText, "update message in submit scan");
+              resolve({
+                serverError: 0,
+                message: "Successfully saved scans",
+                data: {
+                  success: 1,
+                  scanId: doc?._id,
+                  faceScanImages: updatedFaceScanImages,
+                  teethScanImages: updatedTeethScanImages,
+                  scanFirstImage: scanFirstImage,
+                },
+              });
+
+              //     let msgObjImg = {
+              //       senderId: userId,
+              //       receiverId: doctorId,
+              //       message: `https://appoloniaapps3.s3.amazonaws.com/${scanFirstImage}`,
+              //       scanId: doc?._id,
+              //       format: "image",
+              //     };
+
+              //     let msgObjText = {
+              //       senderId: userId,
+              //       receiverId: doctorId,
+              //       message:
+              //         "Hi Doctor, please review my scans and let me know your feedback.",
+              //       format: "text",
+              //       //scanId: doc?._id,
+              //     };
+              //     let updateText = await chatController.scanChatMessage(
+              //       msgObjImg,
+              //       msgObjText
+              //     );
+
+              //     console.log(updateText, "update message in submit scan");
             }
           });
         } else {

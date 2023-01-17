@@ -565,7 +565,11 @@ const createNewChat = async (data, textData) => {
     if (err) {
       throw new Error("Error Creating the Chat");
     } else {
-      await createMessage({ ...data, conversationId: doc._id });
+      await createMessage({
+        ...data,
+        conversationId: doc._id,
+        scanId: doc._id,
+      });
       await createMessage({ ...textData, conversationId: doc._id });
     }
   });
@@ -590,6 +594,7 @@ const checkChatExist = async (conversations, receiverId) => {
 
 const scanChatMessage = async (data, textData) => {
   console.log(data, "in scan chat message");
+  console.log(textData, "textData");
   let { senderId, receiverId, message, scanId, format } = data;
   // receiverId = await User.find({
   //   _id: { $in: [receiverId] },
