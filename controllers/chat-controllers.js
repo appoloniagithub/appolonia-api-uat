@@ -4,6 +4,7 @@ const File = require("../Models/File");
 const Conversation = require("../Models/Conversations");
 const Message = require("../Models/Messages");
 const moment = require("moment");
+const Doctor = require("../Models/Doctor");
 const newChat = async (req, res) => {
   console.log(req.body, "i am bopdy");
   const { senderId, receiverId, message, scanId, format } = req.body;
@@ -40,7 +41,7 @@ const newChat = async (req, res) => {
       return;
     }
 
-    let membersData = await User.find(
+    let membersData = await Doctor.find(
       { _id: { $in: [senderId, receiverId] } },
       ["firstName", "lastName", "image"]
     );
