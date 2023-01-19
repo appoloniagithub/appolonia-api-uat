@@ -1,6 +1,9 @@
 const Doctor = require("../Models/Doctor");
 const Role = require("../Models/Role");
 const User = require("../Models/User");
+var otpGenerator = require("otp-generator");
+const nodemailer = require("nodemailer");
+const { JWTKEY, SMTPPASS, accountSid, authToken } = require("../Config/config");
 
 let doctorSchema = require("../Models/Doctor");
 
@@ -14,6 +17,7 @@ const addDoctor = async (req, res) => {
     firstName,
     lastName,
     email,
+    emiratesId,
     phoneNumber,
     speciality,
     image,
@@ -88,7 +92,7 @@ const getAllDoctors = async (req, res) => {
       "role",
       "speciality",
     ]);
-    let foundAdmin = User.find({ role: "Admin" }, [
+    let foundAdmin = Doctor.find({ role: "3" }, [
       "firstName",
       "lastName",
       "role",
@@ -299,10 +303,110 @@ const deleteDoctor = async (req, res) => {
 //     }
 //   });
 // };
+
+const doctorLogin = async (req, res) => {
+  const { phoneNumber, password } = req.body;
+  console.log(req.body);
+  try {
+    let doctorFound = await Doctor.findOne({ phoneNumber: phoneNumber });
+    console.log(doctorFound);
+    if (doctorFound && doctorFound.password == password) {
+      res.json({
+        serverError: 0,
+        success: 1,
+        message: "Login succcessfully.",
+        doctorFound: doctorFound,
+      });
+    } else {
+      res.json({
+        serverError: 1,
+        success: 0,
+        message: "Invalid Credentails. Please try again",
+      });
+    }
+  } catch (err) {
+    res.json({
+      success: 0,
+      serverError: 1,
+      message: "Oops something went wrong. Please try again. ",
+    });
+  }
+};
+
+const sendEmail = (email) => {
+  console.log(email, "hello gggggg");
+  if (email) {
+    console.log("Things going good");
+    const output = `
+            
+            <p>Your New Password</p>
+            <p>Test@123</p>
+            `;
+
+    // create reusable transporter object using the default SMTP transport
+    let transporter = nodemailer.createTransport({
+      host: "smtp.google.com",
+      port: 587,
+      secure: false, // true for 465, false for other ports
+      requireTLS: true,
+      service: "gmail",
+      auth: {
+        user: "appoloniaapp@gmail.com", // generated ethereal user
+        pass: SMTPPASS, // generated ethereal password
+      },
+    });
+
+    // setup email data with unicode symbols
+    let mailOptions = {
+      from: '"Appolonia" <appoloniaapp@gmail.com>', // sender address
+      to: email, // list of receivers
+      subject: "Password", // Subject line
+      // text: details, // plain text body
+      html: output, // html body
+    };
+
+    return transporter.sendMail(mailOptions);
+  }
+};
+
+const forgotPassword = async (req, res) => {
+  console.log(req.body);
+  const { phoneNumber } = req.body;
+  let doctorFound = await Doctor.findOne({ phoneNumber: phoneNumber });
+  console.log(doctorFound, "in pwd");
+  if (!doctorFound) {
+    res.json({
+      serverError: 0,
+      message: "We couldn't find record with this mobile number.",
+      data: {
+        success: 0,
+      },
+    });
+    return;
+  } else {
+    try {
+      await sendEmail(doctorFound?.email);
+    } catch (err) {
+      console.log(err.message);
+    }
+    res.json({
+      serverError: 0,
+      message:
+        "We have sent Password to your registered Email ID, please enter now to proceed.",
+      data: {
+        success: 1,
+      },
+    });
+    return;
+  }
+};
+
 module.exports = {
   addDoctor,
   getAllDoctors,
   getDoctorById,
   updateDoctor,
   deleteDoctor,
+  doctorLogin,
+  forgotPassword,
 };
