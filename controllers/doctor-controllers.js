@@ -86,18 +86,24 @@ const addDoctor = async (req, res) => {
 
 const getAllDoctors = async (req, res) => {
   try {
-    let foundDoctors = Doctor.find({ role: "Doctor" }, [
-      "firstName",
-      "lastName",
-      "role",
-      "speciality",
-    ]);
-    let foundAdmin = Doctor.find({ role: "3" }, [
-      "firstName",
-      "lastName",
-      "role",
-      "speciality",
-    ]);
+    let foundDoctors = Doctor.find(
+      { role: "Doctor" }
+      // [
+      //   "firstName",
+      //   "lastName",
+      //   "role",
+      //   "speciality",
+      // ]
+    );
+    let foundAdmin = Doctor.find(
+      { role: "3" }
+      // [
+      //   "firstName",
+      //   "lastName",
+      //   "role",
+      //   "speciality",
+      // ]
+    );
 
     let [foundDoctorsResolved, foundAdminResolved] = await Promise.all([
       foundDoctors,
