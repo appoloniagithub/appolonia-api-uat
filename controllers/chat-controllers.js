@@ -74,7 +74,7 @@ const newChat = async (req, res) => {
                   message:
                     "Hi Doctor, please review my scans and let me know your feedback.",
                   format: "text",
-                  scanId: scanId?.length > 0 ? scanId : "",
+                  scanId: scanId ? scanId : "",
                 });
 
                 createdMessage.save((err) => {
@@ -97,7 +97,7 @@ const newChat = async (req, res) => {
                   senderId: senderId,
                   message: message,
                   format: "scanImage",
-                  scanId: scanId.length > 0 ? scanId : "",
+                  scanId: scanId ? scanId : "",
                 });
 
                 createdMessage.save((err) => {
@@ -129,7 +129,7 @@ const newChat = async (req, res) => {
               senderId: senderId,
               message: message,
               format: format,
-              scanId: scanId.length > 0 ? scanId : "",
+              scanId: scanId ? scanId : "",
             });
 
             createdMessage.save((err) => {
@@ -362,7 +362,7 @@ const newMessage = async (req, res) => {
             message:
               "Hi Doctor, please review my scans and let me know your feedback.",
             format: "text",
-            scanId: scanId?.length > 0 ? scanId : "",
+            scanId: scanId ? scanId : "",
           });
 
           createdMessage.save((err) => {
@@ -385,7 +385,7 @@ const newMessage = async (req, res) => {
             senderId: senderId,
             message: message,
             format: "scanImage",
-            scanId: scanId.length > 0 ? scanId : "",
+            scanId: scanId ? scanId : "",
           });
 
           createdMessage.save((err) => {
@@ -525,7 +525,7 @@ const createMessage = async (data) => {
     senderId: senderId,
     message: message,
     format: format,
-    scanId: scanId?.length > 0 ? scanId : "",
+    scanId: scanId ? scanId : "",
   });
 
   return await createdMessage.save((err) => {
@@ -568,7 +568,7 @@ const createNewChat = async (data, textData) => {
       await createMessage({
         ...data,
         conversationId: doc._id,
-        scanId: doc._id,
+        //scanId: doc._id,
       });
       await createMessage({ ...textData, conversationId: doc._id });
     }

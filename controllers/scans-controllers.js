@@ -128,6 +128,7 @@ const submitScans = async function (body) {
                   }
                 }
               );
+
               let scanFirstImage = updatedTeethScanImages[0]
                 ? updatedTeethScanImages[0]
                 : updatedFaceScanImages[0];
@@ -136,7 +137,7 @@ const submitScans = async function (body) {
                 receiverId: doctorId,
                 message: `https://appoloniaapps3.s3.amazonaws.com/${scanFirstImage}`,
                 scanId: doc?._id,
-                format: "image",
+                format: "scanImage",
               };
 
               let msgObjText = {
