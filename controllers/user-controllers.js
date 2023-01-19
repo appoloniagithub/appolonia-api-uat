@@ -37,6 +37,7 @@ const Conversation = require("../Models/Conversations");
 const Message = require("../Models/Messages");
 const Scans = require("../Models/Scans");
 const Settings = require("../Models/Settings");
+const Doctor = require("../Models/Doctor");
 
 // const accountSid = "AC05d6ccacda0201d3e850b4ce60c773af";
 // const authToken = "5f7f59ab3a6bdf8fcc2d810e6be45f98";
@@ -1039,7 +1040,7 @@ const signup = async (req, res, next) => {
                       if (err) {
                         throw new Error("Error creating the User");
                       } else {
-                        let adminFound = User.findOne({ role: "3" }, "_id");
+                        let adminFound = Doctor.findOne({ role: "3" }, "_id");
                         let clinic = Settings.find({}, "clinicName");
                         let [adminFoundResolved, clinicResolved] =
                           await Promise.all([adminFound, clinic]);
