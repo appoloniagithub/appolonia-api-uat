@@ -1614,7 +1614,7 @@ const login = async (req, res, next) => {
 
         familyHead = await User.findOne({ _id: familyHead?.userId });
         let userScans = Scans.find({ userId: familyHead._id }).limit(5);
-        let adminFound = User.findOne({ role: "3" }, [
+        let adminFound = Doctor.findOne({ role: "3" }, [
           "firstName",
           "lastName",
           "role",
@@ -1902,7 +1902,7 @@ const login = async (req, res, next) => {
         familyHead = await User.findOne({ _id: familyHead?.userId });
         console.log("i am familyHead", familyHead);
         let userScans = Scans.find({ userId: familyHead?._id }).limit(5);
-        let adminFound = User.findOne({ role: "3" }, [
+        let adminFound = Doctor.findOne({ role: "3" }, [
           "firstName",
           "lastName",
           "role",
