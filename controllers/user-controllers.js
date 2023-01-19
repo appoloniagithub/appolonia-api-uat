@@ -742,11 +742,24 @@ const createUserAndAdminChat = async (
     console.log("conversation already exist");
     return;
   }
-  let membersData = await User.find({ _id: { $in: [senderId, receiverId] } }, [
+  // let membersData = await User.find({ _id: { $in: [senderId, receiverId] } }, [
+  //   "firstName",
+  //   "lastName",
+  //   "image",
+  // ]);
+  let membersData = [];
+  let userData = await User.find({ _id: { $in: [receiverId] } }, [
     "firstName",
     "lastName",
     "image",
   ]);
+  membersData.push(userData[0]);
+  let doctorData = await Doctor.find({ _id: { $in: [senderId] } }, [
+    "firstName",
+    "lastName",
+    "image",
+  ]);
+  membersData.push(doctorData[0]);
 
   membersData = membersData.map((member) => {
     return {
@@ -755,7 +768,7 @@ const createUserAndAdminChat = async (
       image: member.image,
     };
   });
-  console.log(membersData);
+  console.log(membersData, "members data");
 
   let createdConversation = new Conversation({
     members: [senderId, receiverId],
@@ -1041,9 +1054,14 @@ const signup = async (req, res, next) => {
                         throw new Error("Error creating the User");
                       } else {
                         let adminFound = Doctor.findOne({ role: "3" }, "_id");
+                        // console.log(
+                        //   adminFound,
+                        //   "admin found in user controller"
+                        // );
                         let clinic = Settings.find({}, "clinicName");
                         let [adminFoundResolved, clinicResolved] =
                           await Promise.all([adminFound, clinic]);
+                        console.log(adminFoundResolved, "adminfound resolved");
                         createUserAndAdminChat(
                           adminFoundResolved?._id?.toString(),
                           userDoc._id?.toString(),

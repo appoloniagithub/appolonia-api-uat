@@ -41,7 +41,7 @@ const newChat = async (req, res) => {
       return;
     }
 
-    let membersData = await Doctor.find(
+    let membersData = await User.find(
       { _id: { $in: [senderId, receiverId] } },
       ["firstName", "lastName", "image"]
     );
@@ -543,11 +543,24 @@ const createMessage = async (data) => {
 
 const createNewChat = async (data, textData) => {
   let { senderId, receiverId } = data;
-  let membersData = await User.find({ _id: { $in: [senderId, receiverId] } }, [
+  // let membersData = await User.find({ _id: { $in: [senderId, receiverId] } }, [
+  //   "firstName",
+  //   "lastName",
+  //   "image",
+  // ]);
+  let membersData = [];
+  let userData = await User.find({ _id: { $in: [senderId] } }, [
     "firstName",
     "lastName",
     "image",
   ]);
+  membersData.push(userData[0]);
+  let doctorData = await Doctor.find({ _id: { $in: [receiverId] } }, [
+    "firstName",
+    "lastName",
+    "image",
+  ]);
+  membersData.push(doctorData[0]);
 
   membersData = membersData.map((member) => {
     return {
