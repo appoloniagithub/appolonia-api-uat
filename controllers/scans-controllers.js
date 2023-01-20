@@ -139,7 +139,7 @@ const submitScans = async function (body) {
                 message: `https://appoloniaapps3.s3.amazonaws.com/${scanFirstImage}`,
                 scanId: doc?._id,
                 format: "scanImage",
-                createdAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
+                //createdAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
               };
 
               let msgObjText = {
@@ -149,7 +149,7 @@ const submitScans = async function (body) {
                   "Hi Doctor, please review my scans and let me know your feedback.",
                 format: "text",
                 //scanId: doc?._id,
-                createdAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
+                //createdAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
               };
               let updateText = await chatController.scanChatMessage(
                 msgObjImg,

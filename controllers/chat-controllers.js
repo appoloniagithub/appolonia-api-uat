@@ -527,6 +527,7 @@ const createMessage = async (data) => {
     message: message,
     format: format,
     scanId: scanId ? scanId : "",
+    createdAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
   });
 
   return await createdMessage.save((err) => {
