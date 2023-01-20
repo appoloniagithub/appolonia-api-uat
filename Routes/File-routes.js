@@ -12,5 +12,6 @@ router.post(
 );
 router.post("/connectmembertofile", fileController.connectMemberToFile);
 router.post("/addtofamily", authCheck, fileController.addFamilyMember);
+router.post("/clinicverify", authCheck, fileController.clinicVerify);
 
 module.exports = router;

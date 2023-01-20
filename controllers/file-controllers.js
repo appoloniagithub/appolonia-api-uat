@@ -254,8 +254,29 @@ const addFamilyMember = async (req, res) => {
   }
 };
 
+const clinicVerify = async (req, res) => {
+  const { phoneNumber } = req.body;
+  console.log(req.body);
+  let foundFile = await File.findOne({ phoneNumber: phoneNumber });
+  if (foundFile) {
+    res.json({
+      serverError: 0,
+      data: {
+        foundFile: foundFile,
+        success: 1,
+      },
+    });
+  }
+};
+
+const updateClinic = async (req, res) => {
+  const { fileId } = req.body;
+  console.log(req.body);
+};
+
 module.exports = {
   getFileFamilyMembers,
   connectMemberToFile,
   addFamilyMember,
+  clinicVerify,
 };
