@@ -4,6 +4,7 @@ const File = require("../Models/File");
 const Settings = require("../Models/Settings");
 const Scans = require("../Models/Scans");
 const fs = require("fs");
+import moment from "moment";
 //require("dotenv").config();
 const chatController = require("./chat-controllers");
 const AWS = require("aws-sdk");
