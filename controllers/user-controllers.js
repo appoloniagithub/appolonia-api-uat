@@ -7,6 +7,7 @@ const Cryptr = require("cryptr");
 const cryptr = new Cryptr("myTotallySecretKey");
 const { encrypt, decrypt, randomKey } = require("lab46-encrypt");
 const { JWTKEY, SMTPPASS, accountSid, authToken } = require("../Config/config");
+const moment = require("moment");
 // const cloudinary = require("cloudinary").v2;
 // const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
@@ -787,6 +788,7 @@ const createUserAndAdminChat = async (
           message: message,
           format: format,
           scanId: "",
+          createdAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
         });
 
         createdMessage.save((err) => {
@@ -845,7 +847,7 @@ const signup = async (req, res, next) => {
       let existingUser;
       existingUser = await User.findOne({ uniqueId1: fileNumber });
 
-      if (existingUser) {
+      if (existingUser && fileNumber.length > 0) {
         //throw new Error("User Already Exist");
         res.json({
           serverError: 0,
@@ -907,7 +909,7 @@ const signup = async (req, res, next) => {
       }
 
       userPhoneExist = await File.findOne({ uniId: fileNumber });
-      if (userPhoneExist) {
+      if (userPhoneExist && fileNumber.length > 0) {
         // throw new Error("Emirates Id Already Exist");
         res.json({
           serverError: 0,
@@ -930,7 +932,12 @@ const signup = async (req, res, next) => {
         hashedpassword = await bcrypt.hash(password, 12);
         hashedemiratesId = CryptoJS.AES.encrypt(emiratesId, "love").toString();
         console.log(hashedemiratesId, "i am emirates");
-        hashedFileNumber = CryptoJS.AES.encrypt(fileNumber, "love").toString();
+        if (fileNumber.length > 0) {
+          hashedFileNumber = CryptoJS.AES.encrypt(
+            fileNumber,
+            "love"
+          ).toString();
+        }
       } catch (err) {
         console.log("Something went wrong while Encrypting Data", err);
 

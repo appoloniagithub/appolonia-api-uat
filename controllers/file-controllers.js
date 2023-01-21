@@ -269,9 +269,43 @@ const clinicVerify = async (req, res) => {
   }
 };
 
-const updateClinic = async (req, res) => {
-  const { fileId } = req.body;
-  console.log(req.body);
+const updateClinicDetails = async (req, res) => {
+  const { fileId, clinicVerified, active } = req.body;
+  const foundFile = await File.findOne({ _id: fileId });
+  if (foundFile) {
+    File.updateOne(
+      { _id: foundFile._id },
+      {
+        $set: { ...req.body },
+      },
+      (error, data) => {
+        if (error) {
+          return console.log(error);
+        } else {
+          console.log(data, "data");
+          if (!data) {
+            res.json({
+              serverError: 0,
+              message: "Not updated",
+              success: 0,
+            });
+          } else {
+            res.json({
+              serverError: 0,
+              message: "File details updated",
+              success: 1,
+            });
+          }
+        }
+      }
+    );
+  } else {
+    res.json({
+      serverError: 1,
+      message: "File not found",
+      success: 0,
+    });
+  }
 };
 
 module.exports = {
@@ -279,4 +313,5 @@ module.exports = {
   connectMemberToFile,
   addFamilyMember,
   clinicVerify,
+  updateClinicDetails,
 };
