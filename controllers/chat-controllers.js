@@ -590,16 +590,16 @@ const createNewChat = async (data, textData) => {
   });
 };
 
-const checkChatExist = async (conversations, receiverId) => {
+const checkChatExist = async (conversations, senderId) => {
   console.log(conversations, "in check chat exist");
   for (i = 0; i < conversations.length; i++) {
     for (j = 0; j < conversations[i].members.length; j++) {
       console.log(
         conversations[i].members[j],
         "receiverId in j loop",
-        receiverId
+        senderId
       );
-      if (conversations[i].members[j] == receiverId) {
+      if (conversations[i].members[j] == senderId) {
         return conversations[i]._id;
       }
     }
@@ -619,7 +619,7 @@ const scanChatMessage = async (data, textData) => {
       members: { $in: [senderId] },
     });
     console.log(conversations, "conversations in scan chat message");
-    let getConvoId = await checkChatExist(conversations, receiverId);
+    let getConvoId = await checkChatExist(conversations, senderId);
     console.log(getConvoId, "chat exist");
     if (getConvoId) {
       let isSaved = await createMessage({
@@ -633,7 +633,7 @@ const scanChatMessage = async (data, textData) => {
       console.log(isSaved, "is saved");
       return;
     } else {
-      console.log(receiverId, "receiverId");
+      //console.log(receiverId, "receiverId");
       await createNewChat(data, textData);
     }
   } else {
