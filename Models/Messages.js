@@ -7,6 +7,8 @@ const messagesSchema = new Schema(
   {
     conversationId: { type: String },
     senderId: { type: String },
+    receiverId: { type: String },
+    name: { type: String },
     message: { type: String },
     format: { type: String },
     scanId: { type: String },

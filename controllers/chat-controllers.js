@@ -176,6 +176,17 @@ const getLastMessage = async (conversationId) => {
   let lastMessage = foundMessages[foundMessages.length - 1];
   return lastMessage.message;
 };
+const getLastName = async (conversationId) => {
+  console.log(conversationId, "get last name");
+  let foundNames = await Message.find({ conversationId: conversationId })
+    .sort({ _id: -1 })
+    .skip(0)
+    .limit(10);
+  console.log(foundNames);
+  foundNames = foundNames.reverse();
+  let lastName = foundNames[foundNames.length - 1];
+  return lastName.name;
+};
 
 const getConversations = async (req, res) => {
   console.log(req.body, "i am body");
@@ -197,6 +208,7 @@ const getConversations = async (req, res) => {
           return memberData.id.toString() !== req.body.userId;
         }),
         lastMessage: await getLastMessage(conversations[i]._id),
+        lastName: await getLastName(conversations[i]._id),
         createdAt: conversations[i].createdAt,
         updatedAt: conversations[i].updatedAt,
       };
@@ -520,11 +532,14 @@ const newMessage = async (req, res) => {
 
 const createMessage = async (data) => {
   console.log(data, "data in create msg");
-  let { conversationId, senderId, message, scanId, format } = data;
+  let { conversationId, senderId, receiverId, message, name, scanId, format } =
+    data;
   let createdMessage = new Message({
     conversationId: conversationId,
     senderId: senderId,
+    receiverId: receiverId,
     message: message,
+    name: name,
     format: format,
     scanId: scanId ? scanId : "",
     createdAt: moment(Date.now()).format("DD-MM-YY hh:mm"),

@@ -134,8 +134,10 @@ const submitScans = async function (body) {
                 ? updatedTeethScanImages[0]
                 : updatedFaceScanImages[0];
               let msgObjImg = {
+                //conversationId: conversationId,
                 senderId: userId,
                 receiverId: doctorId,
+                name: doctorName,
                 message: `https://appoloniaapps3.s3.amazonaws.com/${scanFirstImage}`,
                 scanId: doc?._id,
                 format: "scanImage",
@@ -143,8 +145,10 @@ const submitScans = async function (body) {
               };
 
               let msgObjText = {
+                //conversationId: conversationId,
                 senderId: userId,
                 receiverId: doctorId,
+                name: doctorName,
                 message:
                   "Hi Doctor, please review my scans and let me know your feedback.",
                 format: "text",
