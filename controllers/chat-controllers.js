@@ -675,7 +675,7 @@ const scanChatMessage = async (data, textData) => {
 
     let getConvoId = await checkChatExist(conversations, senderId);
     console.log(getConvoId, "chat exist");
-    if (getConvoId) {
+    if (conversations.length > 1 && getConvoId) {
       let isSaved = await createMessage({
         ...data,
         conversationId: getConvoId,
