@@ -384,9 +384,9 @@ const newMessage = async (req, res) => {
     if (foundMessages && foundMessages.length > 0) {
       receiverId = foundMessages[foundMessages.length - 1].senderId;
       console.log(receiverId, "rec");
-      let doctor = await Doctor.find({ _id: receiverId });
-      console.log(doctor, "doctor");
-      name = `${doctor[0]?.firstName} ${doctor[0]?.lastName}`;
+      // let doctor = await Doctor.find({ _id: receiverId });
+      // console.log(doctor, "doctor");
+      // name = `${doctor[0]?.firstName} ${doctor[0]?.lastName}`;
       console.log(name, "name");
     }
   }
