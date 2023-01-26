@@ -134,7 +134,7 @@ const submitScans = async function (body) {
                 ? updatedTeethScanImages[0]
                 : updatedFaceScanImages[0];
               let msgObjImg = {
-                //conversationId: conversationId,
+                conversationId: doc?._id,
                 senderId: userId,
                 receiverId: doctorId,
                 name: doctorName,
@@ -145,7 +145,7 @@ const submitScans = async function (body) {
               };
 
               let msgObjText = {
-                //conversationId: conversationId,
+                conversationId: doc?._id,
                 senderId: userId,
                 receiverId: doctorId,
                 name: doctorName,
