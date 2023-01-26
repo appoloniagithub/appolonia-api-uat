@@ -178,9 +178,13 @@ const getLastMessage = async (conversationId) => {
 };
 const getLastName = async (conversationId) => {
   console.log(conversationId, "get last name");
-  let foundNames = await Message.find({ conversationId: conversationId });
+  let foundNames = await Message.find({ conversationId: conversationId })
+    .sort({ _id: -1 })
+    .skip(0)
+    .limit(10);
+
   console.log(foundNames);
-  //foundNames = foundNames.reverse();
+  foundNames = foundNames.reverse();
 
   let lastName = foundNames[foundNames.length - 1];
   console.log(lastName, "last name");
@@ -315,8 +319,8 @@ const getConversationMessages = async (req, res) => {
         conversationId: msg.conversationId,
         senderId: msg.senderId,
         message: msg.message,
-        //name: msg.name,
-        //receiverId: msg.receiverId,
+        name: msg.name,
+        receiverId: msg.receiverId,
         format: msg.format,
         scanId: msg.scanId,
         createdAt: msg.createdAt,
