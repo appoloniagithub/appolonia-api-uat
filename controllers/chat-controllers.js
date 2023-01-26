@@ -193,6 +193,7 @@ const getLastName = async (conversationId) => {
 
 const getConversations = async (req, res) => {
   console.log(req.body, "i am body");
+
   try {
     let conversations = await Conversation.find({
       members: { $in: [req.body.userId] },
@@ -212,6 +213,8 @@ const getConversations = async (req, res) => {
         }),
         lastMessage: await getLastMessage(conversations[i]._id),
         lastName: await getLastName(conversations[i]._id),
+        //receiverId: conversations[i].receiverId,
+        //name: conversations[i].name,
         createdAt: conversations[i].createdAt,
         updatedAt: conversations[i].updatedAt,
       };
@@ -380,7 +383,11 @@ const newMessage = async (req, res) => {
     //console.log(foundMessages, "after filter");
     if (foundMessages && foundMessages.length > 0) {
       receiverId = foundMessages[foundMessages.length - 1].senderId;
-      name = foundMessages[foundMessages.length - 1].name;
+      console.log(receiverId, "rec");
+      let doctor = await Doctor.find({ _id: receiverId });
+      console.log(doctor, "doctor");
+      name = `${doctor[0]?.firstName} ${doctor[0]?.lastName}`;
+      console.log(name, "name");
     }
   }
 
@@ -632,9 +639,7 @@ const createNewChat = async (data, textData) => {
     }
   });
 };
-const checkAdminChat = async (conversations, senderId) => {
-  let chatExist = await Conversation.find({ role: 3 });
-};
+
 const checkChatExist = async (conversations, senderId) => {
   console.log(conversations, "in check chat exist");
   for (i = 0; i < conversations.length; i++) {
