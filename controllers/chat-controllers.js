@@ -366,30 +366,23 @@ const getConversationMessages = async (req, res) => {
 const newMessage = async (req, res) => {
   console.log(req.body, "i am body");
   console.log(req.files, "i am files");
-  const {
-    conversationId,
-    senderId,
-    message,
-    scanId,
-    format,
-    //type
-  } = req.body;
-  // let receiverId = "";
-  // let name = "";
-  // if (type && type === "Doctor") {
-  //   let doctorInfo = await Doctor.find({ _id: senderId });
-  //   console.log(doctorInfo, "doctor info");
-  //   receiverId = senderId;
-  //   name = `${doctorInfo[0]?.firstName} ${doctorInfo[0]?.lastName}`;
-  // } else {
-  //   let foundMessages = await Message.find({ conversationId: conversationId });
-  //   foundMessages = foundMessages.filter((item) => item.senderId != senderId);
-  //   //console.log(foundMessages, "after filter");
-  //   if (foundMessages && foundMessages.length > 0) {
-  //     receiverId = foundMessages[foundMessages.length - 1].senderId;
-  //     name = foundMessages[foundMessages.length - 1].name;
-  //   }
-  // }
+  const { conversationId, senderId, message, scanId, format, type } = req.body;
+  let receiverId = "";
+  let name = "";
+  if (type && type === "Doctor") {
+    let doctorInfo = await Doctor.find({ _id: senderId });
+    console.log(doctorInfo, "doctor info");
+    receiverId = senderId;
+    name = `${doctorInfo[0]?.firstName} ${doctorInfo[0]?.lastName}`;
+  } else {
+    let foundMessages = await Message.find({ conversationId: conversationId });
+    foundMessages = foundMessages.filter((item) => item.senderId != senderId);
+    //console.log(foundMessages, "after filter");
+    if (foundMessages && foundMessages.length > 0) {
+      receiverId = foundMessages[foundMessages.length - 1].senderId;
+      name = foundMessages[foundMessages.length - 1].name;
+    }
+  }
 
   try {
     // if ((conversationId, senderId, message)) {
@@ -400,7 +393,7 @@ const newMessage = async (req, res) => {
             conversationId: conversationId,
             senderId: senderId,
             receiverId: receiverId,
-            //name: name,
+            name: name,
             message:
               "Hi Doctor, please review my scans and let me know your feedback.",
             format: "text",
@@ -426,7 +419,7 @@ const newMessage = async (req, res) => {
             conversationId: conversationId,
             senderId: senderId,
             receiverId: receiverId,
-            //name: name,
+            name: name,
             message: message,
             format: "scanImage",
             scanId: scanId ? scanId : "",
@@ -470,7 +463,7 @@ const newMessage = async (req, res) => {
             senderId: senderId,
             receiverId: receiverId,
             message: fileLink,
-            //name: name,
+            name: name,
             format: format,
             scanId: scanId?.length > 0 ? scanId : "",
             createdAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
@@ -496,7 +489,7 @@ const newMessage = async (req, res) => {
               senderId: senderId,
               message: filesName[0],
               receiverId: receiverId,
-              //name: name,
+              name: name,
               format: format,
               scanId: scanId?.length > 0 ? scanId : "",
               createdAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
@@ -513,7 +506,7 @@ const newMessage = async (req, res) => {
           conversationId: conversationId,
           senderId: senderId,
           receiverId: receiverId,
-          //name: name,
+          name: name,
           message: message,
           format: format,
           scanId: scanId?.length > 0 ? scanId : "",
