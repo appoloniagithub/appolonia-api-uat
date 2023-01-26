@@ -785,6 +785,8 @@ const createUserAndAdminChat = async (
         let createdMessage = new Message({
           conversationId: doc._id,
           senderId: senderId,
+          receiverId: receiverId,
+          name: "Appolonia Customer Care",
           message: message,
           format: format,
           scanId: "",

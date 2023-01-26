@@ -379,15 +379,27 @@ const newMessage = async (req, res) => {
     name = `${doctorInfo[0]?.firstName} ${doctorInfo[0]?.lastName}`;
   } else {
     let foundMessages = await Message.find({ conversationId: conversationId });
-    foundMessages = foundMessages.filter((item) => item.senderId != senderId);
-    //console.log(foundMessages, "after filter");
+    //foundMessages = foundMessages.filter((item) => item.senderId != senderId);
+    console.log(foundMessages, "after filter");
     if (foundMessages && foundMessages.length > 0) {
-      receiverId = foundMessages[foundMessages.length - 1].senderId;
       console.log(receiverId, "rec");
-      // let doctor = await Doctor.find({ _id: receiverId });
-      // console.log(doctor, "doctor");
-      // name = `${doctor[0]?.firstName} ${doctor[0]?.lastName}`;
-      console.log(name, "name");
+      if (!foundMessages[foundMessages.length - 1].receiverId) {
+        let conversation = await Conversation.find({ _id: conversationId });
+        console.log(conversation, "conversation");
+        if (conversation && conversation[0].members[0]) {
+          receiverId = conversation[0].members[0];
+        }
+      } else {
+        receiverId = foundMessages[foundMessages.length - 1].receiverId;
+      }
+      if (!foundMessages[foundMessages.length - 1].name) {
+        let doctor = await Doctor.find({ _id: receiverId });
+        console.log(doctor, "doctor");
+        name = `${doctor[0]?.firstName} ${doctor[0]?.lastName}`;
+      } else {
+        name = foundMessages[foundMessages.length - 1].name;
+        console.log(name, "name");
+      }
     }
   }
 
@@ -600,19 +612,19 @@ const createNewChat = async (data, textData) => {
   //   "image",
   // ]);
   let membersData = [];
-  let userData = await User.find({ _id: { $in: [senderId] } }, [
-    "firstName",
-    "lastName",
-    "image",
-  ]);
-  membersData.push(userData[0]);
+
   let doctorData = await Doctor.find({ _id: { $in: [receiverId] } }, [
     "firstName",
     "lastName",
     "image",
   ]);
   membersData.push(doctorData[0]);
-
+  let userData = await User.find({ _id: { $in: [senderId] } }, [
+    "firstName",
+    "lastName",
+    "image",
+  ]);
+  membersData.push(userData[0]);
   membersData = membersData.map((member) => {
     return {
       name: `${member.firstName} ${member.lastName}`,
@@ -640,19 +652,17 @@ const createNewChat = async (data, textData) => {
   });
 };
 
-const checkChatExist = async (conversations, senderId) => {
+const checkChatExist = async (conversations, senderId, receiverId) => {
   console.log(conversations, "in check chat exist");
+  let adminFound = await Doctor.findOne({ role: "3" }, "_id");
+  console.log(adminFound, "admin found");
   for (i = 0; i < conversations.length; i++) {
-    for (j = 0; j < conversations[i].members.length; j++) {
-      console.log(
-        conversations[i].members[j],
-        "receiverId in j loop",
-        senderId
-      );
-      if (conversations[i].members[j] == senderId) {
-        return conversations[i]._id;
-      }
+    // for (j = 0; j < conversations[i].members.length; j++) {
+    console.log(conversations[i].members[0], "senderId in j loop", senderId);
+    if (conversations[i].members[0] != adminFound._id) {
+      return conversations[i]._id;
     }
+    // }
   }
   return false;
 };
@@ -670,7 +680,7 @@ const scanChatMessage = async (data, textData) => {
     });
     console.log(conversations, "conversations in scan chat message");
 
-    let getConvoId = await checkChatExist(conversations, senderId);
+    let getConvoId = await checkChatExist(conversations, senderId, receiverId);
     console.log(getConvoId, "chat exist");
     if (getConvoId) {
       let isSaved = await createMessage({

@@ -4,6 +4,7 @@ const File = require("../Models/File");
 const Settings = require("../Models/Settings");
 const Scans = require("../Models/Scans");
 const Notes = require("../Models/Notes");
+const Doctor = require("../Models/Doctor");
 
 const getAllPatients = async (req, res) => {
   try {
@@ -16,7 +17,7 @@ const getAllPatients = async (req, res) => {
         message: "Patients Found",
         data: {
           success: 1,
-          allPatients: allPatients,
+          allPatients: allPatients.reverse(),
         },
       });
     } else {
@@ -25,7 +26,7 @@ const getAllPatients = async (req, res) => {
         message: "Patients Not Found",
         data: {
           success: 0,
-          allPatients: allPatients,
+          //allPatients: allPatients,
         },
       });
     }
