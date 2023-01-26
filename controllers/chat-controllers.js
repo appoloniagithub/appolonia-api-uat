@@ -669,9 +669,6 @@ const scanChatMessage = async (data, textData) => {
       members: { $in: [senderId] },
     });
     console.log(conversations, "conversations in scan chat message");
-    // conversations.filter(
-    //   (item) => item.receiverId !== "63c69a3dde89b01bdc85fb90"
-    // );
 
     let getConvoId = await checkChatExist(conversations, senderId);
     console.log(getConvoId, "chat exist");
