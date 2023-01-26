@@ -632,7 +632,9 @@ const createNewChat = async (data, textData) => {
     }
   });
 };
-
+const checkAdminChat = async (conversations, senderId) => {
+  let chatExist = await Conversation.find({ role: 3 });
+};
 const checkChatExist = async (conversations, senderId) => {
   console.log(conversations, "in check chat exist");
   for (i = 0; i < conversations.length; i++) {
@@ -662,9 +664,13 @@ const scanChatMessage = async (data, textData) => {
       members: { $in: [senderId] },
     });
     console.log(conversations, "conversations in scan chat message");
+    // conversations.filter(
+    //   (item) => item.receiverId !== "63c69a3dde89b01bdc85fb90"
+    // );
+
     let getConvoId = await checkChatExist(conversations, senderId);
     console.log(getConvoId, "chat exist");
-    if (getConvoId) {
+    if (conversations.length > 1 && getConvoId) {
       let isSaved = await createMessage({
         ...data,
         conversationId: getConvoId,
@@ -677,6 +683,7 @@ const scanChatMessage = async (data, textData) => {
       return;
     } else {
       //console.log(receiverId, "receiverId");
+
       await createNewChat(data, textData);
     }
   } else {
