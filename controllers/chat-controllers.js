@@ -485,8 +485,8 @@ const newMessage = async (req, res) => {
             name: name,
             format: format,
             scanId: scanId?.length > 0 ? scanId : "",
-            createdAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
-            updatedAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
+            createdAt: moment(Date.now()).format("DD-MM-YY HH:mm"),
+            updatedAt: moment(Date.now()).format("DD-MM-YY HH:mm"),
           });
           try {
             let resolvedMessage = createdMessage.save();
@@ -511,8 +511,8 @@ const newMessage = async (req, res) => {
               name: name,
               format: format,
               scanId: scanId?.length > 0 ? scanId : "",
-              createdAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
-              updatedAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
+              createdAt: moment(Date.now()).format("DD-MM-YY HH:mm"),
+              updatedAt: moment(Date.now()).format("DD-MM-YY HH:mm"),
             },
           });
           return;
@@ -529,8 +529,8 @@ const newMessage = async (req, res) => {
           message: message,
           format: format,
           scanId: scanId?.length > 0 ? scanId : "",
-          createdAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
-          updatedAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
+          createdAt: moment(Date.now()).format("DD-MM-YY HH:mm"),
+          updatedAt: moment(Date.now()).format("DD-MM-YY HH:mm"),
         };
         let createdMessage = new Message(
           msgObj
@@ -589,7 +589,7 @@ const createMessage = async (data) => {
     name: name,
     format: format,
     scanId: scanId ? scanId : "",
-    createdAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
+    createdAt: moment(Date.now()).format("DD-MM-YY HH:mm"),
   });
 
   return await createdMessage.save((err) => {
@@ -674,6 +674,7 @@ const scanChatMessage = async (data, textData) => {
   // receiverId = await User.find({
   //   _id: { $in: [receiverId] },
   // });
+
   if ((senderId, receiverId, message)) {
     let conversations = await Conversation.find({
       members: { $in: [senderId] },

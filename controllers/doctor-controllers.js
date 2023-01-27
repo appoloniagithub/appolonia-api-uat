@@ -86,32 +86,12 @@ const addDoctor = async (req, res) => {
 
 const getAllDoctors = async (req, res) => {
   try {
-    let foundDoctors = Doctor.find(
-      { role: "Doctor" }
-      // [
-      //   "firstName",
-      //   "lastName",
-      //   "role",
-      //   "speciality",
-      // ]
-    );
-    let foundAdmin = Doctor.find(
-      { role: "3" }
-      // [
-      //   "firstName",
-      //   "lastName",
-      //   "role",
-      //   "speciality",
-      // ]
-    );
+    let foundDoctors = Doctor.find({ role: "Doctor" });
 
-    let [foundDoctorsResolved, foundAdminResolved] = await Promise.all([
-      foundDoctors,
-      foundAdmin,
-    ]);
-    console.log(foundAdminResolved, foundDoctorsResolved, "we are resolved");
+    let [foundDoctorsResolved] = await Promise.all([foundDoctors]);
+    console.log(foundDoctorsResolved, "we are resolved");
 
-    foundDoctors = [...foundAdminResolved, ...foundDoctorsResolved];
+    foundDoctors = [...foundDoctorsResolved];
     if (foundDoctors.length > 0) {
       res.json({
         serverError: 0,
@@ -126,7 +106,7 @@ const getAllDoctors = async (req, res) => {
         serverError: 0,
         message: "Doctors Found",
         data: {
-          doctors: doctors,
+          doctors: foundDoctors,
           success: 1,
         },
       });

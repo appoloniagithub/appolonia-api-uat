@@ -790,7 +790,7 @@ const createUserAndAdminChat = async (
           message: message,
           format: format,
           scanId: "",
-          createdAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
+          createdAt: moment(Date.now()).format("DD-MM-YY HH:mm"),
         });
 
         createdMessage.save((err) => {
