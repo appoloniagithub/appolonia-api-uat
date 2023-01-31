@@ -720,7 +720,8 @@ const createUserAndAdminChat = async (
   receiverId,
   message,
   scanId,
-  format
+  format,
+  name
 ) => {
   let conversations = await Conversation.find({
     members: { $in: [senderId] },
@@ -786,7 +787,7 @@ const createUserAndAdminChat = async (
           conversationId: doc._id,
           senderId: senderId,
           receiverId: receiverId,
-          name: "Appolonia Customer Care",
+          name: name,
           message: message,
           format: format,
           scanId: "",
@@ -1076,7 +1077,8 @@ const signup = async (req, res, next) => {
                           userDoc._id?.toString(),
                           `Welcome to ${clinicResolved[0]?.clinicName}. Ask us anything`,
                           "",
-                          "text"
+                          "text",
+                          clinicResolved[0]?.clinicName
                         );
                         res.json({
                           serverError: 0,
