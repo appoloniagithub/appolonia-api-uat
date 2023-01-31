@@ -89,7 +89,7 @@ const getAllDoctors = async (req, res) => {
     let foundDoctors = Doctor.find({ role: "Doctor" });
 
     let [foundDoctorsResolved] = await Promise.all([foundDoctors]);
-    console.log(foundDoctorsResolved, "we are resolved");
+    console.log(foundDoctorsResolved, "found doctors resolved");
 
     foundDoctors = [...foundDoctorsResolved];
     if (foundDoctors.length > 0) {

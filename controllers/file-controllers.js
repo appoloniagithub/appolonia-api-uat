@@ -67,7 +67,7 @@ const getFileFamilyMembers = async (req, res) => {
       assignedDoctorId: member?.assignedDoctorId
         ? member?.assignedDoctorId
         : "",
-      assignedDoctorName: "Appolonia Customer Care",
+      assignedDoctorName: "Appolonia Support",
       role: member?.role,
       image: member?.image
         ? member?.image
