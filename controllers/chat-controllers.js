@@ -315,7 +315,7 @@ const getConversationMessages = async (req, res) => {
       .sort({ _id: -1 })
       .skip(bottomHit > 0 ? (bottomHit - 1) * 10 : 0)
       .limit(10);
-    //console.log(foundMessages, "foundMessages");
+    console.log(foundMessages, "foundMessages");
     foundMessages = foundMessages.map((msg) => {
       console.log(msg);
       return {
@@ -380,7 +380,7 @@ const newMessage = async (req, res) => {
   } else {
     let foundMessages = await Message.find({ conversationId: conversationId });
     //foundMessages = foundMessages.filter((item) => item.senderId != senderId);
-    console.log(foundMessages, "after filter");
+    //console.log(foundMessages, "after filter");
     if (foundMessages && foundMessages.length > 0) {
       console.log(receiverId, "rec");
       if (!foundMessages[foundMessages.length - 1].receiverId) {
@@ -605,6 +605,7 @@ const createMessage = async (data) => {
 };
 
 const createNewChat = async (data, textData) => {
+  let newConvoId = null;
   let { senderId, receiverId } = data;
   // let membersData = await User.find({ _id: { $in: [senderId, receiverId] } }, [
   //   "firstName",
@@ -632,7 +633,7 @@ const createNewChat = async (data, textData) => {
       image: member.image,
     };
   });
-  console.log(membersData);
+  console.log(membersData, "member data");
 
   let createdConversation = new Conversation({
     members: [senderId, receiverId],
@@ -647,9 +648,12 @@ const createNewChat = async (data, textData) => {
         conversationId: doc._id,
         //scanId: doc._id,
       });
-      await createMessage({ ...textData, conversationId: doc._id });
+      (newConvoId = doc._id),
+        await createMessage({ ...textData, conversationId: doc._id });
+      console.log(newConvoId, "in new chat");
     }
   });
+  return newConvoId;
 };
 
 const checkChatExist = async (conversations, senderId, receiverId) => {
@@ -671,10 +675,6 @@ const scanChatMessage = async (data, textData) => {
   console.log(data, "in scan chat message");
   console.log(textData, "textData");
   let { senderId, receiverId, message, scanId, format } = data;
-  // receiverId = await User.find({
-  //   _id: { $in: [receiverId] },
-  // });
-
   if ((senderId, receiverId, message)) {
     let conversations = await Conversation.find({
       members: { $in: [senderId] },
@@ -693,11 +693,13 @@ const scanChatMessage = async (data, textData) => {
         conversationId: getConvoId,
       });
       console.log(isSaved, "is saved");
-      return;
+      return getConvoId;
     } else {
       //console.log(receiverId, "receiverId");
-
-      await createNewChat(data, textData);
+      let newConvoId = await createNewChat(data, textData);
+      //await createNewChat(data, textData);
+      console.log(newConvoId, "in scan");
+      return newConvoId;
     }
   } else {
     console.log("missing required details");
