@@ -5,6 +5,7 @@ const Conversation = require("../Models/Conversations");
 const Message = require("../Models/Messages");
 const moment = require("moment");
 const Doctor = require("../Models/Doctor");
+
 const newChat = async (req, res) => {
   console.log(req.body, "i am bopdy");
   const { senderId, receiverId, message, scanId, format } = req.body;
@@ -604,6 +605,64 @@ const createMessage = async (data) => {
   });
 };
 
+let myPromise = (data, textData) =>
+  new Promise(async function (myResolve, myReject) {
+    // "Producing Code" (May take some time)
+    let newConvoId = null;
+    let { senderId, receiverId } = data;
+    // let membersData = await User.find({ _id: { $in: [senderId, receiverId] } }, [
+    //   "firstName",
+    //   "lastName",
+    //   "image",
+    // ]);
+    let membersData = [];
+
+    let doctorData = await Doctor.find({ _id: { $in: [receiverId] } }, [
+      "firstName",
+      "lastName",
+      "image",
+    ]);
+    membersData.push(doctorData[0]);
+    let userData = await User.find({ _id: { $in: [senderId] } }, [
+      "firstName",
+      "lastName",
+      "image",
+    ]);
+    membersData.push(userData[0]);
+    membersData = membersData.map((member) => {
+      return {
+        name: `${member.firstName} ${member.lastName}`,
+        id: member._id.toString(),
+        image: member.image,
+      };
+    });
+    console.log(membersData, "member data");
+
+    let createdConversation = new Conversation({
+      members: [senderId, receiverId],
+      membersData: membersData,
+    });
+    newConvoId = await createdConversation.save(async (err, doc) => {
+      if (err) {
+        throw new Error("Error Creating the Chat");
+      } else {
+        await createMessage({
+          ...data,
+          conversationId: doc._id,
+          //scanId: doc._id,
+        });
+        //newConvoId = doc._id;
+        await createMessage({ ...textData, conversationId: doc._id });
+        console.log(doc._id, "in new chat");
+        myResolve(doc._id);
+      }
+    });
+    console.log(newConvoId, "in new chat return");
+    return newConvoId;
+    // myResolve(); // when successful
+    // myReject();  // when error
+  });
+
 const createNewChat = async (data, textData) => {
   let newConvoId = null;
   let { senderId, receiverId } = data;
@@ -639,7 +698,7 @@ const createNewChat = async (data, textData) => {
     members: [senderId, receiverId],
     membersData: membersData,
   });
-  await createdConversation.save(async (err, doc) => {
+  newConvoId = await createdConversation.save(async (err, doc) => {
     if (err) {
       throw new Error("Error Creating the Chat");
     } else {
@@ -648,11 +707,13 @@ const createNewChat = async (data, textData) => {
         conversationId: doc._id,
         //scanId: doc._id,
       });
-      (newConvoId = doc._id),
-        await createMessage({ ...textData, conversationId: doc._id });
-      console.log(newConvoId, "in new chat");
+      //newConvoId = doc._id;
+      await createMessage({ ...textData, conversationId: doc._id });
+      console.log(doc._id, "in new chat");
+      return doc._id;
     }
   });
+  console.log(newConvoId, "in new chat return");
   return newConvoId;
 };
 
@@ -696,7 +757,10 @@ const scanChatMessage = async (data, textData) => {
       return getConvoId;
     } else {
       //console.log(receiverId, "receiverId");
-      let newConvoId = await createNewChat(data, textData);
+      let newConvoId = await myPromise(data, textData).then((res) => {
+        console.log(res);
+        return res;
+      });
       //await createNewChat(data, textData);
       console.log(newConvoId, "in scan");
       return newConvoId;
