@@ -1965,7 +1965,9 @@ const login = async (req, res, next) => {
           assignedDoctorName: familyHead?.assignedDoctorName
             ? familyHead?.assignedDoctorName
             : `${adminFoundResolved?.firstName} ${adminFoundResolved.lastName}`,
-          assignedDoctorImage: adminFoundResolved?.image[0],
+          assignedDoctorImage: familyHead?.assignedDoctorId
+            ? familyHead?.assignedDoctorId
+            : adminFoundResolved?.image[0],
           role: familyHead?.role,
           //image: imgObj,
           image:

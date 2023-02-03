@@ -192,6 +192,21 @@ const getLastName = async (conversationId) => {
   return lastName.name;
 };
 
+const getLastImage = async (conversationId) => {
+  console.log(conversationId, "get last name");
+  let foundImage = await Message.find({ conversationId: conversationId })
+    .sort({ _id: -1 })
+    .skip(0)
+    .limit(10);
+
+  console.log(foundImage);
+  foundImage = foundImage.reverse();
+
+  let lastImage = foundImage[foundImage.length - 1];
+  console.log(lastImage, "last image");
+  return lastImage.image[0];
+};
+
 const getConversations = async (req, res) => {
   console.log(req.body, "i am body");
 
@@ -214,6 +229,7 @@ const getConversations = async (req, res) => {
         }),
         lastMessage: await getLastMessage(conversations[i]._id),
         lastName: await getLastName(conversations[i]._id),
+        lastImage: await getLastImage(conversations[i]._id),
         //receiverId: conversations[i].receiverId,
         //name: conversations[i].name,
         createdAt: conversations[i].createdAt,
@@ -324,6 +340,7 @@ const getConversationMessages = async (req, res) => {
         senderId: msg.senderId,
         message: msg.message,
         name: msg.name,
+        image: msg.image,
         receiverId: msg.receiverId,
         format: msg.format,
         scanId: msg.scanId,
@@ -373,33 +390,42 @@ const newMessage = async (req, res) => {
   const { conversationId, senderId, message, scanId, format, type } = req.body;
   let receiverId = "";
   let name = "";
+  let image = "";
   if (type && type === "Doctor") {
     let doctorInfo = await Doctor.find({ _id: senderId });
     console.log(doctorInfo, "doctor info");
     receiverId = senderId;
     name = `${doctorInfo[0]?.firstName} ${doctorInfo[0]?.lastName}`;
+    image = doctorInfo[0]?.image[0];
   } else {
     let foundMessages = await Message.find({ conversationId: conversationId });
     //foundMessages = foundMessages.filter((item) => item.senderId != senderId);
     //console.log(foundMessages, "after filter");
     if (foundMessages && foundMessages.length > 0) {
-      console.log(receiverId, "rec");
+      //console.log(receiverId, "rec");
       if (!foundMessages[foundMessages.length - 1].receiverId) {
         let conversation = await Conversation.find({ _id: conversationId });
         console.log(conversation, "conversation");
         if (conversation && conversation[0].members[0]) {
           receiverId = conversation[0].members[0];
+          console.log(receiverId, "receiverid");
         }
       } else {
         receiverId = foundMessages[foundMessages.length - 1].receiverId;
+        console.log(receiverId, "rec");
       }
-      if (!foundMessages[foundMessages.length - 1].name) {
+      if (
+        !foundMessages[foundMessages.length - 1].image[0] &&
+        !foundMessages[foundMessages.length - 1].image[0]
+      ) {
         let doctor = await Doctor.find({ _id: receiverId });
         console.log(doctor, "doctor");
         name = `${doctor[0]?.firstName} ${doctor[0]?.lastName}`;
+        image = doctor[0]?.image[0];
       } else {
         name = foundMessages[foundMessages.length - 1].name;
-        console.log(name, "name");
+        image = foundMessages[foundMessages.length - 1].image;
+        console.log(name, image, "name", "image");
       }
     }
   }
@@ -414,6 +440,7 @@ const newMessage = async (req, res) => {
             senderId: senderId,
             receiverId: receiverId,
             name: name,
+            image: image,
             message:
               "Hi Doctor, please review my scans and let me know your feedback.",
             format: "text",
@@ -440,6 +467,7 @@ const newMessage = async (req, res) => {
             senderId: senderId,
             receiverId: receiverId,
             name: name,
+            image: image,
             message: message,
             format: "scanImage",
             scanId: scanId ? scanId : "",
@@ -484,6 +512,7 @@ const newMessage = async (req, res) => {
             receiverId: receiverId,
             message: fileLink,
             name: name,
+            image: image,
             format: format,
             scanId: scanId?.length > 0 ? scanId : "",
             createdAt: moment(Date.now()).format("DD-MM-YY HH:mm"),
@@ -510,6 +539,7 @@ const newMessage = async (req, res) => {
               message: filesName[0],
               receiverId: receiverId,
               name: name,
+              image: image,
               format: format,
               scanId: scanId?.length > 0 ? scanId : "",
               createdAt: moment(Date.now()).format("DD-MM-YY HH:mm"),
@@ -528,6 +558,7 @@ const newMessage = async (req, res) => {
           receiverId: receiverId,
           name: name,
           message: message,
+          image: image,
           format: format,
           scanId: scanId?.length > 0 ? scanId : "",
           createdAt: moment(Date.now()).format("DD-MM-YY HH:mm"),

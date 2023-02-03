@@ -9,6 +9,7 @@ const messagesSchema = new Schema(
     senderId: { type: String },
     receiverId: { type: String },
     name: { type: String },
+    image: { type: Array },
     message: { type: String },
     format: { type: String },
     scanId: { type: String },
