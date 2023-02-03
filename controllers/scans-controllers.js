@@ -325,7 +325,7 @@ const getScanId = async (req, res) => {
           serverError: 0,
           message: "Scans found",
           data: {
-            foundScans: foundScans,
+            scans: foundScans,
             success: 1,
             // patientName: userId?.firstName,
           },

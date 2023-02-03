@@ -838,7 +838,7 @@ const getDoctorInfo = async (req, res) => {
         //patientId: convo.members[0] === req.body.patientId,
         //doctorId: convo.members[1] === req.body.doctorId,
         doctorId: convo?.members?.find(
-          (memberId) => memberId == req.body.doctorId
+          (memberId) => memberId === req.body.doctorId
         ),
         doctorData: convo.membersData.find((memberData) => {
           console.log(memberData, "i am memberdata");

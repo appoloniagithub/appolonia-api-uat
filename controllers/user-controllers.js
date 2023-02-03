@@ -721,7 +721,8 @@ const createUserAndAdminChat = async (
   message,
   scanId,
   format,
-  name
+  name,
+  image
 ) => {
   let conversations = await Conversation.find({
     members: { $in: [senderId] },
@@ -789,6 +790,7 @@ const createUserAndAdminChat = async (
           receiverId: receiverId,
           name: name,
           message: message,
+          image: image,
           format: format,
           scanId: "",
           createdAt: moment(Date.now()).format("DD-MM-YY HH:mm"),
@@ -1078,7 +1080,8 @@ const signup = async (req, res, next) => {
                           `Welcome to ${clinicResolved[0]?.clinicName}. Ask us anything`,
                           "",
                           "text",
-                          clinicResolved[0]?.clinicName
+                          clinicResolved[0]?.clinicName,
+                          adminFoundResolved?.image[0]
                         );
                         res.json({
                           serverError: 0,
@@ -1965,8 +1968,8 @@ const login = async (req, res, next) => {
           assignedDoctorName: familyHead?.assignedDoctorName
             ? familyHead?.assignedDoctorName
             : `${adminFoundResolved?.firstName} ${adminFoundResolved.lastName}`,
-          assignedDoctorImage: familyHead?.assignedDoctorId
-            ? familyHead?.assignedDoctorId
+          assignedDoctorImage: familyHead?.assignedDoctorImage
+            ? familyHead?.assignedDoctorImage
             : adminFoundResolved?.image[0],
           role: familyHead?.role,
           //image: imgObj,
