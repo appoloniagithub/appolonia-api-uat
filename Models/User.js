@@ -28,6 +28,7 @@ const userSchema = new Schema({
   uniqueId2: { type: String }, //emi
   assignedDoctorId: { type: String },
   assignedDoctorName: { type: String },
+  assignedDoctorImage: { type: Array },
   lastScan: { type: Date },
 });
 
