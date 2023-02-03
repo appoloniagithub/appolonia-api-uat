@@ -770,6 +770,77 @@ const scanChatMessage = async (data, textData) => {
   }
 };
 
+const getDoctorInfo = async (req, res) => {
+  console.log(req.body, "i am body");
+
+  let { doctorId, patientId } = req.body;
+
+  let membersData = [];
+  let userData = await User.find({ _id: { $in: [patientId] } }, [
+    "firstName",
+    "lastName",
+    "image",
+  ]);
+  membersData.push(userData[0]);
+  let doctorData = await Doctor.find({ _id: { $in: [doctorId] } }, [
+    "firstName",
+    "lastName",
+    "image",
+    "speciality",
+  ]);
+  membersData.push(doctorData[0]);
+  console.log(membersData, "member data");
+
+  let conversation = await Conversation.find({
+    members: { $in: [patientId, doctorId] },
+  });
+  console.log("conversation", conversation);
+  let con = [];
+  let conversationsFiltered = conversation.map((convo) => {
+    console.log(convo, "i am cnvo");
+    if (
+      convo.members[0] === req.body.patientId &&
+      convo.members[1] === req.body.doctorId
+    ) {
+      let convoObj = {
+        conversationId: convo._id,
+        //patientId: convo.members[0] === req.body.patientId,
+        //doctorId: convo.members[1] === req.body.doctorId,
+        doctorId: convo?.members?.find(
+          (memberId) => memberId == req.body.doctorId
+        ),
+        doctorData: convo.membersData.find((memberData) => {
+          console.log(memberData, "i am memberdata");
+          return memberData.id.toString() === req.body.doctorId;
+        }),
+        createdAt: convo.createdAt,
+        updatedAt: convo.updatedAt,
+      };
+      con.push(convoObj);
+    }
+  });
+  console.log(conversationsFiltered, "filtered");
+  if (conversation.length > 0) {
+    res.json({
+      serverError: 0,
+      message: "Found conversations",
+      data: {
+        success: 1,
+        conversations: con,
+      },
+    });
+  } else {
+    res.json({
+      serverError: 0,
+      message: "Found no conversations",
+      data: {
+        success: 0,
+        //conversations: conversations,
+      },
+    });
+  }
+};
+
 module.exports = {
   newChat,
   getConversations,
@@ -778,4 +849,5 @@ module.exports = {
   scanChatMessage,
   createNewChat,
   createMessage,
+  getDoctorInfo,
 };

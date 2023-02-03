@@ -38,5 +38,5 @@ router.post(
   [authCheck, upload.array("message")],
   chatController.newMessage
 );
-
+router.post("/getdoctorinfo", authCheck, chatController.getDoctorInfo);
 module.exports = router;

@@ -151,7 +151,7 @@ const addFamilyMember = async (req, res) => {
     existingUser = await User.findOne({ uniqueId1: fileNumber });
     console.log(existingUser, "i am existing");
 
-    if (existingUser) {
+    if (existingUser && fileNumber.length > 0) {
       res.json({
         serverError: 0,
         message: "User file number already exist",
@@ -180,7 +180,9 @@ const addFamilyMember = async (req, res) => {
 
     try {
       hashedemiratesId = CryptoJS.AES.encrypt(emiratesId, "love").toString();
-      hashedfileNumber = CryptoJS.AES.encrypt(fileNumber, "love").toString();
+      if (fileNumber.length > 0) {
+        hashedfileNumber = CryptoJS.AES.encrypt(fileNumber, "love").toString();
+      }
       console.log(hashedemiratesId, "i am emirates");
     } catch (err) {
       console.log("Something went wrong while Encrypting Data", err);
