@@ -1935,12 +1935,13 @@ const login = async (req, res, next) => {
           "firstName",
           "lastName",
           "role",
+          "image",
         ]);
         let [adminFoundResolved, userScansResolved] = await Promise.all([
           adminFound,
           userScans,
         ]);
-        console.log(userScansResolved.length, "i am scans");
+        console.log(userScansResolved.length, adminFoundResolved, "i am scans");
 
         let staticImage = [
           "https://www.clipartmax.com/png/middle/344-3442642_clip-art-freeuse-library-profile-man-user-people-icon-icono-de-login.png",
@@ -1964,6 +1965,7 @@ const login = async (req, res, next) => {
           assignedDoctorName: familyHead?.assignedDoctorName
             ? familyHead?.assignedDoctorName
             : `${adminFoundResolved?.firstName} ${adminFoundResolved.lastName}`,
+          assignedDoctorImage: adminFoundResolved?.image[0],
           role: familyHead?.role,
           //image: imgObj,
           image:
