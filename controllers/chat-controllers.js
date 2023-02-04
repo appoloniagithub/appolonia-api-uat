@@ -414,18 +414,23 @@ const newMessage = async (req, res) => {
         receiverId = foundMessages[foundMessages.length - 1].receiverId;
         console.log(receiverId, "rec");
       }
-      if (
-        !foundMessages[foundMessages.length - 1].image[0]
-        //&& !foundMessages[foundMessages.length - 1].name
-      ) {
+      if (!foundMessages[foundMessages.length - 1].name) {
         let doctor = await Doctor.find({ _id: receiverId });
         console.log(doctor, "doctor");
         name = `${doctor[0]?.firstName} ${doctor[0]?.lastName}`;
-        image = doctor[0]?.image[0];
+        //image = doctor[0]?.image[0];
       } else {
         name = foundMessages[foundMessages.length - 1].name;
-        image = foundMessages[foundMessages.length - 1].image;
+
         console.log(name, image, "name", "image");
+      }
+      if (!foundMessages[foundMessages.length - 1].image[0]) {
+        let doctor = await Doctor.find({ _id: receiverId });
+        console.log(doctor, "doctor");
+        image = doctor[0]?.image[0];
+      } else {
+        image = foundMessages[foundMessages.length - 1].image;
+        console.log(image, "image");
       }
     }
   }
@@ -608,7 +613,6 @@ const newMessage = async (req, res) => {
     });
   }
 };
-
 const createMessage = async (data) => {
   console.log(data, "data in create msg");
   let {
