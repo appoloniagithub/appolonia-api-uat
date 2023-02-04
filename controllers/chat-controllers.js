@@ -415,8 +415,8 @@ const newMessage = async (req, res) => {
         console.log(receiverId, "rec");
       }
       if (
-        !foundMessages[foundMessages.length - 1].image[0] &&
         !foundMessages[foundMessages.length - 1].image[0]
+        //&& !foundMessages[foundMessages.length - 1].name
       ) {
         let doctor = await Doctor.find({ _id: receiverId });
         console.log(doctor, "doctor");
@@ -611,13 +611,22 @@ const newMessage = async (req, res) => {
 
 const createMessage = async (data) => {
   console.log(data, "data in create msg");
-  let { conversationId, senderId, receiverId, message, name, scanId, format } =
-    data;
+  let {
+    conversationId,
+    senderId,
+    receiverId,
+    message,
+    name,
+    image,
+    scanId,
+    format,
+  } = data;
   let createdMessage = new Message({
     conversationId: conversationId,
     senderId: senderId,
     receiverId: receiverId,
     message: message,
+    image: image,
     name: name,
     format: format,
     scanId: scanId ? scanId : "",

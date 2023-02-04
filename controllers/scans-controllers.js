@@ -9,6 +9,7 @@ const moment = require("moment");
 const chatController = require("./chat-controllers");
 const AWS = require("aws-sdk");
 const S3 = require("aws-sdk/clients/s3");
+const Doctor = require("../Models/Doctor");
 AWS.config.loadFromPath("./s3_config.json");
 const s3Bucket = new S3({
   params: {
@@ -133,10 +134,13 @@ const submitScans = async function (body) {
               let scanFirstImage = updatedTeethScanImages[0]
                 ? updatedTeethScanImages[0]
                 : updatedFaceScanImages[0];
+              let doctorFound = await Doctor.find({ _id: doctorId });
+              console.log(doctorFound, "doctor");
               let msgObjImg = {
                 senderId: userId,
                 receiverId: doctorId,
                 name: doctorName,
+                image: doctorFound[0]?.image[0],
                 message: `https://appoloniaapps3.s3.amazonaws.com/${scanFirstImage}`,
                 scanId: doc?._id,
                 format: "scanImage",
@@ -147,6 +151,7 @@ const submitScans = async function (body) {
                 senderId: userId,
                 receiverId: doctorId,
                 name: doctorName,
+                image: doctorFound[0]?.image[0],
                 message:
                   "Hi Doctor, please review my scans and let me know your feedback.",
                 format: "text",
