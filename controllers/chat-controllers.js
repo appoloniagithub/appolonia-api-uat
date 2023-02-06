@@ -328,10 +328,10 @@ const getConversationMessages = async (req, res) => {
   const { conversationId, bottomHit, userId } = req.body;
   try {
     console.log("sea");
-    let foundMessages = await Message.find({ conversationId: conversationId })
-      .sort({ _id: -1 })
-      .skip(bottomHit > 0 ? (bottomHit - 1) * 10 : 0)
-      .limit(10);
+    let foundMessages = await Message.find({ conversationId: conversationId });
+    // .sort({ _id: -1 })
+    // .skip(bottomHit > 0 ? (bottomHit - 1) * 10 : 0)
+    // .limit(10);
     console.log(foundMessages, "foundMessages");
     foundMessages = foundMessages.map((msg) => {
       console.log(msg);

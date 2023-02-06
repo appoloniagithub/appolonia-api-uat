@@ -208,6 +208,7 @@ const addFamilyMember = async (req, res) => {
       uniqueId2: emiratesId,
       image:
         "https://www.clipartmax.com/png/middle/344-3442642_clip-art-freeuse-library-profile-man-user-people-icon-icono-de-login.png",
+      isHead: 0,
     });
 
     newMember.save((err, userDoc) => {
@@ -224,6 +225,7 @@ const addFamilyMember = async (req, res) => {
                 uniqueId: emiratesId,
                 connected: false,
                 userId: userDoc._id.toString(),
+                isFamilyMember: 1,
               },
             },
           },
@@ -272,7 +274,7 @@ const clinicVerify = async (req, res) => {
 };
 
 const updateClinicDetails = async (req, res) => {
-  const { fileId, clinicVerified, active } = req.body;
+  const { fileId, clinicVerified, active, connected } = req.body;
   const foundFile = await File.findOne({ _id: fileId });
   if (foundFile) {
     File.updateOne(
@@ -284,7 +286,7 @@ const updateClinicDetails = async (req, res) => {
         if (error) {
           return console.log(error);
         } else {
-          console.log(data, "data");
+          //console.log(data, "data");
           if (!data) {
             res.json({
               serverError: 0,
@@ -296,6 +298,7 @@ const updateClinicDetails = async (req, res) => {
               serverError: 0,
               message: "File details updated",
               success: 1,
+              //data: data,
             });
           }
         }

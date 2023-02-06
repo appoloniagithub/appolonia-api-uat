@@ -29,6 +29,7 @@ const userSchema = new Schema({
   assignedDoctorId: { type: String },
   assignedDoctorName: { type: String },
   assignedDoctorImage: { type: Array },
+  isHead: { type: String },
   lastScan: { type: Date },
 });
 

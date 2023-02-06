@@ -790,9 +790,9 @@ const createUserAndAdminChat = async (
           receiverId: receiverId,
           name: name,
           message: message,
-          image: image,
           format: format,
           scanId: "",
+          image: image,
           createdAt: moment(Date.now()).format("DD-MM-YY HH:mm"),
         });
 
@@ -973,6 +973,7 @@ const signup = async (req, res, next) => {
         fileNumber: hashedFileNumber,
         uniqueId1: fileNumber,
         uniqueId2: emiratesId,
+        isHead: 1,
         //image: image,
       });
 
@@ -1055,6 +1056,7 @@ const signup = async (req, res, next) => {
                           uniId: fileNumber,
                           connected: true,
                           userId: userDoc._id.toString(),
+                          isFamilyMember: 0,
                         },
                       },
                       $set: {
@@ -1065,11 +1067,7 @@ const signup = async (req, res, next) => {
                       if (err) {
                         throw new Error("Error creating the User");
                       } else {
-                        let adminFound = Doctor.findOne({ role: "3" }, "_id");
-                        // console.log(
-                        //   adminFound,
-                        //   "admin found in user controller"
-                        // );
+                        let adminFound = Doctor.findOne({ role: "3" });
                         let clinic = Settings.find({}, "clinicName");
                         let [adminFoundResolved, clinicResolved] =
                           await Promise.all([adminFound, clinic]);
