@@ -349,7 +349,7 @@ const getConversationMessages = async (req, res) => {
         isSender: msg.senderId === userId ? "1" : "0",
       };
     });
-    foundMessages = foundMessages.reverse();
+    //foundMessages = foundMessages.reverse();
 
     if (foundMessages.length > 0) {
       res.json({
