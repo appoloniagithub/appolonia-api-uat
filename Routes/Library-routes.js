@@ -15,5 +15,20 @@ router.post(
   // authCheck,
   libraryController.getSingleArticle
 );
+router.post(
+  "/addarticle",
+  // authCheck,
+  libraryController.addArticle
+);
+router.post(
+  "/updatearticle",
+  // authCheck,
+  libraryController.updateArticle
+);
+router.post(
+  "/deletearticle",
+  // authCheck,
+  libraryController.deleteArticle
+);
 
 module.exports = router;
