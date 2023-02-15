@@ -1485,6 +1485,19 @@ const login = async (req, res, next) => {
 
       if (!existingUser) {
         // throw new Error("Account does not exist");
+        // res.json({
+        //   serverError: 0,
+        //   message: "We couldn't find record with this Emirates id",
+        //   data: {
+        //     success: 0,
+        //     phoneVerified: 0,
+        //     clinicVerified: 0,
+        //     active: 0,
+        //     activeRequested: 0,
+        //     isExisting: 0,
+        //   },
+        // });
+        //return;
         try {
           let existingUser = await Doctor.findOne({ emiratesId: emiratesId });
           console.log(existingUser, "i am existing doctor");
@@ -1507,16 +1520,22 @@ const login = async (req, res, next) => {
             if (existingUser && existingUser.password == password) {
               res.json({
                 serverError: 0,
-                success: 1,
+
                 message: "Login succcessfully.",
-                doctorFound: existingUser,
+                data: {
+                  success: 1,
+                  doctorFound: existingUser,
+                },
               });
               return;
             } else {
               res.json({
                 serverError: 1,
-                success: 0,
+
                 message: "Invalid Credentails. Please try again",
+                data: {
+                  success: 0,
+                },
               });
               return;
             }
@@ -1524,19 +1543,19 @@ const login = async (req, res, next) => {
         } catch (err) {
           console.log(err);
         }
-        res.json({
-          serverError: 0,
-          message: "We couldn't find record with this Emirates id",
-          data: {
-            success: 0,
-            phoneVerified: 0,
-            clinicVerified: 0,
-            active: 0,
-            activeRequested: 0,
-            isExisting: 0,
-          },
-        });
-        return;
+        // res.json({
+        //   serverError: 0,
+        //   message: "We couldn't find record with this Emirates id",
+        //   data: {
+        //     success: 0,
+        //     phoneVerified: 0,
+        //     clinicVerified: 0,
+        //     active: 0,
+        //     activeRequested: 0,
+        //     isExisting: 0,
+        //   },
+        // });
+        //return;
       } else {
         if (existingUser.phoneVerified === false) {
           let otp = otpGenerator.generate(4, {
@@ -1782,7 +1801,8 @@ const login = async (req, res, next) => {
           data: {
             familyHead: familyHead,
             fileId: existingUser._id,
-            role: existingUser.role,
+            // role: existingUser.role,
+            role: familyHead?.role,
             access_token: access_token,
             // familyMembers,
             success: 1,
@@ -1821,36 +1841,59 @@ const login = async (req, res, next) => {
         // throw new Error("Account does not exist");
         try {
           existingUser = await Doctor.findOne({ phoneNumber: phoneNumber });
-          if (existingUser && existingUser.password == password) {
+          if (!existingUser) {
             res.json({
               serverError: 0,
-              success: 1,
-              message: "Login succcessfully.",
-              doctorFound: existingUser,
+              message: "We couldn't find record with this phone number",
+              data: {
+                success: 0,
+                phoneVerified: 0,
+                clinicVerified: 0,
+                active: 0,
+                activeRequested: 0,
+                isExisting: 0,
+              },
             });
+            return;
           } else {
-            res.json({
-              serverError: 1,
-              success: 0,
-              message: "Invalid Login Credentails. Please try again",
-            });
+            if (existingUser && existingUser.password == password) {
+              res.json({
+                serverError: 0,
+
+                message: "Login succcessfully.",
+                data: {
+                  success: 1,
+                  doctorFound: existingUser,
+                },
+              });
+            } else {
+              res.json({
+                serverError: 1,
+                data: {
+                  success: 0,
+                },
+                message: "Invalid Login Credentails. Please try again",
+              });
+            }
           }
+          // else{
+          //   res.json({
+          //     serverError: 0,
+          //     message: "We couldn't find record with this phone number",
+          //     data: {
+          //       success: 0,
+          //       phoneVerified: 0,
+          //       clinicVerified: 0,
+          //       active: 0,
+          //       activeRequested: 0,
+          //       isExisting: 0,
+          //     },
+          //   });
+          //   return;
+          // }
         } catch (err) {
           console.log(err);
         }
-        res.json({
-          serverError: 0,
-          message: "We couldn't find record with this phone number",
-          data: {
-            success: 0,
-            phoneVerified: 0,
-            clinicVerified: 0,
-            active: 0,
-            activeRequested: 0,
-            isExisting: 0,
-          },
-        });
-        return;
       } else {
         if (existingUser.phoneVerified === false) {
           let otp = otpGenerator.generate(4, {
@@ -2099,7 +2142,8 @@ const login = async (req, res, next) => {
           data: {
             familyHead: familyHead,
             fileId: existingUser._id,
-            role: existingUser.role,
+            // role: existingUser.role,
+            role: familyHead?.role,
             access_token: access_token,
             // familyMembers,
             success: 1,
@@ -2114,25 +2158,24 @@ const login = async (req, res, next) => {
         return;
       }
     } catch (err) {
-      console.log(err.message);
+      console.log(err);
       // res.json({ success: false, message: err.message });
-      res.json({
-        serverError: 1,
-        message: err.message,
-        data: {
-          success: 0,
-          phoneVerified: 0,
-          clinicVerified: 0,
-          active: 0,
-          activeRequested: 0,
-          isExisting: 0,
-        },
-      });
+      // res.json({
+      //   serverError: 1,
+      //   message: err.message,
+      //   data: {
+      //     success: 0,
+      //     phoneVerified: 0,
+      //     clinicVerified: 0,
+      //     active: 0,
+      //     activeRequested: 0,
+      //     isExisting: 0,
+      //   },
+      // });
       return;
     }
   }
 };
-
 const sendOtpIfPhoneNotVerified = async (fileId) => {
   try {
     let phoneExist = await File.findOne({ _id: fileId }, "phoneNumber");
