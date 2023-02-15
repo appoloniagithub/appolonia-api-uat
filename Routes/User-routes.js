@@ -49,6 +49,7 @@ router.post(
   usersController.updateUserProfile
 );
 router.post("/deleteaccount", usersController.deleteAccount);
+router.post("/deletepatient", authCheck, usersController.deletePatient);
 router.get("/getallusers", authCheck, usersController.getUsers);
 router.get("/getalldoctors", authCheck, usersController.getAllDoctors);
 

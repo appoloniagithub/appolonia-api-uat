@@ -39,10 +39,18 @@ const updatedFilePaths = async (path, base64Data) => {
 const submitScans = async function (body) {
   try {
     return await new Promise(async function (resolve, reject) {
-      const { userId, doctorId, doctorName, faceScanImages, teethScanImages } =
-        body;
+      const {
+        userId,
+        doctorId,
+        doctorName,
+        faceScanImages,
+        teethScanImages,
+        logo,
+      } = body;
       try {
         if ((userId, doctorId)) {
+          let logo =
+            "https://res.cloudinary.com/dbff6tzuo/image/upload/v1676012493/PROFILE/wyoxrmycegebtztv05zr.jpg";
           let updatedFaceScanImages = [];
           if (faceScanImages && faceScanImages.length > 0) {
             for (i = 0; i < faceScanImages.length; i++) {
@@ -111,6 +119,7 @@ const submitScans = async function (body) {
             doctorName: doctorName,
             faceScanImages: updatedFaceScanImages,
             teethScanImages: updatedTeethScanImages,
+            logo: logo,
             created: Date.now(),
           });
           await updatedScan.save(async (err, doc) => {
@@ -174,6 +183,7 @@ const submitScans = async function (body) {
                   teethScanImages: updatedTeethScanImages,
                   scanFirstImage: scanFirstImage,
                   conversationId: updateText,
+                  logo: logo,
                 },
               });
 

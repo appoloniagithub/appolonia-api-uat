@@ -666,12 +666,14 @@ let myPromise = (data, textData) =>
       "lastName",
       "image",
     ]);
+    console.log(doctorData, "doctor data");
     membersData.push(doctorData[0]);
     let userData = await User.find({ _id: { $in: [senderId] } }, [
       "firstName",
       "lastName",
       "image",
     ]);
+    console.log(userData, "user data");
     membersData.push(userData[0]);
     membersData = membersData.map((member) => {
       return {

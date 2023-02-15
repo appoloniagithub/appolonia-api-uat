@@ -1417,9 +1417,67 @@ const login = async (req, res, next) => {
   console.log(req.body);
   const { phoneNumber, password, emiratesId, isPhoneNumber } = req.body;
   let existingUser;
+  // if (isPhoneNumber === "1") {
+  //   try {
+  //     existingUser = await Doctor.findOne({ phoneNumber: phoneNumber });
+  //     if (existingUser && existingUser.password == password) {
+  //       res.json({
+  //         serverError: 0,
+  //         success: 1,
+  //         message: "Login succcessfully.",
+  //         doctorFound: existingUser,
+  //       });
+  //     } else {
+  //       res.json({
+  //         serverError: 1,
+  //         success: 0,
+  //         message: "Invalid Login Credentails. Please try again",
+  //       });
+  //     }
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // } else {
+  //   try {
+  //     let existingUser = await Doctor.findOne({ emiratesId: emiratesId });
+  //     console.log(existingUser, "i am existing doctor");
 
-  // console.log(email, password);
-
+  //     if (!existingUser) {
+  //       res.json({
+  //         serverError: 0,
+  //         message: "We couldn't find record with this Emirates id",
+  //         data: {
+  //           success: 0,
+  //           phoneVerified: 0,
+  //           clinicVerified: 0,
+  //           active: 0,
+  //           activeRequested: 0,
+  //           isExisting: 0,
+  //         },
+  //       });
+  //       return;
+  //     } else {
+  //       if (existingUser && existingUser.password == password) {
+  //         res.json({
+  //           serverError: 0,
+  //           success: 1,
+  //           message: "Login succcessfully.",
+  //           doctorFound: existingUser,
+  //         });
+  //         return;
+  //       } else {
+  //         res.json({
+  //           serverError: 1,
+  //           success: 0,
+  //           message: "Invalid Credentails. Please try again",
+  //         });
+  //         return;
+  //       }
+  //     }
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // }
   if (isPhoneNumber === "0") {
     try {
       existingUser = await File.findOne({ uniqueId: emiratesId });
@@ -1427,6 +1485,45 @@ const login = async (req, res, next) => {
 
       if (!existingUser) {
         // throw new Error("Account does not exist");
+        try {
+          let existingUser = await Doctor.findOne({ emiratesId: emiratesId });
+          console.log(existingUser, "i am existing doctor");
+
+          if (!existingUser) {
+            res.json({
+              serverError: 0,
+              message: "We couldn't find record with this Emirates id",
+              data: {
+                success: 0,
+                phoneVerified: 0,
+                clinicVerified: 0,
+                active: 0,
+                activeRequested: 0,
+                isExisting: 0,
+              },
+            });
+            return;
+          } else {
+            if (existingUser && existingUser.password == password) {
+              res.json({
+                serverError: 0,
+                success: 1,
+                message: "Login succcessfully.",
+                doctorFound: existingUser,
+              });
+              return;
+            } else {
+              res.json({
+                serverError: 1,
+                success: 0,
+                message: "Invalid Credentails. Please try again",
+              });
+              return;
+            }
+          }
+        } catch (err) {
+          console.log(err);
+        }
         res.json({
           serverError: 0,
           message: "We couldn't find record with this Emirates id",
@@ -1722,6 +1819,25 @@ const login = async (req, res, next) => {
       let userFound = await User.findOne({ phoneNumber: phoneNumber });
       if (!existingUser) {
         // throw new Error("Account does not exist");
+        try {
+          existingUser = await Doctor.findOne({ phoneNumber: phoneNumber });
+          if (existingUser && existingUser.password == password) {
+            res.json({
+              serverError: 0,
+              success: 1,
+              message: "Login succcessfully.",
+              doctorFound: existingUser,
+            });
+          } else {
+            res.json({
+              serverError: 1,
+              success: 0,
+              message: "Invalid Login Credentails. Please try again",
+            });
+          }
+        } catch (err) {
+          console.log(err);
+        }
         res.json({
           serverError: 0,
           message: "We couldn't find record with this phone number",
@@ -2696,6 +2812,38 @@ const deleteAccount = async (req, res) => {
   }
 };
 
+const deletePatient = async (req, res) => {
+  const { patientId } = req.body;
+  try {
+    if (patientId) {
+      let patientFound = await User.findByIdAndRemove({ _id: patientId });
+      if (patientFound) {
+        res.json({
+          serverError: 0,
+          message: "Patient has been deleted successfully",
+          data: {
+            success: 1,
+          },
+        });
+        return;
+      } else {
+        res.json({
+          serverError: 1,
+          message: "Error in deleting patient",
+          data: {
+            success: 0,
+          },
+        });
+      }
+    }
+  } catch (err) {
+    res.json({
+      serverError: 1,
+      message: err.message,
+      data: { success: 0 },
+    });
+  }
+};
 const getAllDoctors = async (req, res) => {
   // const doctors = [
   //   {
@@ -2799,5 +2947,6 @@ module.exports = {
   logout,
   updateUserProfile,
   deleteAccount,
+  deletePatient,
   getAllDoctors,
 };

@@ -2,6 +2,23 @@ const express = require("express");
 const authCheck = require("../Middleware/authCheck");
 
 const libraryController = require("../controllers/library-controllers");
+const multer = require("multer");
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+
+cloudinary.config({
+  cloud_name: "dbff6tzuo",
+  api_key: "376437619835514",
+  api_secret: "Jz-U91pJTdFnbWN4X6Lx3fj6pC4",
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "PROFILE",
+  },
+});
+const upload = multer({ storage: storage });
 
 const router = express.Router();
 
@@ -18,11 +35,13 @@ router.post(
 router.post(
   "/addarticle",
   // authCheck,
+  upload.array("image"),
   libraryController.addArticle
 );
-router.post(
+router.put(
   "/updatearticle",
   // authCheck,
+  upload.array("image"),
   libraryController.updateArticle
 );
 router.post(

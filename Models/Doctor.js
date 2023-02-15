@@ -8,6 +8,7 @@ const doctorSchema = new Schema({
   role: { type: String },
   speciality: { type: String },
   email: { type: String },
+  emiratesId: { type: String },
   phoneNumber: { type: String },
   image: { type: Array },
   password: { type: String },

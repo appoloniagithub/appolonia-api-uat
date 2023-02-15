@@ -9,6 +9,7 @@ const scansSchema = new Schema({
   doctorName: { type: String },
   faceScanImages: { type: Array },
   teethScanImages: { type: Array },
+  logo: { type: String },
   created: {
     type: Date,
   },

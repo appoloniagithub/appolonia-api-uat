@@ -3,10 +3,11 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const librarySchema = new Schema({
-  name: { type: String },
+  title: { type: String },
   description: { type: String },
-  image: { type: String },
+  image: { type: Array },
   author: { type: Object },
+  date: { type: String },
   created: {
     type: Date,
     default: Date.now,
