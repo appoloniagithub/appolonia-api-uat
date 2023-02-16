@@ -6,6 +6,7 @@ const nodemailer = require("nodemailer");
 const { JWTKEY, SMTPPASS, accountSid, authToken } = require("../Config/config");
 
 let doctorSchema = require("../Models/Doctor");
+const Scans = require("../Models/Scans");
 
 const addDoctor = async (req, res) => {
   let imageFiles = [];
@@ -429,7 +430,30 @@ const forgotPassword = async (req, res) => {
     return;
   }
 };
-
+const doctorScans = async (req, res) => {
+  const { doctorId } = req.body;
+  console.log(req.body);
+  let foundScans = await Scans.find({ doctorId: doctorId });
+  console.log(foundScans, "found scans");
+  if (foundScans) {
+    res.json({
+      serverError: 0,
+      message: "Scans found",
+      data: {
+        success: 1,
+        scans: foundScans,
+      },
+    });
+  } else {
+    res.json({
+      serverError: 1,
+      message: " No Scans found",
+      data: {
+        success: 0,
+      },
+    });
+  }
+};
 module.exports = {
   addDoctor,
   getAllDoctors,
@@ -438,4 +462,5 @@ module.exports = {
   deleteDoctor,
   doctorLogin,
   forgotPassword,
+  doctorScans,
 };

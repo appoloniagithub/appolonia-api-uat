@@ -36,5 +36,6 @@ router.put(
 router.post("/deletedoctor", authCheck, doctorsController.deleteDoctor);
 router.post("/doctorlogin", doctorsController.doctorLogin);
 router.post("/forgotpwd", doctorsController.forgotPassword);
+router.post("/doctorscans", doctorsController.doctorScans);
 
 module.exports = router;

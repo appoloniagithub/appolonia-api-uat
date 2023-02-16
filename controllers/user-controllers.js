@@ -1525,6 +1525,7 @@ const login = async (req, res, next) => {
                 data: {
                   success: 1,
                   doctorFound: existingUser,
+                  role: existingUser?.role,
                 },
               });
               return;
@@ -1864,6 +1865,7 @@ const login = async (req, res, next) => {
                 data: {
                   success: 1,
                   doctorFound: existingUser,
+                  role: existingUser?.role,
                 },
               });
             } else {
