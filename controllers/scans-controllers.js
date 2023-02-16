@@ -120,6 +120,7 @@ const submitScans = async function (body) {
             faceScanImages: updatedFaceScanImages,
             teethScanImages: updatedTeethScanImages,
             logo: logo,
+            isOpen: 0,
             created: Date.now(),
           });
           await updatedScan.save(async (err, doc) => {
@@ -184,6 +185,7 @@ const submitScans = async function (body) {
                   scanFirstImage: scanFirstImage,
                   conversationId: updateText,
                   logo: logo,
+                  isOpen: "0",
                 },
               });
 

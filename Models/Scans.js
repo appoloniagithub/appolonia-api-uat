@@ -10,6 +10,7 @@ const scansSchema = new Schema({
   faceScanImages: { type: Array },
   teethScanImages: { type: Array },
   logo: { type: String },
+  isOpen: { type: String },
   created: {
     type: Date,
   },

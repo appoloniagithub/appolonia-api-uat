@@ -431,9 +431,9 @@ const forgotPassword = async (req, res) => {
   }
 };
 const doctorScans = async (req, res) => {
-  const { doctorId } = req.body;
-  console.log(req.body);
-  let foundScans = await Scans.find({ doctorId: doctorId });
+  // const { doctorId } = req.body;
+  //console.log(req.body);
+  let foundScans = await Scans.find({ isOpen: "0" });
   console.log(foundScans, "found scans");
   if (foundScans) {
     res.json({
