@@ -18,6 +18,7 @@ const doctorSchema = new Schema({
   profile: { type: String },
   certifications: { type: String },
   education: { type: String },
+  uniqueId: { type: String },
 });
 
 module.exports = mongoose.model("Doctor", doctorSchema);

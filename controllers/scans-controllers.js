@@ -5,6 +5,8 @@ const Settings = require("../Models/Settings");
 const Scans = require("../Models/Scans");
 const fs = require("fs");
 const moment = require("moment");
+// const Upscaler = require("upscaler/node");
+// const upscaler = new Upscaler();
 //require("dotenv").config();
 const chatController = require("./chat-controllers");
 const AWS = require("aws-sdk");
@@ -58,6 +60,7 @@ const submitScans = async function (body) {
                 faceScanImages[i].replace(/^data:image\/\w+;base64,/, ""),
                 "base64"
               );
+              //upscaler.upscale(base64Data);
               const path = Date.now() + ".png";
               //const path = `${userId}/${Date.now()}.png`;
               // let getPath = await updatedFilePaths(path, base64Data);
@@ -88,6 +91,7 @@ const submitScans = async function (body) {
                 teethScanImages[i].replace(/^data:image\/\w+;base64,/, ""),
                 "base64"
               );
+              //upscaler.upscale(base64Data);
               const path = Date.now() + ".png";
               //const path = `${userId}/${Date.now()}.png`;
               // let getPath = await updatedFilePaths(path, base64Data);
@@ -333,20 +337,33 @@ const getAllScans = async function (body) {
 
 const getScanId = async (req, res) => {
   const { userId, scanId } = req.body;
+
   try {
     if ((userId, scanId)) {
       const foundScans = await Scans.find({ _id: scanId });
       console.log(foundScans, "by scan ID");
       if (foundScans) {
-        res.json({
-          serverError: 0,
-          message: "Scans found",
-          data: {
-            scans: foundScans,
-            success: 1,
-            // patientName: userId?.firstName,
-          },
-        });
+        Scans.updateOne(
+          { _id: scanId },
+          { $set: { isOpen: "1" } },
+          async (err) => {
+            if (err) {
+              console.log(err);
+            } else {
+              console.log("data updated", foundScans[0]);
+              const temp = await Scans.find({ _id: scanId });
+
+              res.json({
+                serverError: 0,
+                message: "Scans found",
+                data: {
+                  scans: temp,
+                  success: 1,
+                },
+              });
+            }
+          }
+        );
       } else {
         res.json({
           serverError: 1,

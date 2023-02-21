@@ -1517,7 +1517,19 @@ const login = async (req, res, next) => {
             });
             return;
           } else {
-            if (existingUser && existingUser.password == password) {
+            let ValidPassword = false;
+            try {
+              ValidPassword = await bcrypt.compare(
+                password,
+                existingUser.password
+              );
+              console.log(ValidPassword, "in try");
+            } catch (err) {
+              console.log(err);
+              throw new Error("Something went wrong");
+            }
+            console.log(ValidPassword, "valid pwd");
+            if (existingUser && ValidPassword) {
               res.json({
                 serverError: 0,
 
@@ -1857,7 +1869,19 @@ const login = async (req, res, next) => {
             });
             return;
           } else {
-            if (existingUser && existingUser.password == password) {
+            let ValidPassword = false;
+            try {
+              ValidPassword = await bcrypt.compare(
+                password,
+                existingUser.password
+              );
+              console.log(ValidPassword, "in try");
+            } catch (err) {
+              console.log(err);
+              throw new Error("Something went wrong");
+            }
+            console.log(ValidPassword, "valid pwd");
+            if (existingUser && ValidPassword) {
               res.json({
                 serverError: 0,
 

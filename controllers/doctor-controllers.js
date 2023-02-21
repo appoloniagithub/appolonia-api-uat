@@ -4,7 +4,8 @@ const User = require("../Models/User");
 var otpGenerator = require("otp-generator");
 const nodemailer = require("nodemailer");
 const { JWTKEY, SMTPPASS, accountSid, authToken } = require("../Config/config");
-
+const bcrypt = require("bcryptjs");
+var CryptoJS = require("crypto-js");
 let doctorSchema = require("../Models/Doctor");
 const Scans = require("../Models/Scans");
 
@@ -42,6 +43,18 @@ const addDoctor = async (req, res) => {
     role &&
     password
   ) {
+    let hashedpassword;
+    let hashedemiratesId;
+    try {
+      hashedpassword = await bcrypt.hash(password, 12);
+      hashedemiratesId = CryptoJS.AES.encrypt(emiratesId, "love").toString();
+      console.log(hashedemiratesId, "i am emirates");
+    } catch (err) {
+      console.log("Something went wrong while Encrypting Data", err);
+
+      throw new Error("Something went wrong while Encrypting Data");
+    }
+
     let existingDoctor = await Doctor.findOne({
       $or: [{ email: email }, { phoneNumber: phoneNumber }],
     });
@@ -57,20 +70,29 @@ const addDoctor = async (req, res) => {
       });
       return;
     } else {
-      doctorSchema.create({ ...req.body, image: imageFiles }, (error, data) => {
-        if (error) {
-          return next(error);
-        } else {
-          console.log(data);
-          res.json({
-            serverError: 0,
-            message: "Doctor created successfully",
-            data: data,
-            success: 1,
-            status: 200,
-          });
+      doctorSchema.create(
+        {
+          ...req.body,
+          image: imageFiles,
+          password: hashedpassword,
+          uniqueId: password,
+          //emiratesId: hashedemiratesId,
+        },
+        (error, data) => {
+          if (error) {
+            return next(error);
+          } else {
+            console.log(data);
+            res.json({
+              serverError: 0,
+              message: "Doctor created successfully",
+              data: data,
+              success: 1,
+              status: 200,
+            });
+          }
         }
-      });
+      );
     }
   } else {
     res.json({
@@ -211,10 +233,27 @@ const updateDoctor = async (req, res) => {
     role &&
     password
   ) {
+    let hashedpassword;
+    let hashedemiratesId;
+    try {
+      hashedpassword = await bcrypt.hash(password, 12);
+      hashedemiratesId = CryptoJS.AES.encrypt(emiratesId, "love").toString();
+      console.log(hashedemiratesId, "i am emirates");
+    } catch (err) {
+      console.log("Something went wrong while Encrypting Data", err);
+
+      throw new Error("Something went wrong while Encrypting Data");
+    }
+
     doctorSchema.findByIdAndUpdate(
       _id,
       {
-        $set: { ...req.body, image: imageFiles },
+        $set: {
+          ...req.body,
+          image: imageFiles.length > 0 ? imageFiles : image,
+          password: hashedpassword,
+          uniqueId: password,
+        },
       },
       (error, data) => {
         if (error) {
@@ -317,12 +356,24 @@ const doctorLogin = async (req, res) => {
         });
         return;
       } else {
-        if (existingDoctor && existingDoctor.password == password) {
+        let ValidPassword = false;
+        try {
+          ValidPassword = await bcrypt.compare(
+            password,
+            existingDoctor.password
+          );
+          console.log(ValidPassword, "in try");
+        } catch (err) {
+          console.log(err);
+          throw new Error("Something went wrong");
+        }
+        console.log(ValidPassword, "valid pwd");
+        if (existingDoctor && ValidPassword) {
           res.json({
             serverError: 0,
             success: 1,
             message: "Login succcessfully.",
-            existingDoctor: existingDoctor,
+            doctorFound: existingDoctor,
           });
         } else {
           res.json({
@@ -339,7 +390,16 @@ const doctorLogin = async (req, res) => {
     try {
       let doctorFound = await Doctor.findOne({ phoneNumber: phoneNumber });
       console.log(doctorFound);
-      if (doctorFound && doctorFound.password == password) {
+      let ValidPassword = false;
+      try {
+        ValidPassword = await bcrypt.compare(password, doctorFound.password);
+        console.log(ValidPassword, "in try");
+      } catch (err) {
+        console.log(err);
+        throw new Error("Something went wrong");
+      }
+      console.log(ValidPassword, "valid pwd");
+      if (doctorFound && ValidPassword) {
         res.json({
           serverError: 0,
           success: 1,
