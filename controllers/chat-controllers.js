@@ -887,6 +887,48 @@ const getDoctorInfo = async (req, res) => {
   }
 };
 
+const getCon = async (req, res) => {
+  const { patId, doctorId } = req.body;
+  console.log(req.body);
+  let membersData = [];
+
+  let doctorData = await Doctor.find({ _id: { $in: [doctorId] } }, [
+    "firstName",
+    "lastName",
+    "image",
+    "speciality",
+  ]);
+  membersData.push(doctorData[0]);
+  let userData = await User.find({ _id: { $in: [patId] } }, [
+    "firstName",
+    "lastName",
+    "image",
+  ]);
+  membersData.push(userData[0]);
+  const foundCon = await Conversation.find({
+    members: { $in: [doctorId, patId] },
+  });
+  console.log(foundCon, "found con");
+  if (foundCon) {
+    res.json({
+      serverError: 0,
+      message: "Found conversations",
+      data: {
+        success: 1,
+        conversations: foundCon,
+      },
+    });
+  } else {
+    res.json({
+      serverError: 0,
+      message: "Found no conversations",
+      data: {
+        success: 0,
+      },
+    });
+  }
+};
+
 module.exports = {
   newChat,
   getConversations,
@@ -896,4 +938,5 @@ module.exports = {
   createNewChat,
   createMessage,
   getDoctorInfo,
+  getCon,
 };
