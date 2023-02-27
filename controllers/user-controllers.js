@@ -1067,11 +1067,15 @@ const signup = async (req, res, next) => {
                       if (err) {
                         throw new Error("Error creating the User");
                       } else {
-                        let adminFound = Doctor.findOne({ role: "3" });
+                        let adminFound = Doctor.findOne({ role: "Admin" });
                         let clinic = Settings.find({}, "clinicName");
                         let [adminFoundResolved, clinicResolved] =
                           await Promise.all([adminFound, clinic]);
-                        console.log(adminFoundResolved, "adminfound resolved");
+                        console.log(
+                          adminFoundResolved,
+                          clinicResolved,
+                          "adminfound and clinic resolved"
+                        );
                         createUserAndAdminChat(
                           adminFoundResolved?._id?.toString(),
                           userDoc._id?.toString(),
@@ -1773,7 +1777,7 @@ const login = async (req, res, next) => {
 
         familyHead = await User.findOne({ _id: familyHead?.userId });
         let userScans = Scans.find({ userId: familyHead._id }).limit(5);
-        let adminFound = Doctor.findOne({ role: "3" }, [
+        let adminFound = Doctor.findOne({ role: "Clinic Admin" }, [
           "firstName",
           "lastName",
           "role",
@@ -1783,6 +1787,7 @@ const login = async (req, res, next) => {
           userScans,
         ]);
         console.log(userScansResolved.length, "i am scans");
+        userScansResolved = userScansResolved.reverse();
         familyHead = {
           _id: familyHead?._id,
           firstName: familyHead?.firstName,
@@ -1794,11 +1799,11 @@ const login = async (req, res, next) => {
           email: familyHead?.email,
           gender: familyHead?.gender,
           city: familyHead?.city,
-          assignedDoctorId: familyHead?.assignedDoctorId
-            ? familyHead?.assignedDoctorId
+          assignedDoctorId: userScansResolved[0]?.doctorId
+            ? userScansResolved[0]?.doctorId
             : adminFoundResolved?._id,
-          assignedDoctorName: familyHead?.assignedDoctorName
-            ? familyHead?.assignedDoctorName
+          assignedDoctorName: userScansResolved[0]?.doctorName
+            ? userScansResolved[0]?.doctorName
             : `${adminFoundResolved?.firstName} ${adminFoundResolved.lastName}`,
           role: familyHead?.role,
           image: familyHead?.image
@@ -2117,7 +2122,7 @@ const login = async (req, res, next) => {
         familyHead = await User.findOne({ _id: familyHead?.userId });
         console.log("i am familyHead", familyHead);
         let userScans = Scans.find({ userId: familyHead?._id }).limit(5);
-        let adminFound = Doctor.findOne({ role: "3" }, [
+        let adminFound = Doctor.findOne({ role: "Clinic Admin" }, [
           "firstName",
           "lastName",
           "role",
@@ -2128,7 +2133,7 @@ const login = async (req, res, next) => {
           userScans,
         ]);
         console.log(userScansResolved.length, adminFoundResolved, "i am scans");
-
+        userScansResolved = userScansResolved.reverse();
         let staticImage = [
           "https://www.clipartmax.com/png/middle/344-3442642_clip-art-freeuse-library-profile-man-user-people-icon-icono-de-login.png",
         ];
@@ -2145,11 +2150,11 @@ const login = async (req, res, next) => {
           email: familyHead?.email,
           gender: familyHead?.gender,
           city: familyHead?.city,
-          assignedDoctorId: familyHead?.assignedDoctorId
-            ? familyHead?.assignedDoctorId
+          assignedDoctorId: userScansResolved[0]?.doctorId
+            ? userScansResolved[0]?.doctorId
             : adminFoundResolved?._id,
-          assignedDoctorName: familyHead?.assignedDoctorName
-            ? familyHead?.assignedDoctorName
+          assignedDoctorName: userScansResolved[0]?.doctorName
+            ? userScansResolved[0]?.doctorName
             : `${adminFoundResolved?.firstName} ${adminFoundResolved.lastName}`,
           assignedDoctorImage: familyHead?.assignedDoctorImage
             ? familyHead?.assignedDoctorImage

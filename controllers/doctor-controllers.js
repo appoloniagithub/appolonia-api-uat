@@ -110,11 +110,14 @@ const addDoctor = async (req, res) => {
 const getAllDoctors = async (req, res) => {
   try {
     let foundDoctors = Doctor.find({ role: "Doctor" });
-
-    let [foundDoctorsResolved] = await Promise.all([foundDoctors]);
+    let foundClinicAdmin = Doctor.find({ role: "Clinic Admin" });
+    let [foundDoctorsResolved, foundClinicAdminResolved] = await Promise.all([
+      foundDoctors,
+      foundClinicAdmin,
+    ]);
     console.log(foundDoctorsResolved, "found doctors resolved");
 
-    foundDoctors = [...foundDoctorsResolved];
+    foundDoctors = [...foundDoctorsResolved, ...foundClinicAdminResolved];
     if (foundDoctors.length > 0) {
       res.json({
         serverError: 0,

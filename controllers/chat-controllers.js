@@ -685,7 +685,7 @@ let myPromise = (data, textData) =>
     console.log(membersData, "member data");
 
     let createdConversation = new Conversation({
-      members: [senderId, receiverId],
+      members: [receiverId, senderId],
       membersData: membersData,
     });
     newConvoId = await createdConversation.save(async (err, doc) => {
@@ -765,7 +765,7 @@ const createNewChat = async (data, textData) => {
 
 const checkChatExist = async (conversations, senderId, receiverId) => {
   console.log(conversations, "in check chat exist");
-  let adminFound = await Doctor.findOne({ role: "3" }, "_id");
+  let adminFound = await Doctor.findOne({ role: "Admin" }, "_id");
   console.log(adminFound, "admin found");
   for (i = 0; i < conversations.length; i++) {
     // for (j = 0; j < conversations[i].members.length; j++) {
@@ -909,13 +909,40 @@ const getCon = async (req, res) => {
     members: { $in: [doctorId, patId] },
   });
   console.log(foundCon, "found con");
+  let con = [];
+  let conversationsFiltered = foundCon.map((convo) => {
+    console.log(convo, "i am cnvo");
+    if (
+      convo.members[0] === req.body.doctorId &&
+      convo.members[1] === req.body.patId
+    ) {
+      let convoObj = {
+        conversationId: convo._id,
+        members: [doctorId, patId],
+        membersData: membersData,
+        //patientId: convo.members[0] === req.body.patientId,
+        //doctorId: convo.members[1] === req.body.doctorId,
+        // doctorId: convo?.members?.find(
+        //   (memberId) => memberId === req.body.doctorId
+        // ),
+        // doctorData: convo.membersData.find((memberData) => {
+        //   console.log(memberData, "i am memberdata");
+        //   return memberData.id.toString() === req.body.doctorId;
+        // }),
+        createdAt: convo.createdAt,
+        updatedAt: convo.updatedAt,
+      };
+      con.push(convoObj);
+    }
+  });
+  console.log(conversationsFiltered, "filtered");
   if (foundCon) {
     res.json({
       serverError: 0,
       message: "Found conversations",
       data: {
         success: 1,
-        conversations: foundCon,
+        conversations: con,
       },
     });
   } else {
