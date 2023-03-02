@@ -2,7 +2,11 @@ const User = require("../Models/User");
 const Role = require("../Models/Role");
 const File = require("../Models/File");
 const Scans = require("../Models/Scans");
-
+const Settings = require("../Models/Settings");
+const Doctor = require("../Models/Doctor");
+const Conversation = require("../Models/Conversations");
+const Message = require("../Models/Messages");
+const moment = require("moment");
 var CryptoJS = require("crypto-js");
 
 const getFileFamilyMembers = async (req, res) => {
@@ -54,6 +58,17 @@ const getFileFamilyMembers = async (req, res) => {
   yoo = connectedFamily.map(async (member) => {
     let userScans = await Scans.find({ userId: member._id }).limit(5);
 
+    let adminFound = Doctor.findOne({ role: "Clinic Admin" }, [
+      "firstName",
+      "lastName",
+      "role",
+    ]);
+    let [adminFoundResolved, userScansResolved] = await Promise.all([
+      adminFound,
+      userScans,
+    ]);
+    console.log(userScansResolved.length, "i am scans");
+    userScansResolved = userScansResolved.reverse();
     return {
       firstName: member.firstName,
       lastName: member.lastName,
@@ -64,10 +79,12 @@ const getFileFamilyMembers = async (req, res) => {
       email: member?.email,
       gender: member?.gender,
       city: member?.city,
-      assignedDoctorId: member?.assignedDoctorId
-        ? member?.assignedDoctorId
-        : "",
-      assignedDoctorName: "Appolonia Support",
+      assignedDoctorId: userScansResolved[0]?.doctorId
+        ? userScansResolved[0]?.doctorId
+        : adminFoundResolved?._id,
+      assignedDoctorName: userScansResolved[0]?.doctorName
+        ? userScansResolved[0]?.doctorName
+        : `${adminFoundResolved?.firstName} ${adminFoundResolved.lastName}`,
       role: member?.role,
       image: member?.image
         ? member?.image
@@ -97,7 +114,116 @@ const getFileFamilyMembers = async (req, res) => {
     });
   }
 };
+const createUserAndAdminChat = async (
+  senderId,
+  receiverId,
+  message,
+  scanId,
+  format,
+  name,
+  image
+) => {
+  let conversations = await Conversation.find({
+    members: { $in: [senderId] },
+  });
 
+  let foundConversation = false;
+  let foundConversationId;
+  let i = 0;
+  while (i < conversations?.length && foundConversation === false) {
+    foundConversation = conversations[i].members.some(
+      (member) => member === receiverId
+    );
+    if (foundConversation === true) {
+      foundConversationId = conversations[i]._id;
+    }
+    i++;
+  }
+
+  if (foundConversation === true) {
+    console.log("conversation already exist");
+    return;
+  }
+  // let membersData = await User.find({ _id: { $in: [senderId, receiverId] } }, [
+  //   "firstName",
+  //   "lastName",
+  //   "image",
+  // ]);
+  let membersData = [];
+  let userData = await User.find({ _id: { $in: [receiverId] } }, [
+    "firstName",
+    "lastName",
+    "image",
+  ]);
+  membersData.push(userData[0]);
+  let doctorData = await Doctor.find({ _id: { $in: [senderId] } }, [
+    "firstName",
+    "lastName",
+    "image",
+  ]);
+  membersData.push(doctorData[0]);
+
+  membersData = membersData.map((member) => {
+    return {
+      name: `${member.firstName} ${member.lastName}`,
+      id: member._id,
+      image: member.image,
+    };
+  });
+  console.log(membersData, "members data");
+
+  let createdConversation = new Conversation({
+    members: [senderId, receiverId],
+    membersData: membersData,
+  });
+  try {
+    createdConversation.save((err, doc) => {
+      if (err) {
+        throw new Error("Error Creating the Chat");
+      } else {
+        console.log(doc, "doc there");
+
+        let createdMessage = new Message({
+          conversationId: doc._id,
+          senderId: senderId,
+          receiverId: receiverId,
+          name: name,
+          message: message,
+          format: format,
+          scanId: "",
+          image: image,
+          createdAt: moment(Date.now()).format("DD-MM-YY HH:mm"),
+        });
+
+        createdMessage.save((err) => {
+          if (err) {
+            throw new Error("Error Creating the message");
+          } else {
+            // res.json({
+            //   serverError: 0,
+            //   message: "Message Sent",
+            //   data: {
+            //     success: 1,
+            //   },
+            // });
+            console.log("msg sent");
+            return;
+          }
+        });
+      }
+    });
+  } catch (err) {
+    // res.json({
+    //   serverError: 1,
+    //   message: err.message,
+    //   data: {
+    //     success: 0,
+    //   },
+    // });
+    console.log(err.message);
+    return;
+  }
+};
 const connectMemberToFile = async (req, res, next) => {
   console.log(req.body);
   const { fileId, memberEmiratesId } = req.body;
@@ -229,10 +355,30 @@ const addFamilyMember = async (req, res) => {
               },
             },
           },
-          (err) => {
+          async (err) => {
             if (err) {
               throw new Error("Error creating the User");
             } else {
+              let adminFound = Doctor.findOne({ role: "Admin" });
+              let clinic = Settings.find({}, "clinicName");
+              let [adminFoundResolved, clinicResolved] = await Promise.all([
+                adminFound,
+                clinic,
+              ]);
+              console.log(
+                adminFoundResolved,
+                clinicResolved,
+                "adminfound and clinic resolved"
+              );
+              createUserAndAdminChat(
+                adminFoundResolved?._id?.toString(),
+                userDoc._id?.toString(),
+                `Welcome to ${clinicResolved[0]?.clinicName}. Ask us anything`,
+                "",
+                "text",
+                clinicResolved[0]?.clinicName,
+                adminFoundResolved?.image[0]
+              );
               res.json({
                 serverError: 0,
                 message:
