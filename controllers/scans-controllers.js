@@ -61,27 +61,28 @@ const submitScans = async function (body) {
                 "base64"
               );
               //upscaler.upscale(base64Data);
+              //const path = "uploads/images/" + Date.now() + ".png";
               const path = Date.now() + ".png";
               //const path = `${userId}/${Date.now()}.png`;
-              // let getPath = await updatedFilePaths(path, base64Data);
-              // console.log("get path files", getPath);
-              // updatedFaceScanImages.push(getPath);
+              let getPath = await updatedFilePaths(path, base64Data);
+              console.log("get path files", getPath);
+              updatedFaceScanImages.push(getPath);
               //const buf = Buffer.from(req.body.imageBinary.replace(/^data:image\/\w+;base64,/, ""),'base64')
-              const data = {
-                Key: path,
-                Body: base64Data,
-                ContentEncoding: "base64",
-                ContentType: "image/png",
-              };
-              s3Bucket.putObject(data, function (err, data) {
-                if (err) {
-                  console.log(err);
-                  console.log("Error uploading data: ");
-                } else {
-                  console.log("successfully uploaded the image!", data);
-                }
-              });
-              updatedFaceScanImages.push(path);
+              // const data = {
+              //   Key: path,
+              //   Body: base64Data,
+              //   ContentEncoding: "base64",
+              //   ContentType: "image/png",
+              // };
+              // s3Bucket.putObject(data, function (err, data) {
+              //   if (err) {
+              //     console.log(err);
+              //     console.log("Error uploading data: ");
+              //   } else {
+              //     console.log("successfully uploaded the image!", data);
+              //   }
+              // });
+              //updatedFaceScanImages.push(path);
             }
           }
           let updatedTeethScanImages = [];
@@ -94,25 +95,26 @@ const submitScans = async function (body) {
               //upscaler.upscale(base64Data);
               const path = Date.now() + ".png";
               //const path = `${userId}/${Date.now()}.png`;
-              // let getPath = await updatedFilePaths(path, base64Data);
-              // console.log("get path files", getPath);
-              // updatedTeethScanImages.push(getPath);
+              //const path = "uploads/images/" + Date.now() + ".png";
+              let getPath = await updatedFilePaths(path, base64Data);
+              console.log("get path files", getPath);
+              updatedTeethScanImages.push(getPath);
 
-              const data = {
-                Key: path,
-                Body: base64Data,
-                ContentEncoding: "base64",
-                ContentType: "image/png",
-              };
-              s3Bucket.putObject(data, function (err, data) {
-                if (err) {
-                  console.log(err);
-                  console.log("Error uploading data: ", data);
-                } else {
-                  console.log("successfully uploaded the image!");
-                }
-              });
-              updatedTeethScanImages.push(path);
+              // const data = {
+              //   Key: path,
+              //   Body: base64Data,
+              //   ContentEncoding: "base64",
+              //   ContentType: "image/png",
+              // };
+              // s3Bucket.putObject(data, function (err, data) {
+              //   if (err) {
+              //     console.log(err);
+              //     console.log("Error uploading data: ", data);
+              //   } else {
+              //     console.log("successfully uploaded the image!");
+              //   }
+              // });
+              //updatedTeethScanImages.push(path);
             }
           }
           console.log("updated", updatedFaceScanImages, updatedTeethScanImages);

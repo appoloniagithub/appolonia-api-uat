@@ -13,13 +13,21 @@ cloudinary.config({
   api_secret: "Jz-U91pJTdFnbWN4X6Lx3fj6pC4",
 });
 
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: "CHAT",
+// const storage = new CloudinaryStorage({
+//   cloudinary: cloudinary,
+//   params: {
+//     folder: "CHAT",
+//   },
+// });
+const storage = multer.diskStorage({
+  destination: "uploads/chat/",
+
+  filename: (req, file, callback) => {
+    callback(null, Date.now() + ".png");
   },
 });
-
+const path = "uploads/chat/" + Date.now() + ".png";
+//const upload = multer({ dest: path });
 const upload = multer({ storage: storage });
 
 const router = express.Router();

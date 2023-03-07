@@ -12,14 +12,23 @@ cloudinary.config({
   api_secret: "Jz-U91pJTdFnbWN4X6Lx3fj6pC4",
 });
 
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: "PROFILE",
+// const storage = new CloudinaryStorage({
+//   cloudinary: cloudinary,
+//   params: {
+//     folder: "PROFILE",
+//   },
+// });
+const storage = multer.diskStorage({
+  destination: "uploads/library/",
+
+  filename: (req, file, callback) => {
+    callback(null, Date.now() + ".png");
   },
 });
-const upload = multer({ storage: storage });
+//const path = "uploads/library/";
 
+//const upload = multer({ dest: path + Date.now() + ".png" });
+const upload = multer({ storage: storage });
 const router = express.Router();
 
 router.get(

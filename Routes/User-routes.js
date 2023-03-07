@@ -12,10 +12,17 @@ cloudinary.config({
   api_secret: "Jz-U91pJTdFnbWN4X6Lx3fj6pC4",
 });
 
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: "CONTACT",
+// const storage = new CloudinaryStorage({
+//   cloudinary: cloudinary,
+//   params: {
+//     folder: "CONTACT",
+//   },
+// });
+const storage = multer.diskStorage({
+  destination: "uploads/contact/",
+
+  filename: (req, file, callback) => {
+    callback(null, Date.now() + ".png");
   },
 });
 
