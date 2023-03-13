@@ -59,5 +59,5 @@ router.post("/deleteaccount", usersController.deleteAccount);
 router.post("/deletepatient", authCheck, usersController.deletePatient);
 router.get("/getallusers", authCheck, usersController.getUsers);
 router.get("/getalldoctors", authCheck, usersController.getAllDoctors);
-
+router.post("/refreshToken", usersController.refreshToken);
 module.exports = router;

@@ -5,8 +5,15 @@ const jwt = require("jsonwebtoken");
 var CryptoJS = require("crypto-js");
 const Cryptr = require("cryptr");
 const cryptr = new Cryptr("myTotallySecretKey");
+const { verifyRefresh } = require("../Middleware/verifyRefresh");
 const { encrypt, decrypt, randomKey } = require("lab46-encrypt");
-const { JWTKEY, SMTPPASS, accountSid, authToken } = require("../Config/config");
+const {
+  JWTKEY,
+  SMTPPASS,
+  REFRESHKEY,
+  accountSid,
+  authToken,
+} = require("../Config/config");
 const moment = require("moment");
 // const cloudinary = require("cloudinary").v2;
 // const { CloudinaryStorage } = require("multer-storage-cloudinary");
@@ -1732,13 +1739,22 @@ const login = async (req, res, next) => {
         let access_token;
         try {
           access_token = jwt.sign({ userId: existingUser._id }, JWTKEY, {
-            expiresIn: "1h",
+            expiresIn: "1y",
           });
         } catch (err) {
           console.log(err);
           throw new Error("Something went wrong while creating token");
         }
 
+        let refresh_token;
+        try {
+          refresh_token = jwt.sign({ userId: existingUser._id }, REFRESHKEY, {
+            expiresIn: "1y",
+          });
+        } catch (err) {
+          console.log(err);
+          throw new Error("Something went wrong while creating token");
+        }
         // let familyIds = existingUser.familyMembers.filter((member) => {
         //   // if (member.connected === true) {
         //   //   console.log(member);
@@ -1822,6 +1838,7 @@ const login = async (req, res, next) => {
             // role: existingUser.role,
             role: familyHead?.role,
             access_token: access_token,
+            refresh_token: refresh_token,
             // familyMembers,
             success: 1,
             phoneVerified: existingUser?.phoneVerified === true ? 1 : 0,
@@ -2083,7 +2100,16 @@ const login = async (req, res, next) => {
         let access_token;
         try {
           access_token = jwt.sign({ userId: existingUser._id }, JWTKEY, {
-            expiresIn: "1h",
+            expiresIn: "1y",
+          });
+        } catch (err) {
+          console.log(err);
+          throw new Error("Something went wrong while creating token");
+        }
+        let refresh_token;
+        try {
+          refresh_token = jwt.sign({ userId: existingUser._id }, REFRESHKEY, {
+            expiresIn: "1y",
           });
         } catch (err) {
           console.log(err);
@@ -2176,6 +2202,7 @@ const login = async (req, res, next) => {
             // role: existingUser.role,
             role: familyHead?.role,
             access_token: access_token,
+            refresh_token: refresh_token,
             // familyMembers,
             success: 1,
             phoneVerified: existingUser?.phoneVerified === true ? 1 : 0,
@@ -2207,6 +2234,31 @@ const login = async (req, res, next) => {
     }
   }
 };
+const refreshToken = async (req, res) => {
+  const { fileId, refreshToken } = req.body;
+  console.log(req.body);
+  let foundUser = await File.findOne({ _id: fileId });
+  //console.log(foundUser[0]?._id, "i am found user");
+
+  const isValid = verifyRefresh(fileId, refreshToken);
+  if (!isValid) {
+    return res.status(401).json({
+      success: false,
+      error: "Invalid token,try login again",
+    });
+  }
+  const accessToken = jwt.sign({ fileId: fileId }, JWTKEY, {
+    expiresIn: "1y",
+  });
+  return res.status(200).json({
+    authError: 0,
+    data: {
+      success: 1,
+    },
+    accessToken,
+  });
+};
+
 const sendOtpIfPhoneNotVerified = async (fileId) => {
   try {
     let phoneExist = await File.findOne({ _id: fileId }, "phoneNumber");
@@ -2834,7 +2886,10 @@ const deleteAccount = async (req, res) => {
               let deletedConvo = Conversation.deleteMany({
                 members: { $in: [memberId] },
               });
-              let deletedMessage = Message.deleteMany({ senderId: memberId });
+              let deletedMessage = Message.deleteMany({
+                //senderId: memberId
+                $or: [{ senderId: memberId }, { receiverId: memberId }],
+              });
               let deletedScans = Scans.deleteMany({ userId: memberId });
               let deletedUser = User.deleteOne({ _id: memberId });
 
@@ -3023,4 +3078,5 @@ module.exports = {
   deleteAccount,
   deletePatient,
   getAllDoctors,
+  refreshToken,
 };

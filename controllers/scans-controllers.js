@@ -157,7 +157,7 @@ const submitScans = async function (body) {
                 receiverId: doctorId,
                 name: doctorName,
                 image: doctorFound[0]?.image[0],
-                message: `https://appoloniaapps3.s3.amazonaws.com/${scanFirstImage}`,
+                message: scanFirstImage,
                 scanId: doc?._id,
                 format: "scanImage",
                 //createdAt: moment(Date.now()).format("DD-MM-YY hh:mm"),

@@ -7,6 +7,7 @@ const { JWTKEY, SMTPPASS, accountSid, authToken } = require("../Config/config");
 const bcrypt = require("bcryptjs");
 var CryptoJS = require("crypto-js");
 let doctorSchema = require("../Models/Doctor");
+const jwt = require("jsonwebtoken");
 const Scans = require("../Models/Scans");
 
 const addDoctor = async (req, res) => {
@@ -339,6 +340,7 @@ const deleteDoctor = async (req, res) => {
 const doctorLogin = async (req, res) => {
   const { phoneNumber, password, emiratesId, isPhoneNumber } = req.body;
   console.log(req.body);
+
   if (isPhoneNumber === "0") {
     try {
       let existingDoctor = await Doctor.findOne({ emiratesId: emiratesId });
@@ -394,12 +396,27 @@ const doctorLogin = async (req, res) => {
       let doctorFound = await Doctor.findOne({ phoneNumber: phoneNumber });
       console.log(doctorFound);
       let ValidPassword = false;
+      if (doctorFound) {
+        try {
+          ValidPassword = await bcrypt.compare(password, doctorFound.password);
+          console.log(ValidPassword, "in try");
+        } catch (err) {
+          console.log(err);
+          // res.json({
+          //   serverError: 1,
+          //   success: 0,
+          //   message: "Wrong Password",
+          // });
+        }
+      }
+      let access_token;
       try {
-        ValidPassword = await bcrypt.compare(password, doctorFound.password);
-        console.log(ValidPassword, "in try");
+        access_token = jwt.sign({ userId: doctorFound._id }, JWTKEY, {
+          expiresIn: "1h",
+        });
       } catch (err) {
         console.log(err);
-        throw new Error("Something went wrong");
+        throw new Error("Something went wrong while creating token");
       }
       console.log(ValidPassword, "valid pwd");
       if (doctorFound && ValidPassword) {
@@ -408,6 +425,7 @@ const doctorLogin = async (req, res) => {
           success: 1,
           message: "Login succcessfully.",
           doctorFound: doctorFound,
+          access_token: access_token,
         });
       } else {
         res.json({
