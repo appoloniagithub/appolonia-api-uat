@@ -33,13 +33,13 @@ const router = express.Router();
 router.get("/getalldoctors", authCheck, doctorsController.getAllDoctors);
 router.post(
   "/createdoctor",
-  [authCheck, upload.array("image")],
+  [upload.array("image")],
   doctorsController.addDoctor
 );
 router.post("/getDoctorById", authCheck, doctorsController.getDoctorById);
 router.put(
   "/updatedoctor",
-  [authCheck, upload.array("image")],
+  [upload.array("image")],
   doctorsController.updateDoctor
 );
 router.post("/deletedoctor", authCheck, doctorsController.deleteDoctor);

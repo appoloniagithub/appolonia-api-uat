@@ -515,7 +515,7 @@ const newMessage = async (req, res) => {
             conversationId: conversationId,
             senderId: senderId,
             receiverId: receiverId,
-            message: fileLink,
+            message: fileLink.toString().replace(/\\/g, "/"),
             name: name,
             image: image,
             format: format,
