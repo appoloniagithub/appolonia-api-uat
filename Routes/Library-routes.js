@@ -31,19 +31,11 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 const router = express.Router();
 
-router.get(
-  "/getarticles",
-  // authCheck,
-  libraryController.getArticles
-);
-router.post(
-  "/getsinglearticle",
-  // authCheck,
-  libraryController.getSingleArticle
-);
+router.get("/getarticles", authCheck, libraryController.getArticles);
+router.post("/getsinglearticle", authCheck, libraryController.getSingleArticle);
 router.post(
   "/addarticle",
-  // authCheck,
+  //authCheck,
   upload.array("image"),
   libraryController.addArticle
 );

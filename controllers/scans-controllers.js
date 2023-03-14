@@ -61,8 +61,8 @@ const submitScans = async function (body) {
                 "base64"
               );
               //upscaler.upscale(base64Data);
-              //const path = "uploads/images/" + Date.now() + ".png";
-              const path = Date.now() + ".png";
+              const path = "uploads/images/" + Date.now() + ".png";
+              //const path = Date.now() + ".png";
               //const path = `${userId}/${Date.now()}.png`;
               let getPath = await updatedFilePaths(path, base64Data);
               console.log("get path files", getPath);
@@ -93,9 +93,9 @@ const submitScans = async function (body) {
                 "base64"
               );
               //upscaler.upscale(base64Data);
-              const path = Date.now() + ".png";
+              //const path = Date.now() + ".png";
               //const path = `${userId}/${Date.now()}.png`;
-              //const path = "uploads/images/" + Date.now() + ".png";
+              const path = "uploads/images/" + Date.now() + ".png";
               let getPath = await updatedFilePaths(path, base64Data);
               console.log("get path files", getPath);
               updatedTeethScanImages.push(getPath);

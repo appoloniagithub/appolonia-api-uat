@@ -64,6 +64,10 @@ module.exports = (req, res, next) => {
       console.log(userId, "i am userId");
 
       const user = await User.findById({ _id: userId });
+      if (!user) {
+        const user = await Doctor.findById({ _id: userId });
+        req.user = user;
+      }
       req.user = user;
       next();
     });

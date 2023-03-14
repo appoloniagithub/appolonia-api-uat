@@ -190,7 +190,7 @@ const updateUserProfile = async (req, res) => {
     city,
     uniqueId1: fileNumber,
     uniqueId2: emiratesId,
-    image: imageFiles,
+    image: imageFiles.toString().replace(/\\/g, "/"),
   };
 
   try {
@@ -2252,9 +2252,9 @@ const refreshToken = async (req, res) => {
   });
   return res.status(200).json({
     authError: 0,
-    data: {
-      success: 1,
-    },
+
+    success: 1,
+
     accessToken,
   });
 };

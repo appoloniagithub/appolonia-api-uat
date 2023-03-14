@@ -19,6 +19,7 @@ cloudinary.config({
 //     folder: "CHAT",
 //   },
 // });
+//const path = "uploads/chat/";
 const storage = multer.diskStorage({
   destination: "uploads/chat/",
 
@@ -26,7 +27,7 @@ const storage = multer.diskStorage({
     callback(null, Date.now() + ".png");
   },
 });
-const path = "uploads/chat/" + Date.now() + ".png";
+//const path = "uploads/chat/" + Date.now() + ".png";
 //const upload = multer({ dest: path });
 const upload = multer({ storage: storage });
 
@@ -43,7 +44,7 @@ router.post("/newmessage", authCheck, chatController.newMessage);
 
 router.post(
   "/newmessageimage",
-  [authCheck, upload.array("message")],
+  [upload.array("message")],
   chatController.newMessage
 );
 router.post("/getdoctorinfo", authCheck, chatController.getDoctorInfo);

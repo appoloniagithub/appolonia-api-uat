@@ -101,7 +101,7 @@ const addArticle = async (req, res) => {
     let newArticle = new Library({
       title,
       description,
-      image: imageFiles,
+      image: imageFiles.toString().replace(/\\/g, "/"),
       author: {
         authorName,
         //authorImage,
@@ -197,7 +197,8 @@ const updateArticle = async (req, res) => {
     //authorImage,
     date,
   } = req.body;
-  let updateImage = imageFiles.length > 0 ? imageFiles : image;
+  let updateImage =
+    imageFiles.length > 0 ? imageFiles.toString().replace(/\\/g, "/") : image;
 
   try {
     librarySchema.findByIdAndUpdate(

@@ -74,7 +74,7 @@ const addDoctor = async (req, res) => {
       doctorSchema.create(
         {
           ...req.body,
-          image: imageFiles,
+          image: imageFiles.toString().replace(/\\/g, "/"),
           password: hashedpassword,
           uniqueId: password,
           //emiratesId: hashedemiratesId,
@@ -254,7 +254,10 @@ const updateDoctor = async (req, res) => {
       {
         $set: {
           ...req.body,
-          image: imageFiles.length > 0 ? imageFiles : image,
+          image:
+            imageFiles.length > 0
+              ? imageFiles.toString().replace(/\\/g, "/")
+              : image,
           password: hashedpassword,
           uniqueId: password,
         },

@@ -18,6 +18,7 @@ cloudinary.config({
 //     folder: "CONTACT",
 //   },
 // });
+//const path = "uploads/contact/";
 const storage = multer.diskStorage({
   destination: "uploads/contact/",
 
@@ -52,7 +53,7 @@ router.post("/profileget", authCheck, usersController.getUserdata);
 router.post("/changepassword", authCheck, usersController.changePassword);
 router.post(
   "/updateprofile",
-  [authCheck, upload.array("image")],
+  [upload.array("image")],
   usersController.updateUserProfile
 );
 router.post("/deleteaccount", usersController.deleteAccount);
