@@ -8,6 +8,17 @@ const Conversation = require("../Models/Conversations");
 const Message = require("../Models/Messages");
 const moment = require("moment");
 var CryptoJS = require("crypto-js");
+const sendPushNotification = require("../sendPushNotification");
+
+function createMsg(token, title, body) {
+  return {
+    token: token,
+    notification: {
+      title: title,
+      body: body,
+    },
+  };
+}
 
 const getFileFamilyMembers = async (req, res) => {
   console.log(req.headers);
@@ -379,6 +390,16 @@ const addFamilyMember = async (req, res) => {
                 clinicResolved[0]?.clinicName,
                 adminFoundResolved?.image[0]
               );
+              let userFound = await User.find({ phoneNumber: phoneNumber });
+              console.log(userFound, "user");
+              if (userFound) {
+                let message = createMsg(
+                  userFound[0]?.device_token,
+                  "Appolonia",
+                  "Family Member Added"
+                );
+                sendPushNotification(message);
+              }
               res.json({
                 serverError: 0,
                 message:

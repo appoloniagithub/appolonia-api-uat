@@ -5,6 +5,7 @@ const Settings = require("../Models/Settings");
 const Scans = require("../Models/Scans");
 const fs = require("fs");
 const moment = require("moment");
+const sendPushNotification = require("../sendPushNotification");
 // const Upscaler = require("upscaler/node");
 // const upscaler = new Upscaler();
 //require("dotenv").config();
@@ -18,6 +19,16 @@ const s3Bucket = new S3({
     Bucket: "appoloniaapps3",
   },
 });
+
+function createMsg(token, title, body) {
+  return {
+    token: token,
+    notification: {
+      title: title,
+      body: body,
+    },
+  };
+}
 
 const updatedFilePaths = async (path, base64Data) => {
   try {
@@ -355,6 +366,16 @@ const getScanId = async (req, res) => {
               console.log("data updated", foundScans[0]);
               const temp = await Scans.find({ _id: scanId });
 
+              const userFound = await User.find({ _id: userId });
+              console.log(userFound, "user");
+              if (userFound) {
+                let message = createMsg(
+                  userFound[0]?.device_token,
+                  "Appolonia",
+                  "Your Scans are reviewed by Doctor"
+                );
+                sendPushNotification(message);
+              }
               res.json({
                 serverError: 0,
                 message: "Scans found",

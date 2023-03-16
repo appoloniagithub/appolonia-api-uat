@@ -415,7 +415,7 @@ const doctorLogin = async (req, res) => {
       let access_token;
       try {
         access_token = jwt.sign({ userId: doctorFound._id }, JWTKEY, {
-          expiresIn: "1h",
+          expiresIn: "1y",
         });
       } catch (err) {
         console.log(err);

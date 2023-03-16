@@ -31,6 +31,8 @@ const userSchema = new Schema({
   assignedDoctorImage: { type: Array },
   isHead: { type: String },
   lastScan: { type: Date },
+  access_token: { type: String },
+  device_token: { type: String },
 });
 
 // userSchema.plugin(uniqueValidator);

@@ -5,6 +5,17 @@ const Conversation = require("../Models/Conversations");
 const Message = require("../Models/Messages");
 const moment = require("moment");
 const Doctor = require("../Models/Doctor");
+const sendPushNotification = require("../sendPushNotification");
+
+const createMsg = (token, title, body) => {
+  return {
+    token: token,
+    notification: {
+      title: title,
+      body: body,
+    },
+  };
+};
 
 const newChat = async (req, res) => {
   console.log(req.body, "i am bopdy");
@@ -494,6 +505,7 @@ const newMessage = async (req, res) => {
           });
         }
       }
+
       res.json({
         serverError: 0,
         message: "Message Sent",
@@ -581,6 +593,40 @@ const newMessage = async (req, res) => {
           //   updatedAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
           // }
         );
+        const userFound = await User.find({ _id: senderId });
+        console.log(userFound, "user");
+        if (userFound) {
+          let message = createMsg(
+            userFound[0]?.device_token,
+            "Appolonia",
+            "New Message Received"
+          );
+          sendPushNotification(message);
+        }
+        // const doctorFound = await Doctor.find({ _id: senderId });
+        // console.log(doctorFound);
+        // if(doctorFound){
+
+        //      let message = createMsg(
+        //     userFound[0]?.device_token,
+        //     "Appolonia",
+        //     "New Message Received"
+        //   );
+        //   sendPushNotification(message);
+        // }else{
+
+        // }
+        // const userFound = await User.find({ _id: receiverId });
+        // console.log(userFound, "user");
+        // if (userFound) {
+        //   let message = createMsg(
+        //     userFound[0]?.device_token,
+        //     "Appolonia",
+        //     "New Message Received"
+        //   );
+        //   sendPushNotification(message);
+        // }
+
         createdMessage.save((err) => {
           if (err) {
             throw new Error("Error Creating the message");

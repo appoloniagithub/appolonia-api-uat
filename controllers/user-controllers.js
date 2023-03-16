@@ -46,6 +46,7 @@ const Message = require("../Models/Messages");
 const Scans = require("../Models/Scans");
 const Settings = require("../Models/Settings");
 const Doctor = require("../Models/Doctor");
+const Notification = require("../Models/Notification");
 
 // const accountSid = "AC05d6ccacda0201d3e850b4ce60c773af";
 // const authToken = "5f7f59ab3a6bdf8fcc2d810e6be45f98";
@@ -92,12 +93,17 @@ const getUserdata = async (req, res) => {
       role: foundUser.role,
       image: foundUser.image.length === 0 ? staticImg : foundUser.image,
     };
+    const notifications = await Notification.find({
+      $and: [{ userId: userId }, { isRead: "0" }],
+    });
+    console.log(notifications.length);
     res.json({
       serverError: 0,
       message: "User found",
       data: {
         success: 1,
         userData: foundUser,
+        notificationCount: notifications.length,
       },
     });
     return;
@@ -1426,7 +1432,8 @@ const fileVerify = async (req, res) => {
 
 const login = async (req, res, next) => {
   console.log(req.body);
-  const { phoneNumber, password, emiratesId, isPhoneNumber } = req.body;
+  const { phoneNumber, password, emiratesId, isPhoneNumber, device_token } =
+    req.body;
   let existingUser;
   // if (isPhoneNumber === "1") {
   //   try {
@@ -1827,7 +1834,19 @@ const login = async (req, res, next) => {
             : "https://www.clipartmax.com/png/middle/344-3442642_clip-art-freeuse-library-profile-man-user-people-icon-icono-de-login.png",
           scans: userScansResolved,
         };
-
+        User.updateOne(
+          { _id: familyHead?._id },
+          { $set: { device_token: device_token } },
+          function (err) {
+            if (err) {
+              throw new Error(
+                "Somthing went wrong while verifiying Phone Number"
+              );
+            } else {
+              console.log("data updated");
+            }
+          }
+        );
         console.log(familyHead, "i am head");
         res.json({
           serverError: 0,
@@ -2235,7 +2254,7 @@ const login = async (req, res, next) => {
   }
 };
 const refreshToken = async (req, res) => {
-  const { fileId, refreshToken } = req.body;
+  const { fileId, refreshToken, device_token } = req.body;
   console.log(req.body);
   let foundUser = await File.findOne({ _id: fileId });
   //console.log(foundUser[0]?._id, "i am found user");
@@ -3059,6 +3078,15 @@ const getAllDoctors = async (req, res) => {
   }
 };
 
+const createMessage = (token, title, body) => {
+  return {
+    token: token,
+    notification: {
+      title: title,
+      body: body,
+    },
+  };
+};
 module.exports = {
   signup,
   login,
@@ -3079,4 +3107,5 @@ module.exports = {
   deletePatient,
   getAllDoctors,
   refreshToken,
+  createMessage,
 };

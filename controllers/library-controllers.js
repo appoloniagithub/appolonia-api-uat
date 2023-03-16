@@ -4,6 +4,18 @@ const File = require("../Models/File");
 const Settings = require("../Models/Settings");
 const Library = require("../Models/Library");
 const librarySchema = require("../Models/Library");
+const sendPushNotification = require("../sendPushNotification");
+
+function createMsg(token, title, body) {
+  return {
+    token: token,
+    notification: {
+      title: title,
+      body: body,
+    },
+  };
+}
+
 const getArticles = async (req, res) => {
   try {
     let foundArticles = await Library.find({});
@@ -108,12 +120,21 @@ const addArticle = async (req, res) => {
       },
       date,
     });
+
+    // let message = createMsg(
+    //   userFound[0]?.device_token,
+    //   "Appolonia",
+    //   "New Article Added"
+    // );
+    // sendPushNotification(message);
+
     newArticle.save((err, data) => {
       if (err) {
         console.log(err);
         throw new Error("Error saving the article");
       } else {
         console.log(data);
+
         res.json({
           serverError: 0,
           message: "New Article added.",
