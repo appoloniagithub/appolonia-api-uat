@@ -2210,6 +2210,19 @@ const login = async (req, res, next) => {
             (familyHead?.image).length === 0 ? staticImage : familyHead?.image,
           //scans: userScansResolved,
         };
+        User.updateOne(
+          { _id: familyHead?._id },
+          { $set: { device_token: device_token } },
+          function (err) {
+            if (err) {
+              throw new Error(
+                "Somthing went wrong while verifiying Phone Number"
+              );
+            } else {
+              console.log("data updated");
+            }
+          }
+        );
         console.log(familyHead?.image);
         console.log(familyHead, "i am head");
         res.json({
