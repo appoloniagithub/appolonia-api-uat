@@ -217,7 +217,24 @@ const getLastImage = async (conversationId) => {
   console.log(lastImage, "last image");
   return lastImage.image[0];
 };
-
+const getChatCount = async (conversationId) => {
+  console.log(conversationId, "id in chat count");
+  let foundMessages = await Message.find({
+    //isSeen: "0",
+    $and: [{ conversationId: conversationId }, { isSeen: "0" }],
+  });
+  console.log(foundMessages.length, "in count");
+  //foundMessages = foundMessages.length;
+  return foundMessages.length;
+};
+const getReceiverId = async (conversationId) => {
+  console.log(conversationId, "in get rec");
+  let foundMessages = await Message.find({ conversationId: conversationId });
+  console.log(foundMessages);
+  foundMessages = foundMessages.reverse();
+  let lastRec = foundMessages[foundMessages.length - 1];
+  return lastRec.receiverId;
+};
 const getConversations = async (req, res) => {
   console.log(req.body, "i am body");
 
@@ -241,7 +258,8 @@ const getConversations = async (req, res) => {
         lastMessage: await getLastMessage(conversations[i]._id),
         lastName: await getLastName(conversations[i]._id),
         lastImage: await getLastImage(conversations[i]._id),
-        //receiverId: conversations[i].receiverId,
+        chatCount: await getChatCount(conversations[i]._id),
+        lastReceiverId: await getReceiverId(conversations[i]._id),
         //name: conversations[i].name,
         createdAt: conversations[i].createdAt,
         updatedAt: conversations[i].updatedAt,
@@ -339,11 +357,23 @@ const getConversationMessages = async (req, res) => {
   const { conversationId, bottomHit, userId } = req.body;
   try {
     console.log("sea");
+    Message.updateMany(
+      { conversationId: conversationId },
+      { $set: { isSeen: "1" } },
+      (err, data) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log("data updated", data);
+        }
+      }
+    );
     let foundMessages = await Message.find({ conversationId: conversationId });
     // .sort({ _id: -1 })
     // .skip(bottomHit > 0 ? (bottomHit - 1) * 10 : 0)
     // .limit(10);
     console.log(foundMessages, "foundMessages");
+
     foundMessages = foundMessages.map((msg) => {
       console.log(msg);
       return {
@@ -355,20 +385,21 @@ const getConversationMessages = async (req, res) => {
         receiverId: msg.receiverId,
         format: msg.format,
         scanId: msg.scanId,
+        isSeen: msg.isSeen,
         createdAt: msg.createdAt,
         updatedAt: msg.updatedAt,
         isSender: msg.senderId === userId ? "1" : "0",
       };
     });
     //foundMessages = foundMessages.reverse();
-
+    let temp = await Message.find({ conversationId: conversationId });
     if (foundMessages.length > 0) {
       res.json({
         serverError: 0,
         message: "Messages Found",
         data: {
           success: 1,
-          messages: foundMessages,
+          messages: temp,
           //lastMessage: foundMessages[foundMessages.length - 1],
           //lastName: foundMessages[foundMessages.length - 1],
         },
@@ -398,7 +429,8 @@ const getConversationMessages = async (req, res) => {
 const newMessage = async (req, res) => {
   console.log(req.body, "i am body");
   console.log(req.files, "i am files");
-  const { conversationId, senderId, message, scanId, format, type } = req.body;
+  const { conversationId, senderId, recId, message, scanId, format, type } =
+    req.body;
   let receiverId = "";
   let name = "";
   let image = "";
@@ -573,11 +605,13 @@ const newMessage = async (req, res) => {
           conversationId: conversationId,
           senderId: senderId,
           receiverId: receiverId,
+          recId: recId,
           name: name,
           message: message,
           image: image,
           format: format,
           scanId: scanId?.length > 0 ? scanId : "",
+          isSeen: "0",
           createdAt: moment(Date.now()).format("DD-MM-YY HH:mm"),
           updatedAt: moment(Date.now()).format("DD-MM-YY HH:mm"),
         };
@@ -593,30 +627,7 @@ const newMessage = async (req, res) => {
           //   updatedAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
           // }
         );
-        const userFound = await User.find({ _id: senderId });
-        console.log(userFound, "user");
-        if (userFound) {
-          let message = createMsg(
-            userFound[0]?.device_token,
-            "Appolonia",
-            "New Message Received"
-          );
-          sendPushNotification(message);
-        }
-        // const doctorFound = await Doctor.find({ _id: senderId });
-        // console.log(doctorFound);
-        // if(doctorFound){
-
-        //      let message = createMsg(
-        //     userFound[0]?.device_token,
-        //     "Appolonia",
-        //     "New Message Received"
-        //   );
-        //   sendPushNotification(message);
-        // }else{
-
-        // }
-        // const userFound = await User.find({ _id: receiverId });
+        // const userFound = await User.find({ _id: senderId });
         // console.log(userFound, "user");
         // if (userFound) {
         //   let message = createMsg(
@@ -626,6 +637,27 @@ const newMessage = async (req, res) => {
         //   );
         //   sendPushNotification(message);
         // }
+        const doctorFound = await Doctor.find({ _id: senderId });
+        console.log(doctorFound, "123");
+        if (doctorFound.length > 0) {
+          const userFound = await User.find({ _id: recId });
+          console.log(userFound, "456");
+          if (userFound) {
+            let message = createMsg(
+              userFound[0]?.device_token,
+              "Appolonia",
+              "New Message Received"
+            );
+            sendPushNotification(message);
+          }
+        } else {
+          const userFound = await User.find({ _id: senderId });
+          console.log(userFound, "user in else");
+          if (userFound) {
+            const doctorFound = await Doctor.find({ _id: recId });
+            console.log(doctorFound, "doctor in else");
+          }
+        }
 
         createdMessage.save((err) => {
           if (err) {
