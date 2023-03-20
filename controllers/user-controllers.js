@@ -93,7 +93,7 @@ const getUserdata = async (req, res) => {
       role: foundUser.role,
       image:
         foundUser.image.length === 0
-          ? "uploads/contact/login.jpeg"
+          ? ["uploads/contact/login.jpeg"]
           : foundUser.image,
     };
     const notifications = await Notification.find({
@@ -1834,7 +1834,7 @@ const login = async (req, res, next) => {
           role: familyHead?.role,
           image: familyHead?.image
             ? familyHead?.image
-            : "uploads/contact/login.jpeg",
+            : ["uploads/contact/login.jpeg"],
           scans: userScansResolved,
         };
         User.updateOne(
@@ -2211,7 +2211,7 @@ const login = async (req, res, next) => {
           //image: imgObj,
           image:
             (familyHead?.image).length === 0
-              ? "uploads/contact/login.jpeg"
+              ? ["uploads/contact/login.jpeg"]
               : familyHead?.image,
           //scans: userScansResolved,
         };

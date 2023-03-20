@@ -97,7 +97,7 @@ const getFileFamilyMembers = async (req, res) => {
         ? userScansResolved[0]?.doctorName
         : `${adminFoundResolved?.firstName} ${adminFoundResolved.lastName}`,
       role: member?.role,
-      image: member?.image ? member?.image : "uploads/contact/login.jpeg",
+      image: member?.image ? member?.image : ["uploads/contact/login.jpeg"],
       scans: [],
     };
   });
