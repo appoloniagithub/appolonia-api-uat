@@ -91,7 +91,10 @@ const getUserdata = async (req, res) => {
       city: foundUser.city,
       dob: foundUser.dob,
       role: foundUser.role,
-      image: foundUser.image.length === 0 ? staticImg : foundUser.image,
+      image:
+        foundUser.image.length === 0
+          ? "uploads/contact/login.jpeg"
+          : foundUser.image,
     };
     const notifications = await Notification.find({
       $and: [{ userId: userId }, { isRead: "0" }],
@@ -1831,7 +1834,7 @@ const login = async (req, res, next) => {
           role: familyHead?.role,
           image: familyHead?.image
             ? familyHead?.image
-            : "https://www.clipartmax.com/png/middle/344-3442642_clip-art-freeuse-library-profile-man-user-people-icon-icono-de-login.png",
+            : "uploads/contact/login.jpeg",
           scans: userScansResolved,
         };
         User.updateOne(
@@ -2207,7 +2210,9 @@ const login = async (req, res, next) => {
           role: familyHead?.role,
           //image: imgObj,
           image:
-            (familyHead?.image).length === 0 ? staticImage : familyHead?.image,
+            (familyHead?.image).length === 0
+              ? "uploads/contact/login.jpeg"
+              : familyHead?.image,
           //scans: userScansResolved,
         };
         User.updateOne(

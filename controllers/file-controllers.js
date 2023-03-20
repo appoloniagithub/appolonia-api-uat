@@ -97,9 +97,7 @@ const getFileFamilyMembers = async (req, res) => {
         ? userScansResolved[0]?.doctorName
         : `${adminFoundResolved?.firstName} ${adminFoundResolved.lastName}`,
       role: member?.role,
-      image: member?.image
-        ? member?.image
-        : "https://www.clipartmax.com/png/middle/344-3442642_clip-art-freeuse-library-profile-man-user-people-icon-icono-de-login.png",
+      image: member?.image ? member?.image : "uploads/contact/login.jpeg",
       scans: [],
     };
   });
