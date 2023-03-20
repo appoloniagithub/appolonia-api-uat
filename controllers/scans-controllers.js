@@ -29,6 +29,7 @@ function createMsg(token, title, body) {
     },
   };
 }
+// setTimeout(createMsg, 120000);
 
 const updatedFilePaths = async (path, base64Data) => {
   try {
@@ -131,7 +132,6 @@ const submitScans = async function (body) {
           console.log("updated", updatedFaceScanImages, updatedTeethScanImages);
           const updatedScan = new Scans({
             userId: userId,
-            //patientName: userId?.firstName,
             doctorId: doctorId,
             doctorName: doctorName,
             faceScanImages: updatedFaceScanImages,
@@ -140,6 +140,7 @@ const submitScans = async function (body) {
             isOpen: 0,
             created: Date.now(),
           });
+
           await updatedScan.save(async (err, doc) => {
             console.log(doc, "doc");
 
@@ -189,6 +190,17 @@ const submitScans = async function (body) {
                 msgObjImg,
                 msgObjText
               );
+              const userFound = await User.find({ _id: userId });
+              console.log(userFound, "user");
+              if (userFound) {
+                let message = createMsg(
+                  userFound[0]?.device_token,
+                  "Appolonia",
+                  "Your Scan is due"
+                );
+                sendPushNotification(message);
+                setTimeout(createMsg, 120000);
+              }
 
               console.log(updateText, "update message in submit scan");
               resolve({
@@ -366,16 +378,16 @@ const getScanId = async (req, res) => {
               console.log("data updated", foundScans[0]);
               const temp = await Scans.find({ _id: scanId });
 
-              const userFound = await User.find({ _id: userId });
-              console.log(userFound, "user");
-              if (userFound) {
-                let message = createMsg(
-                  userFound[0]?.device_token,
-                  "Appolonia",
-                  "Your Scans are reviewed by Doctor"
-                );
-                sendPushNotification(message);
-              }
+              // const userFound = await User.find({ _id: userId });
+              // console.log(userFound, "user");
+              // if (userFound) {
+              //   let message = createMsg(
+              //     userFound[0]?.device_token,
+              //     "Appolonia",
+              //     "Your Scans are reviewed by Doctor"
+              //   );
+              //   sendPushNotification(message);
+              // }
               res.json({
                 serverError: 0,
                 message: "Scans found",

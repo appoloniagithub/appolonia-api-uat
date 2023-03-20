@@ -120,15 +120,18 @@ const addArticle = async (req, res) => {
       },
       date,
     });
-
-    // let message = createMsg(
-    //   userFound[0]?.device_token,
-    //   "Appolonia",
-    //   "New Article Added"
-    // );
-    // sendPushNotification(message);
-
-    newArticle.save((err, data) => {
+    let usersFound = await User.find({});
+    console.log(usersFound, "found");
+    for (let i = 0; i < usersFound.length; i++) {
+      let message = createMsg(
+        usersFound[i]?.device_token,
+        "Appolonia",
+        "New Article Added"
+      );
+      console.log(usersFound[i]?.device_token);
+      sendPushNotification(message);
+    }
+    newArticle.save(async (err, data) => {
       if (err) {
         console.log(err);
         throw new Error("Error saving the article");
