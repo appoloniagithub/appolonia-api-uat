@@ -627,37 +627,28 @@ const newMessage = async (req, res) => {
           //   updatedAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
           // }
         );
-        // const userFound = await User.find({ _id: senderId });
-        // console.log(userFound, "user");
-        // if (userFound) {
-        //   let message = createMsg(
-        //     userFound[0]?.device_token,
-        //     "Appolonia",
-        //     "New Message Received"
-        //   );
-        //   sendPushNotification(message);
+
+        // const doctorFound = await Doctor.find({ _id: senderId });
+        // console.log(doctorFound, "123");
+        // if (doctorFound.length > 0) {
+        //   const userFound = await User.find({ _id: recId });
+        //   console.log(userFound, "456");
+        //   if (userFound) {
+        //     let message = createMsg(
+        //       userFound[0]?.device_token,
+        //       "Appolonia",
+        //       "New Message Received"
+        //     );
+        //     sendPushNotification(message);
+        //   }
+        // } else {
+        //   const userFound = await User.find({ _id: senderId });
+        //   console.log(userFound, "user in else");
+        //   if (userFound) {
+        //     const doctorFound = await Doctor.find({ _id: recId });
+        //     console.log(doctorFound, "doctor in else");
+        //   }
         // }
-        const doctorFound = await Doctor.find({ _id: senderId });
-        console.log(doctorFound, "123");
-        if (doctorFound.length > 0) {
-          const userFound = await User.find({ _id: recId });
-          console.log(userFound, "456");
-          if (userFound) {
-            let message = createMsg(
-              userFound[0]?.device_token,
-              "Appolonia",
-              "New Message Received"
-            );
-            sendPushNotification(message);
-          }
-        } else {
-          const userFound = await User.find({ _id: senderId });
-          console.log(userFound, "user in else");
-          if (userFound) {
-            const doctorFound = await Doctor.find({ _id: recId });
-            console.log(doctorFound, "doctor in else");
-          }
-        }
 
         createdMessage.save((err) => {
           if (err) {

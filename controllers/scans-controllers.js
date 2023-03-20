@@ -190,17 +190,17 @@ const submitScans = async function (body) {
                 msgObjImg,
                 msgObjText
               );
-              const userFound = await User.find({ _id: userId });
-              console.log(userFound, "user");
-              if (userFound) {
-                let message = createMsg(
-                  userFound[0]?.device_token,
-                  "Appolonia",
-                  "Your Scan is due"
-                );
-                sendPushNotification(message);
-                setTimeout(createMsg, 120000);
-              }
+              // const userFound = await User.find({ _id: userId });
+              // console.log(userFound, "user");
+              // if (userFound) {
+              //   let message = createMsg(
+              //     userFound[0]?.device_token,
+              //     "Appolonia",
+              //     "Your Scan is due"
+              //   );
+              //   sendPushNotification(message);
+              //   setTimeout(createMsg, 120000);
+              // }
 
               console.log(updateText, "update message in submit scan");
               resolve({
