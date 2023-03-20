@@ -231,7 +231,7 @@ const getReceiverId = async (conversationId) => {
   console.log(conversationId, "in get rec");
   let foundMessages = await Message.find({ conversationId: conversationId });
   console.log(foundMessages);
-  foundMessages = foundMessages.reverse();
+  //foundMessages = foundMessages.reverse();
   let lastRec = foundMessages[foundMessages.length - 1];
   return lastRec.receiverId;
 };
