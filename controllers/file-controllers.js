@@ -8,6 +8,7 @@ const Conversation = require("../Models/Conversations");
 const Message = require("../Models/Messages");
 const moment = require("moment");
 var CryptoJS = require("crypto-js");
+const Notification = require("../Models/Notification");
 const sendPushNotification = require("../sendPushNotification");
 
 function createMsg(token, title, body) {
@@ -398,6 +399,21 @@ const addFamilyMember = async (req, res) => {
               //   );
               //   sendPushNotification(message);
               // }
+              let inAppNoti = new Notification({
+                title: "Appolonia",
+                body: "Family Member Added",
+                actionId: "2",
+                actionName: "Family",
+                userId: userDoc._id.toString(),
+              });
+              inAppNoti.save(async (err, data) => {
+                if (err) {
+                  console.log(err);
+                  throw new Error("Error saving the notification");
+                } else {
+                  console.log(data);
+                }
+              });
               res.json({
                 serverError: 0,
                 message:

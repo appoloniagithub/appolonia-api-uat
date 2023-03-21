@@ -5,6 +5,7 @@ const Settings = require("../Models/Settings");
 const Scans = require("../Models/Scans");
 const fs = require("fs");
 const moment = require("moment");
+const Notification = require("../Models/Notification");
 const sendPushNotification = require("../sendPushNotification");
 // const Upscaler = require("upscaler/node");
 // const upscaler = new Upscaler();
@@ -201,7 +202,23 @@ const submitScans = async function (body) {
               //   sendPushNotification(message);
               //   setTimeout(createMsg, 120000);
               // }
-
+              const userFound = await User.find({ _id: userId });
+              console.log(userFound, "user");
+              let inAppNoti = new Notification({
+                title: "Appolonia",
+                body: "Your Scan is Due",
+                actionId: "3",
+                actionName: "Scan",
+                userId: userFound[0]?._id,
+              });
+              inAppNoti.save(async (err, data) => {
+                if (err) {
+                  console.log(err);
+                  throw new Error("Error saving the notification");
+                } else {
+                  console.log(data);
+                }
+              });
               console.log(updateText, "update message in submit scan");
               resolve({
                 serverError: 0,

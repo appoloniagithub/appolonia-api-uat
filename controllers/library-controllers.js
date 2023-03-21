@@ -4,6 +4,7 @@ const File = require("../Models/File");
 const Settings = require("../Models/Settings");
 const Library = require("../Models/Library");
 const librarySchema = require("../Models/Library");
+const Notification = require("../Models/Notification");
 const sendPushNotification = require("../sendPushNotification");
 
 function createMsg(token, title, body) {
@@ -131,6 +132,26 @@ const addArticle = async (req, res) => {
     //   console.log(usersFound[i]?.device_token);
     //   sendPushNotification(message);
     // }
+    let usersFound = await User.find({});
+    console.log(usersFound, "found");
+    for (let i = 0; i < usersFound.length; i++) {
+      let inAppNoti = new Notification({
+        title: "Appolonia",
+        body: "New Article Added",
+        actionId: "1",
+        actionName: "Library",
+        userId: usersFound[i]?._id,
+      });
+
+      inAppNoti.save(async (err, data) => {
+        if (err) {
+          console.log(err);
+          throw new Error("Error saving the notification");
+        } else {
+          console.log(data);
+        }
+      });
+    }
     newArticle.save(async (err, data) => {
       if (err) {
         console.log(err);
