@@ -8,6 +8,7 @@ const settingsSchema = new Schema({
   fcmKey: { type: String },
   clinicName: { type: String },
   clinicLogo: { type: String },
+  city: { type: String },
   forceUpdate: { type: Boolean, default: false },
 });
 

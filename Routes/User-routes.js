@@ -61,4 +61,11 @@ router.post("/deletepatient", authCheck, usersController.deletePatient);
 router.get("/getallusers", authCheck, usersController.getUsers);
 router.get("/getalldoctors", authCheck, usersController.getAllDoctors);
 router.post("/refreshToken", usersController.refreshToken);
+router.post("/reqbooking", usersController.sendBookingReq);
+router.post("/getallappointments", usersController.getAllBookings);
+router.post("/updatebooking", usersController.updateBooking);
+router.post("/deletebooking", usersController.deleteBooking);
+router.post("/check-booking-availability", usersController.checkAvailability);
+router.get("/getbookingdata", usersController.getBookingData);
+
 module.exports = router;

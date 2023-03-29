@@ -42,13 +42,15 @@ const createRole = async (req, res) => {
 const addSettingsData = async (req, res) => {
   console.log(req.body);
 
-  const { clinicName, clinicLogo, version, fcmKey, forceUpdate } = req.body;
+  const { clinicName, clinicLogo, version, fcmKey, city, forceUpdate } =
+    req.body;
 
   const createdSettings = new Settings({
     clinicName: clinicName,
     clinicLogo: clinicLogo,
     version: version,
     fcmKey: fcmKey,
+    city: city,
     forceUpdate: forceUpdate,
   });
 
