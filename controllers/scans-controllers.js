@@ -6,7 +6,8 @@ const Scans = require("../Models/Scans");
 const fs = require("fs");
 const moment = require("moment");
 const Notification = require("../Models/Notification");
-const sendPushNotification = require("../sendPushNotification");
+const sendPushNotification = require("../services/sendPushNotification");
+const ScheduledNotification = require("../Models/ScheduledNotification");
 // const Upscaler = require("upscaler/node");
 // const upscaler = new Upscaler();
 //require("dotenv").config();
@@ -210,11 +211,31 @@ const submitScans = async function (body) {
                 actionId: "3",
                 actionName: "Scan",
                 userId: userFound[0]?._id,
+                isRead: "0",
               });
               inAppNoti.save(async (err, data) => {
                 if (err) {
                   console.log(err);
                   throw new Error("Error saving the notification");
+                } else {
+                  console.log(data);
+                }
+              });
+
+              let scheduledNoti = new ScheduledNotification({
+                notification: {
+                  title: "Appolonia",
+                  body: "Your Scan is Due",
+                },
+                time: "16:00",
+                days: [0],
+                userId: userFound[0]?._id,
+                isRead: "0",
+              });
+              scheduledNoti.save(async (err, data) => {
+                if (err) {
+                  console.log(err);
+                  throw new Error("Error saving the scheduled notification");
                 } else {
                   console.log(data);
                 }

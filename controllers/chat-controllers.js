@@ -5,7 +5,7 @@ const Conversation = require("../Models/Conversations");
 const Message = require("../Models/Messages");
 const moment = require("moment");
 const Doctor = require("../Models/Doctor");
-const sendPushNotification = require("../sendPushNotification");
+const sendPushNotification = require("../services/sendPushNotification");
 
 const createMsg = (token, title, body) => {
   return {

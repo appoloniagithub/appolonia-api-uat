@@ -9,7 +9,7 @@ const Message = require("../Models/Messages");
 const moment = require("moment");
 var CryptoJS = require("crypto-js");
 const Notification = require("../Models/Notification");
-const sendPushNotification = require("../sendPushNotification");
+const sendPushNotification = require("../services/sendPushNotification");
 
 function createMsg(token, title, body) {
   return {
@@ -405,6 +405,7 @@ const addFamilyMember = async (req, res) => {
                 actionId: "2",
                 actionName: "Family",
                 userId: userDoc._id.toString(),
+                isRead: "0",
               });
               inAppNoti.save(async (err, data) => {
                 if (err) {

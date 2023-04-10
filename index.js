@@ -2,6 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const app = express();
+const expressPinoLogger = require("express-pino-logger");
+const logger = require("./services/loggerService");
 
 const usersRoutes = require("./Routes/User-routes");
 const fileRoutes = require("./Routes/File-routes");
@@ -18,7 +20,15 @@ const patientRoutes = require("./Routes/Patient-routes");
 const PORT = process.env.PORT || 3001;
 const { db } = require("./Config/config");
 
+const schedule = require("./services/schedule");
+
+const loggerMidleware = expressPinoLogger({
+  logger: logger,
+  autoLogging: false,
+});
+app.use(loggerMidleware);
 // app.use(bodyParser.json());
+
 app.use(bodyParser.json({ limit: "500mb" }));
 app.use(bodyParser.urlencoded({ limit: "500mb", extended: true }));
 app.use(express.json());
@@ -65,6 +75,8 @@ app.use("/api/uploads", express.static("uploads"));
 app.use("/images", express.static("images"));
 
 app.use("/api", express.static("./"));
+
+schedule.reSchedule();
 
 app.listen(PORT, () => {
   console.log("listening on " + PORT);

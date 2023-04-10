@@ -62,10 +62,15 @@ router.get("/getallusers", authCheck, usersController.getUsers);
 router.get("/getalldoctors", authCheck, usersController.getAllDoctors);
 router.post("/refreshToken", usersController.refreshToken);
 router.post("/reqbooking", usersController.sendBookingReq);
-router.post("/getallappointments", usersController.getAllBookings);
+router.get("/getallappointments", usersController.getAllAppointments);
 router.post("/updatebooking", usersController.updateBooking);
 router.post("/deletebooking", usersController.deleteBooking);
 router.post("/check-booking-availability", usersController.checkAvailability);
 router.get("/getbookingdata", usersController.getBookingData);
+router.post("/confirmbooking", usersController.confirmBooking);
+router.post("/getallbookings", usersController.getAllBookings);
+router.post("/showbookingdetails", usersController.showBookingDetails);
+router.post("/searchuser", usersController.searchUser);
+router.post("/getappointmentbyid", usersController.getAppointmentById);
 
 module.exports = router;

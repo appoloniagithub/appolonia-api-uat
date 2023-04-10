@@ -5,7 +5,7 @@ const Settings = require("../Models/Settings");
 const Library = require("../Models/Library");
 const librarySchema = require("../Models/Library");
 const Notification = require("../Models/Notification");
-const sendPushNotification = require("../sendPushNotification");
+const sendPushNotification = require("../services/sendPushNotification");
 
 function createMsg(token, title, body) {
   return {
@@ -141,6 +141,7 @@ const addArticle = async (req, res) => {
         actionId: "1",
         actionName: "Library",
         userId: usersFound[i]?._id,
+        isRead: "0",
       });
 
       inAppNoti.save(async (err, data) => {

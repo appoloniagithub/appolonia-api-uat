@@ -8,6 +8,7 @@ module.exports = {
   SMTPPASS: process.env.SMTPPASS,
   authToken: process.env.authToken,
   accountSid: process.env.accountSid,
+  FIREBASE_DATABASE_URL: process.env.FIREBASE_DATABASE_URL,
   // db: "mongodb+srv://appolonia:database99$@underdevelopment.neb6qwe.mongodb.net/?retryWrites=true&w=majority",
   // JWTKEY: "APPOLONIAPRIVATEKEY",
   // SMTPPASS: "mxnqbnuiaradsmxe",

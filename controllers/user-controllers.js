@@ -14,6 +14,7 @@ const {
   accountSid,
   authToken,
 } = require("../Config/config");
+const sendPushNotification = require("../services/sendPushNotification");
 const moment = require("moment");
 const Appointment = require("../Models/Appointment");
 // const cloudinary = require("cloudinary").v2;
@@ -65,10 +66,11 @@ const getUsers = async (req, res, next) => {
 };
 
 const getUserdata = async (req, res) => {
+  logger.info("GET user data is accessed");
   const { userId } = req.body;
   let foundUser = await User.findOne({ _id: userId });
   console.log(foundUser, "i am user");
-
+  logger.info(foundUser, "i am user");
   if (foundUser) {
     // let decryptedFileNumber;
     // decryptedFileNumber = CryptoJS.AES.decrypt(foundUser?.fileNumber, "love");
@@ -101,6 +103,7 @@ const getUserdata = async (req, res) => {
       $and: [{ userId: userId }, { isRead: "0" }],
     });
     console.log(notifications.length);
+    logger.info("notification length");
     res.json({
       serverError: 0,
       message: "User found",
@@ -125,10 +128,12 @@ const getUserdata = async (req, res) => {
 };
 
 const updateUserProfile = async (req, res) => {
+  logger.info("update user profile");
   console.log(req.body);
   let imageFiles = [];
   if (req?.files?.length > 0) {
     console.log(req.files, "here are the files");
+    logger.info("here are the files");
     imageFiles = req.files.map((file) => file.path);
   }
   const {
@@ -185,7 +190,7 @@ const updateUserProfile = async (req, res) => {
     console.log(hashedemiratesId, hashedFileNumber, "i am emirates");
   } catch (err) {
     console.log("Something went wrong while Encrypting Data", err);
-
+    logger.info("Something went wrong while Encrypting Data");
     throw new Error("Something went wrong while Encrypting Data");
   }
 
@@ -207,6 +212,7 @@ const updateUserProfile = async (req, res) => {
     User.updateOne({ _id: userId }, data, { new: true }, (err) => {
       if (err) {
         console.log(err);
+        logger.info("Error updating the user");
         throw new Error("Error updating the user");
       } else {
         if (isFamilyHead === "1") {
@@ -278,6 +284,7 @@ const updateUserProfile = async (req, res) => {
 };
 
 const checkPatient = async (req, res) => {
+  logger.info("check patient api");
   console.log(req.body);
   const { isFileNumber, fileNumber, emiratesId } = req.body;
 
@@ -741,6 +748,7 @@ const createUserAndAdminChat = async (
   name,
   image
 ) => {
+  logger.info("create user and admin chat");
   let conversations = await Conversation.find({
     members: { $in: [senderId] },
   });
@@ -844,6 +852,7 @@ const createUserAndAdminChat = async (
 };
 
 const signup = async (req, res, next) => {
+  logger.info("sign up api");
   const {
     firstName,
     lastName,
@@ -1220,6 +1229,7 @@ const signup = async (req, res, next) => {
 };
 
 const sendPhoneOtp = async (phone, otp) => {
+  logger.info("send phone otp");
   console.log(phone, otp);
   const from = "Appolonia";
   const to = phone;
@@ -1240,6 +1250,7 @@ const sendPhoneOtp = async (phone, otp) => {
 };
 
 const sendEmailOtp = (email, otp) => {
+  logger.info("send email otp");
   console.log(email, otp, "hello gggggg");
   if (otp && email) {
     console.log("Things going good");
@@ -1299,6 +1310,7 @@ const sendEmailOtp = (email, otp) => {
 };
 
 const emailVerify = async (req, res) => {
+  logger.info("email verify");
   console.log(req.body);
   const { otp, phoneNumber, fileId } = req.body;
   let user;
@@ -1387,6 +1399,7 @@ const emailVerify = async (req, res) => {
 };
 
 const fileVerify = async (req, res) => {
+  logger.info("file verify");
   console.log(req.body);
   const { fileNumber, fileId } = req.body;
   let user;
@@ -1435,6 +1448,7 @@ const fileVerify = async (req, res) => {
 };
 
 const login = async (req, res, next) => {
+  logger.info("login API");
   console.log(req.body);
   const { phoneNumber, password, emiratesId, isPhoneNumber, device_token } =
     req.body;
@@ -2273,6 +2287,7 @@ const login = async (req, res, next) => {
   }
 };
 const refreshToken = async (req, res) => {
+  logger.info("refresh token api");
   const { fileId, refreshToken, device_token } = req.body;
   console.log(req.body);
   let foundUser = await File.findOne({ _id: fileId });
@@ -2398,6 +2413,7 @@ const sendOtpIfPhoneNotVerified = async (fileId) => {
 };
 
 const newPassword = async (req, res) => {
+  logger.info("new password API");
   console.log(req.body);
 
   const { newPassword, fileId, recentOtp } = req.body;
@@ -2551,7 +2567,7 @@ const newPassword = async (req, res) => {
 
 const changePassword = async (req, res) => {
   console.log(req.body);
-
+  logger.info("change password API");
   const { passwordUpdate, fileId } = req.body;
   const { oldPassword, newPassword } = passwordUpdate;
 
@@ -2617,6 +2633,7 @@ const changePassword = async (req, res) => {
 };
 
 const requestNewOtp = async (req, res) => {
+  logger.info("request new OTP");
   console.log(req.body);
   const { fileId } = req.body;
   let phoneExist = await File.findOne({ _id: fileId }, [
@@ -2697,6 +2714,7 @@ const requestNewOtp = async (req, res) => {
 };
 
 const requestForgotOtp = async (req, res) => {
+  logger.info("request forgot OTP");
   console.log(req.body);
   const { phoneNumber } = req.body;
   let phoneExist = await File.findOne({ phoneNumber: phoneNumber });
@@ -3097,7 +3115,7 @@ const getAllDoctors = async (req, res) => {
   }
 };
 
-const createMessage = (token, title, body) => {
+function createMsg(token, title, body) {
   return {
     token: token,
     notification: {
@@ -3105,7 +3123,7 @@ const createMessage = (token, title, body) => {
       body: body,
     },
   };
-};
+}
 
 const sendBookingReq = async (req, res) => {
   try {
@@ -3120,7 +3138,7 @@ const sendBookingReq = async (req, res) => {
       consultationType,
       doctorId,
       doctorName,
-      date,
+      //date,
     } = req.body;
     console.log(req.body);
     const userFound = await User.find({ _id: userId });
@@ -3136,7 +3154,7 @@ const sendBookingReq = async (req, res) => {
         serviceName: serviceName,
         //doctorId: doctorId,
         //doctorName: doctorName,
-        date: moment(date).format("DD-MM-YYYY HH:mm"),
+        //date: moment(date).format("DD-MM-YYYY HH:mm"),
         //time: moment(time, "HH:mm"),
       });
       newAppointmentReq.save((err, data) => {
@@ -3234,18 +3252,31 @@ const getAllBookings = async (req, res) => {
         res.json({
           serverError: 0,
           message: "Appointments found",
-          data: { success: 1 },
-          allBookings: allBookings,
+          data: {
+            success: 1,
+            allBookings: allBookings,
+          },
+        });
+      } else {
+        res.json({
+          serverError: 0,
+          message: "Appointment not found",
+          data: { success: 0 },
         });
       }
     }
   } catch (err) {
     console.log(err);
+    res.json({
+      serverError: 1,
+      message: "Something went wrong",
+      data: { success: 0 },
+    });
   }
 };
 
 const updateBooking = async (req, res) => {
-  const { bookingId, userId, doctorId, doctorName, date } = req.body;
+  const { bookingId, userId, doctorId, doctorName, date, time } = req.body;
   console.log(req.body);
 
   try {
@@ -3330,7 +3361,7 @@ const deleteBooking = async (req, res) => {
     console.log(err);
     res.json({
       serverError: 1,
-      message: "SOmething went wrong",
+      message: "Something went wrong",
       data: {
         success: 0,
       },
@@ -3384,6 +3415,233 @@ const getBookingData = async (req, res) => {
     });
   }
 };
+const confirmBooking = async (req, res) => {
+  let { bookingId, doctorId, date, time } = req.body;
+  try {
+    if (bookingId && doctorId && date && time) {
+      const foundDoctor = await Doctor.find({ _id: doctorId });
+      console.log(foundDoctor);
+      Appointment.updateOne(
+        { _id: bookingId },
+        {
+          $set: {
+            status: "Confirmed",
+            doctorId: foundDoctor[0]?._id,
+            doctorName: `${foundDoctor[0]?.firstName} ${foundDoctor[0].lastName}`,
+            date: moment(date).format("DD-MM-YYYY"),
+            time: moment(time).format("h:mm A"),
+          },
+        },
+        async (error, data) => {
+          if (error) {
+            console.log(error);
+            res.json({
+              serverError: 0,
+              message: "Not updated",
+              data: {
+                success: 0,
+              },
+            });
+          } else {
+            const foundAppointement = await Appointment.find({
+              _id: bookingId,
+            });
+            console.log(foundAppointement);
+            // const userFound = await User.find({
+            //   userId: foundAppointement?.userId,
+            // });
+            // console.log(userFound, "user");
+            // if (userFound) {
+            //   let message = createMsg(
+            //     userFound[0]?.device_token,
+            //     "Appolonia",
+            //     "Your Booking is Confirmed"
+            //   );
+            //   sendPushNotification(message);
+            // }
+            res.json({
+              serverError: 0,
+              message: "Booking is confirmed",
+              data: {
+                success: 1,
+                appointment: foundAppointement,
+              },
+            });
+          }
+        }
+      );
+    } else {
+      res.json({
+        serverError: 0,
+        message: "Send all data please",
+        data: {
+          success: 0,
+        },
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.json({
+      serverError: 1,
+      message: err.message,
+      data: {
+        success: 0,
+      },
+    });
+  }
+};
+const showBookingDetails = async (req, res) => {
+  const { bookingId } = req.body;
+  console.log(req.body);
+  try {
+    const foundBooking = await Appointment.find({ _id: bookingId });
+    console.log(foundBooking);
+    if (foundBooking) {
+      res.json({
+        serverError: 0,
+        message: "Found Booking",
+        data: {
+          booking: foundBooking,
+          success: 1,
+        },
+      });
+    } else {
+      res.json({
+        serverError: 0,
+        message: "Booking not found",
+        data: {
+          success: 0,
+        },
+      });
+    }
+  } catch (err) {
+    res.json({
+      serverError: 1,
+      message: err.message,
+      data: {
+        success: 0,
+      },
+    });
+  }
+};
+const getAllAppointments = async (req, res) => {
+  try {
+    let allAppointments = await Appointment.find({});
+    console.log(allAppointments);
+    if (allAppointments.length > 0) {
+      res.json({
+        serverError: 0,
+        message: "Appointments found",
+        data: { success: 1 },
+        appointments: allAppointments,
+      });
+    } else {
+      res.json({
+        serverError: 0,
+        message: "No Appointments found",
+        data: { success: 0 },
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.json({
+      serverError: 1,
+      message: "Something went wrong",
+      data: { success: 0 },
+    });
+  }
+};
+
+const searchUser = async (req, res) => {
+  const queryString = req.body.query;
+
+  const queryStrings = queryString.split(" ");
+  let allQueries = [];
+  queryStrings.forEach((element) => {
+    allQueries.push({
+      firstName: {
+        $regex: String(element),
+        //$options: "i"
+      },
+    });
+    allQueries.push({
+      uniqueId2: {
+        $regex: String(element),
+        //$options: "i"
+      },
+    });
+    allQueries.push({
+      uniqueId1: {
+        $regex: String(element),
+        //$options: "i"
+      },
+    });
+  });
+  try {
+    const allUsers = await User.find({
+      //phoneNumber: req.body.phoneNumber,
+      $or: allQueries,
+    });
+    if (!allUsers || allUsers.length === 0) {
+      res.json({
+        serverError: 0,
+        message: "No user was found",
+        data: { success: 1 },
+      });
+    } else {
+      res.json({
+        serverError: 0,
+        message: "Users found",
+        data: { success: 1 },
+        users: allUsers,
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.json({
+      serverError: 1,
+      message: "Something went wrong",
+      data: { success: 0 },
+    });
+  }
+};
+
+const getAppointmentById = async (req, res) => {
+  const { bookingId } = req.body;
+  console.log(req.body);
+  try {
+    if (bookingId) {
+      const foundAppointement = await Appointment.find({ _id: bookingId });
+      console.log(foundAppointement);
+      if (foundAppointement) {
+        res.json({
+          serverError: 0,
+          message: "Appointment found",
+          data: { success: 1, foundAppointement: foundAppointement },
+        });
+      } else {
+        res.json({
+          serverError: 0,
+          message: "No Appointment found",
+          data: { success: 0 },
+        });
+      }
+    } else {
+      res.json({
+        serverError: 1,
+        message: "Please provide booking Id",
+        data: { success: 0 },
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.json({
+      serverError: 1,
+      message: "Something went wrong",
+      data: { success: 0 },
+    });
+  }
+};
 module.exports = {
   signup,
   login,
@@ -3404,11 +3662,15 @@ module.exports = {
   deletePatient,
   getAllDoctors,
   refreshToken,
-  createMessage,
   sendBookingReq,
   getAllBookings,
   updateBooking,
   deleteBooking,
   checkAvailability,
   getBookingData,
+  confirmBooking,
+  getAllAppointments,
+  searchUser,
+  showBookingDetails,
+  getAppointmentById,
 };
