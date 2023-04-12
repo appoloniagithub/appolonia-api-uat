@@ -4,6 +4,7 @@ const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 var CryptoJS = require("crypto-js");
 const Cryptr = require("cryptr");
+const logger = require("../services/loggerService");
 const cryptr = new Cryptr("myTotallySecretKey");
 const { verifyRefresh } = require("../Middleware/verifyRefresh");
 const { encrypt, decrypt, randomKey } = require("lab46-encrypt");
@@ -3125,6 +3126,81 @@ function createMsg(token, title, body) {
   };
 }
 
+const createBooking = async (req, res) => {
+  try {
+    const {
+      userId,
+      patientName,
+      phoneNumber,
+      email,
+      emiratesId,
+      clinicName,
+      serviceName,
+      consultationType,
+      doctorId,
+      //doctorName,
+      date,
+      time,
+    } = req.body;
+    console.log(req.body);
+    const userFound = await User.find({ uniqueId2: emiratesId });
+    console.log(userFound);
+    const doctorFound = await Doctor.find({ _id: doctorId });
+    console.log(doctorFound);
+    if (userFound) {
+      const newAppointment = new Appointment({
+        // userId: userId,
+        patientName: patientName,
+        email: email,
+        phoneNumber: phoneNumber,
+        clinicName: clinicName,
+        consultationType: consultationType,
+        serviceName: serviceName,
+        emiratesId: emiratesId,
+        doctorId: doctorFound[0]?._id,
+        doctorName: `${doctorFound[0]?.firstName} ${doctorFound[0]?.lastName}`,
+        date: moment(date).format("DD-MM-YYYY"),
+        time: moment(time).format("h:mm A"),
+        status: "Confirmed",
+      });
+      newAppointment.save((err, data) => {
+        if (err) {
+          console.log(err);
+          throw new Error("Error saving the Appointment");
+        } else {
+          console.log(data);
+          res.json({
+            serverError: 0,
+            message: "Appointment request sent successfully.",
+            data: {
+              success: 1,
+              appointment: data,
+            },
+          });
+          return;
+        }
+      });
+    } else {
+      res.json({
+        serverError: 1,
+        message: "User not found",
+        data: {
+          success: 0,
+        },
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.json({
+      serverError: 1,
+      message: "Error sending appointment request",
+      data: {
+        success: 0,
+      },
+    });
+  }
+};
+
 const sendBookingReq = async (req, res) => {
   try {
     const {
@@ -3662,6 +3738,7 @@ module.exports = {
   deletePatient,
   getAllDoctors,
   refreshToken,
+  createBooking,
   sendBookingReq,
   getAllBookings,
   updateBooking,

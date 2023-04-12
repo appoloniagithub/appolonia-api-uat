@@ -61,6 +61,7 @@ router.post("/deletepatient", authCheck, usersController.deletePatient);
 router.get("/getallusers", authCheck, usersController.getUsers);
 router.get("/getalldoctors", authCheck, usersController.getAllDoctors);
 router.post("/refreshToken", usersController.refreshToken);
+router.post("/createbooking", usersController.createBooking);
 router.post("/reqbooking", usersController.sendBookingReq);
 router.get("/getallappointments", usersController.getAllAppointments);
 router.post("/updatebooking", usersController.updateBooking);
