@@ -3587,6 +3587,8 @@ const showBookingDetails = async (req, res) => {
         message: "Found Booking",
         data: {
           booking: foundBooking,
+          time: moment(foundBooking[0]?.time).format("h:mm A"),
+          date: moment(foundBooking[0]?.date).format("DD-MM-YYYY"),
           success: 1,
         },
       });
