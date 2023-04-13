@@ -3504,8 +3504,10 @@ const confirmBooking = async (req, res) => {
             status: "Confirmed",
             doctorId: foundDoctor[0]?._id,
             doctorName: `${foundDoctor[0]?.firstName} ${foundDoctor[0].lastName}`,
-            date: moment(date).format("DD-MM-YYYY"),
-            time: moment(time).format("h:mm A"),
+            //date: moment(date).format("DD-MM-YYYY"),
+            date: date,
+            time: time,
+            //time: moment(time).format("h:mm A"),
           },
         },
         async (error, data) => {
@@ -3522,25 +3524,32 @@ const confirmBooking = async (req, res) => {
             const foundAppointement = await Appointment.find({
               _id: bookingId,
             });
-            console.log(foundAppointement);
-            // const userFound = await User.find({
-            //   userId: foundAppointement?.userId,
-            // });
-            // console.log(userFound, "user");
-            // if (userFound) {
-            //   let message = createMsg(
-            //     userFound[0]?.device_token,
-            //     "Appolonia",
-            //     "Your Booking is Confirmed"
-            //   );
-            //   sendPushNotification(message);
-            // }
+            console.log(foundAppointement, "appt");
+            const userFound = await User.find({
+              userId: foundAppointement[0]?.userId,
+            });
+            console.log(userFound, "user");
+            if (userFound) {
+              let message = createMsg(
+                userFound[0]?.device_token,
+                "Appolonia",
+                `Your Booking with ${foundDoctor[0]?.firstName} ${
+                  foundDoctor[0].lastName
+                } on ${moment(date).format("DD-MM-YYYY")} at ${moment(
+                  time
+                ).format("h:mm A")} is Confirmed.`
+              );
+              sendPushNotification(message);
+            }
             res.json({
               serverError: 0,
               message: "Booking is confirmed",
               data: {
                 success: 1,
-                appointment: foundAppointement,
+                appointment: {
+                  ...foundAppointement,
+                  time: moment(time).format("h:mm A"),
+                },
               },
             });
           }
