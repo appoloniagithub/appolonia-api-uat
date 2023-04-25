@@ -42,8 +42,15 @@ const createRole = async (req, res) => {
 const addSettingsData = async (req, res) => {
   console.log(req.body);
 
-  const { clinicName, clinicLogo, version, fcmKey, city, forceUpdate } =
-    req.body;
+  const {
+    clinicName,
+    clinicLogo,
+    version,
+    fcmKey,
+    city,
+    address,
+    forceUpdate,
+  } = req.body;
 
   const createdSettings = new Settings({
     clinicName: clinicName,
@@ -51,13 +58,14 @@ const addSettingsData = async (req, res) => {
     version: version,
     fcmKey: fcmKey,
     city: city,
+    address: address,
     forceUpdate: forceUpdate,
   });
 
   createdSettings.save((err) => {
     if (err) {
       res.json({
-        message: "Somthing went wrong",
+        message: "Something went wrong",
         success: false,
       });
     } else {
@@ -75,7 +83,7 @@ const getSettings = async (req, res) => {
   res.json({
     success: true,
     message: "settings found",
-    settingsFound: settingsFound[0],
+    settingsFound: settingsFound,
   });
 };
 

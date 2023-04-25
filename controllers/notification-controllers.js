@@ -40,7 +40,7 @@ const getAllNotifications = async (req, res) => {
               message: "Notifications Found",
               data: {
                 success: 1,
-                allNotifications: foundNotifications,
+                allNotifications: foundNotifications.reverse(),
               },
             });
           }

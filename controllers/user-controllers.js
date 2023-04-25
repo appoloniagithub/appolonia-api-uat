@@ -137,6 +137,18 @@ const updateUserProfile = async (req, res) => {
     logger.info("here are the files");
     imageFiles = req.files.map((file) => file.path);
   }
+  let emirateFront = [];
+  if (req?.files?.length > 0) {
+    console.log(req.files, "here are the files");
+    logger.info("here are the files");
+    emirateFront = req.files.map((file) => file.path);
+  }
+  let emirateBack = [];
+  if (req?.files?.length > 0) {
+    console.log(req.files, "here are the files");
+    logger.info("here are the files");
+    emirateBack = req.files.map((file) => file.path);
+  }
   const {
     firstName,
     lastName,
@@ -152,6 +164,8 @@ const updateUserProfile = async (req, res) => {
     userId,
     fileId,
     image,
+    emiratesIdFront,
+    emiratesIdBack,
   } = req.body;
 
   if (isFileNumberChanged === "1") {
@@ -207,6 +221,8 @@ const updateUserProfile = async (req, res) => {
     uniqueId1: fileNumber,
     uniqueId2: emiratesId,
     image: imageFiles.toString().replace(/\\/g, "/"),
+    emiratesIdFront: emirateFront,
+    emiratesIdBack: emirateBack,
   };
 
   try {
@@ -3144,13 +3160,13 @@ const createBooking = async (req, res) => {
     } = req.body;
     console.log(req.body);
     const userFound = await User.find({ uniqueId2: emiratesId });
-    console.log(userFound);
+    console.log(userFound, "user");
     const doctorFound = await Doctor.find({ _id: doctorId });
     console.log(doctorFound);
     if (userFound) {
       const newAppointment = new Appointment({
-        // userId: userId,
-        patientName: patientName,
+        userId: userFound[0]?._id,
+        patientName: `${userFound[0]?.firstName} ${userFound[0]?.lastName}`,
         email: email,
         phoneNumber: phoneNumber,
         clinicName: clinicName,
@@ -3324,13 +3340,42 @@ const getAllBookings = async (req, res) => {
     if (userFound) {
       let allBookings = await Appointment.find({ userId: userId });
       console.log(allBookings);
+      let pending = await Appointment.find({
+        $and: [{ userId: userId }, { status: "Pending" }],
+      });
+      console.log(pending, "pending");
+      let confirmed = await Appointment.find({
+        $or: [{ userId: userId }, { status: "Confirmed" }],
+      });
+      console.log(confirmed, "confirmed");
+      let tempFinished = [];
+      for (let i = 0; i < allBookings.length; i++) {
+        let date = moment(new Date()).format("YYYY-MM-DD");
+        // console.log(date);
+        // console.log(allBookings[i].date < date);
+        let finished = await Appointment.find({
+          $and: [
+            { userId: userId },
+            {
+              date: allBookings[i]?.date < date,
+            },
+          ],
+        });
+        console.log(finished, "finished");
+        //return finished;
+        tempFinished.push(finished);
+      }
+
       if (allBookings.length > 0) {
         res.json({
           serverError: 0,
           message: "Appointments found",
           data: {
             success: 1,
-            allBookings: allBookings,
+            allBookings: allBookings.reverse(),
+            pending: pending.reverse(),
+            confirmed: confirmed.reverse(),
+            finished: tempFinished,
           },
         });
       } else {
@@ -3541,6 +3586,26 @@ const confirmBooking = async (req, res) => {
               );
               sendPushNotification(message);
             }
+            let inAppNoti = new Notification({
+              title: "Appolonia",
+              body: `Your Booking with ${foundDoctor[0]?.firstName} ${
+                foundDoctor[0].lastName
+              } on ${moment(date).format("DD-MM-YYYY")} at ${moment(
+                time
+              ).format("h:mm A")} is Confirmed.`,
+              actionId: "4",
+              actionName: "Notification",
+              userId: userFound[0]?._id,
+              isRead: "0",
+            });
+            inAppNoti.save(async (err, data) => {
+              if (err) {
+                console.log(err);
+                throw new Error("Error saving the notification");
+              } else {
+                console.log(data);
+              }
+            });
             res.json({
               serverError: 0,
               message: "Booking is confirmed",
@@ -3614,13 +3679,14 @@ const showBookingDetails = async (req, res) => {
 const getAllAppointments = async (req, res) => {
   try {
     let allAppointments = await Appointment.find({});
+
     console.log(allAppointments);
     if (allAppointments.length > 0) {
       res.json({
         serverError: 0,
         message: "Appointments found",
         data: { success: 1 },
-        appointments: allAppointments,
+        appointments: allAppointments.reverse(),
       });
     } else {
       res.json({

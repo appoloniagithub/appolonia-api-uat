@@ -9,6 +9,7 @@ const settingsSchema = new Schema({
   clinicName: { type: String },
   clinicLogo: { type: String },
   city: { type: String },
+  address: { type: String },
   forceUpdate: { type: Boolean, default: false },
 });
 
