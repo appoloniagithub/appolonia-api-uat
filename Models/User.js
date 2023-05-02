@@ -20,6 +20,12 @@ const userSchema = new Schema({
   image: {
     type: Array,
   },
+  emiratesIdFront: {
+    type: Array,
+  },
+  emiratesIdBack: {
+    type: Array,
+  },
   created: {
     type: Date,
     default: Date.now,

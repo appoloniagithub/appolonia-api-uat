@@ -221,8 +221,8 @@ const updateUserProfile = async (req, res) => {
     uniqueId1: fileNumber,
     uniqueId2: emiratesId,
     image: imageFiles.toString().replace(/\\/g, "/"),
-    emiratesIdFront: emirateFront,
-    emiratesIdBack: emirateBack,
+    // emiratesIdFront: emirateFront,
+    // emiratesIdBack: emirateBack,
   };
 
   try {
@@ -3146,7 +3146,7 @@ const createBooking = async (req, res) => {
   try {
     const {
       userId,
-      patientName,
+      //patientName,
       phoneNumber,
       email,
       emiratesId,
@@ -3159,7 +3159,7 @@ const createBooking = async (req, res) => {
       time,
     } = req.body;
     console.log(req.body);
-    const userFound = await User.find({ uniqueId2: emiratesId });
+    const userFound = await User.find({ _id: userId });
     console.log(userFound, "user");
     const doctorFound = await Doctor.find({ _id: doctorId });
     console.log(doctorFound);
@@ -3200,6 +3200,81 @@ const createBooking = async (req, res) => {
       res.json({
         serverError: 1,
         message: "User not found",
+        data: {
+          success: 0,
+        },
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.json({
+      serverError: 1,
+      message: "Error sending appointment request",
+      data: {
+        success: 0,
+      },
+    });
+  }
+};
+
+const newBooking = async (req, res) => {
+  try {
+    const {
+      //userId,
+      patientName,
+      phoneNumber,
+      email,
+      emiratesId,
+      clinicName,
+      serviceName,
+      consultationType,
+      doctorId,
+      //doctorName,
+      date,
+      time,
+    } = req.body;
+    console.log(req.body);
+    // const userFound = await User.find({ _id: userId });
+    // console.log(userFound, "user");
+    const doctorFound = await Doctor.find({ _id: doctorId });
+    console.log(doctorFound);
+    if (doctorFound) {
+      const newAppointment = new Appointment({
+        //userId: userFound[0]?._id,
+        patientName: patientName,
+        email: email,
+        phoneNumber: phoneNumber,
+        clinicName: clinicName,
+        consultationType: consultationType,
+        serviceName: serviceName,
+        emiratesId: emiratesId,
+        doctorId: doctorFound[0]?._id,
+        doctorName: `${doctorFound[0]?.firstName} ${doctorFound[0]?.lastName}`,
+        date: moment(date).format("DD-MM-YYYY"),
+        time: moment(time).format("h:mm A"),
+        status: "Confirmed",
+      });
+      newAppointment.save((err, data) => {
+        if (err) {
+          console.log(err);
+          throw new Error("Error saving the Appointment");
+        } else {
+          console.log(data);
+          res.json({
+            serverError: 0,
+            message: "Appointment request sent successfully.",
+            data: {
+              success: 1,
+              appointment: data,
+            },
+          });
+          return;
+        }
+      });
+    } else {
+      res.json({
+        serverError: 1,
+        message: "Doctor not found",
         data: {
           success: 0,
         },
@@ -3345,7 +3420,7 @@ const getAllBookings = async (req, res) => {
       });
       console.log(pending, "pending");
       let confirmed = await Appointment.find({
-        $or: [{ userId: userId }, { status: "Confirmed" }],
+        $and: [{ userId: userId }, { status: "Confirmed" }],
       });
       console.log(confirmed, "confirmed");
       let tempFinished = [];
@@ -3397,16 +3472,26 @@ const getAllBookings = async (req, res) => {
 };
 
 const updateBooking = async (req, res) => {
-  const { bookingId, userId, doctorId, doctorName, date, time } = req.body;
+  const { bookingId, doctorId, date, time } = req.body;
   console.log(req.body);
 
   try {
-    const userFound = await User.find({ _id: userId });
+    // const userFound = await User.find({ _id: userId });
+    const foundBooking = await Appointment.find({ _id: bookingId });
+    console.log(foundBooking, "booking");
     const doctorFound = await Doctor.find({ _id: doctorId });
-    if (userFound && doctorFound) {
+    console.log(doctorFound, "doctor");
+    // if (userFound && doctorFound) {
+    if (foundBooking) {
       Appointment.updateOne(
         { _id: bookingId },
-        { $set: { ...req.body } },
+        {
+          $set: {
+            ...req.body,
+            doctorName: `${doctorFound[0]?.firstName} ${doctorFound[0].lastName}`,
+            status: "Confirmed",
+          },
+        },
         (error, data) => {
           if (error) {
             return console.log(error);
@@ -3432,10 +3517,26 @@ const updateBooking = async (req, res) => {
           }
         }
       );
+      const userFound = await User.find({
+        userId: foundBooking[0]?.userId,
+      });
+      console.log(userFound, "user");
+      if (userFound) {
+        let message = createMsg(
+          userFound[0]?.device_token,
+          "Appolonia",
+          `Your Booking with ${doctorFound[0]?.firstName} ${
+            doctorFound[0].lastName
+          } on ${moment(date).format("DD-MM-YYYY")} at ${moment(time).format(
+            "h:mm A"
+          )} is Updated.`
+        );
+        sendPushNotification(message);
+      }
     } else {
       res.json({
         serverError: 0,
-        message: "User Not found",
+        message: "Booking Not found",
         data: {
           success: 1,
         },
@@ -3795,6 +3896,67 @@ const getAppointmentById = async (req, res) => {
     });
   }
 };
+
+const rescheduleBookingReq = async (req, res) => {
+  const { bookingId, doctorId, date, time } = req.body;
+  console.log(req.body);
+  try {
+    //const doctorFound = await Doctor.find({ _id: doctorId });
+    //console.log(doctorFound, "doctor");
+    //if (doctorFound) {
+    Appointment.updateMany(
+      { _id: bookingId },
+      {
+        $set: {
+          ...req.body,
+          status: "Reschedule",
+          // doctorName: `${doctorFound[0]?.firstName} ${doctorFound[0].lastName}`,
+        },
+      },
+      async (error, data) => {
+        if (error) {
+          res.json({
+            serverError: 0,
+            message: "Not updated",
+            data: {
+              success: 0,
+            },
+          });
+        } else {
+          const foundBooking = await Appointment.find({ _id: bookingId });
+          console.log(foundBooking);
+          res.json({
+            serverError: 0,
+            message: "Booking details updated",
+            data: {
+              success: 1,
+              foundBooking: foundBooking,
+            },
+          });
+        }
+      }
+    );
+    // } else {
+    //   res.json({
+    //     serverError: 0,
+    //     message: "Doctor not found",
+    //     data: {
+    //       success: 0,
+    //     },
+    //   });
+    // }
+  } catch (err) {
+    console.log(err);
+    res.json({
+      serverError: 0,
+      message: "something went wrong",
+      data: {
+        success: 0,
+      },
+    });
+  }
+};
+
 module.exports = {
   signup,
   login,
@@ -3816,6 +3978,7 @@ module.exports = {
   getAllDoctors,
   refreshToken,
   createBooking,
+  newBooking,
   sendBookingReq,
   getAllBookings,
   updateBooking,
@@ -3827,4 +3990,5 @@ module.exports = {
   searchUser,
   showBookingDetails,
   getAppointmentById,
+  rescheduleBookingReq,
 };

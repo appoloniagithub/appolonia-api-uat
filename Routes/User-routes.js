@@ -28,6 +28,24 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
+// .fields([
+//   {
+//     name: "image",
+//     maxCount: 1,
+//   },
+//   {
+//     name: "files",
+//     maxCount: 1,
+//   },
+//   {
+//     name: "emiratesIdFront",
+//     maxCount: 1,
+//   },
+//   {
+//     name: "emiratesIdBack",
+//     maxCount: 1,
+//   },
+// ]);
 // const upload = multer({ dest: "uploads/" });
 
 const router = express.Router();
@@ -53,15 +71,26 @@ router.post("/profileget", authCheck, usersController.getUserdata);
 router.post("/changepassword", authCheck, usersController.changePassword);
 router.post(
   "/updateprofile",
-  [upload.array("image")],
+  upload.array("image"),
   usersController.updateUserProfile
 );
+// router.post(
+//   "/updateprofile",
+//   upload.array("emiratesIdFront"),
+//   usersController.updateUserProfile
+// );
+// router.post(
+//   "/updateprofile",
+//   upload.array("emiratesIdBack"),
+//   usersController.updateUserProfile
+// );
 router.post("/deleteaccount", usersController.deleteAccount);
 router.post("/deletepatient", authCheck, usersController.deletePatient);
 router.get("/getallusers", authCheck, usersController.getUsers);
 router.get("/getalldoctors", authCheck, usersController.getAllDoctors);
 router.post("/refreshToken", usersController.refreshToken);
 router.post("/createbooking", usersController.createBooking);
+router.post("/newbooking", usersController.newBooking);
 router.post("/reqbooking", usersController.sendBookingReq);
 router.get("/getallappointments", usersController.getAllAppointments);
 router.post("/updatebooking", usersController.updateBooking);
@@ -73,5 +102,6 @@ router.post("/getallbookings", usersController.getAllBookings);
 router.post("/showbookingdetails", usersController.showBookingDetails);
 router.post("/searchuser", usersController.searchUser);
 router.post("/getappointmentbyid", usersController.getAppointmentById);
+router.post("/reschedule", usersController.rescheduleBookingReq);
 
 module.exports = router;
