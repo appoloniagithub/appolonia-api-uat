@@ -65,6 +65,10 @@ const submitScans = async function (body) {
       } = body;
       try {
         if ((userId, doctorId)) {
+          const userFound = await User.find({ _id: userId });
+          console.log(userFound);
+          let doctorFound = await Doctor.find({ _id: doctorId });
+          console.log(doctorFound, "doctor");
           let logo =
             "https://res.cloudinary.com/dbff6tzuo/image/upload/v1676012493/PROFILE/wyoxrmycegebtztv05zr.jpg";
           let updatedFaceScanImages = [];
@@ -134,8 +138,10 @@ const submitScans = async function (body) {
           console.log("updated", updatedFaceScanImages, updatedTeethScanImages);
           const updatedScan = new Scans({
             userId: userId,
+            patientName: `${userFound[0]?.firstName} ${userFound[0].lastName}`,
             doctorId: doctorId,
             doctorName: doctorName,
+            Department: doctorFound[0]?.speciality,
             faceScanImages: updatedFaceScanImages,
             teethScanImages: updatedTeethScanImages,
             logo: logo,
@@ -164,8 +170,7 @@ const submitScans = async function (body) {
               let scanFirstImage = updatedTeethScanImages[0]
                 ? updatedTeethScanImages[0]
                 : updatedFaceScanImages[0];
-              let doctorFound = await Doctor.find({ _id: doctorId });
-              console.log(doctorFound, "doctor");
+
               let msgObjImg = {
                 senderId: userId,
                 receiverId: doctorId,

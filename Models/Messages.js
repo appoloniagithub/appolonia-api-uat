@@ -13,7 +13,9 @@ const messagesSchema = new Schema(
     message: { type: String },
     format: { type: String },
     scanId: { type: String },
+    patientName: { type: String },
     isSeen: { type: String },
+    isRead: { type: String },
     createdAt: { type: String },
     updatedAt: { type: String },
   }

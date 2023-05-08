@@ -103,5 +103,8 @@ router.post("/showbookingdetails", usersController.showBookingDetails);
 router.post("/searchuser", usersController.searchUser);
 router.post("/getappointmentbyid", usersController.getAppointmentById);
 router.post("/reschedule", usersController.rescheduleBookingReq);
+router.get("/activepatients", usersController.activePatients);
+router.get("/newpatientreq", usersController.newPatientReq);
+router.get("/pending", usersController.pendingAppointments);
 
 module.exports = router;

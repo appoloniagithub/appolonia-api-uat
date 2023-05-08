@@ -49,4 +49,6 @@ router.post(
 );
 router.post("/getdoctorinfo", authCheck, chatController.getDoctorInfo);
 router.post("/getcon", authCheck, chatController.getCon);
+router.get("/unseen", chatController.unSeenMessages);
+
 module.exports = router;

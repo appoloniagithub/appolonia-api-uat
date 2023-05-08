@@ -4,6 +4,8 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const fileSchema = new Schema({
+  firstName: { type: String },
+  lastName: { type: String },
   phoneNumber: { type: String },
   countryCode: { type: String },
   password: { type: String },

@@ -1021,6 +1021,8 @@ const signup = async (req, res, next) => {
       });
 
       const createdFile = new File({
+        firstName: firstName,
+        lastName: lastName,
         phoneNumber: phoneNumber,
         password: hashedpassword,
         clinicVerified: false,
@@ -3957,6 +3959,110 @@ const rescheduleBookingReq = async (req, res) => {
   }
 };
 
+const activePatients = async (req, res) => {
+  try {
+    let foundPatients = await File.find({ active: true });
+    console.log(foundPatients);
+    if (foundPatients.length > 0) {
+      res.json({
+        serverError: 0,
+        message: "Active Patients found",
+        data: {
+          success: 1,
+          foundPatients: foundPatients,
+        },
+      });
+    } else {
+      res.json({
+        serverError: 0,
+        message: "Active Patients not found",
+        data: {
+          success: 1,
+          foundPatients: foundPatients,
+        },
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.json({
+      serverError: 0,
+      message: "something went wrong",
+      data: {
+        success: 0,
+      },
+    });
+  }
+};
+
+const newPatientReq = async (req, res) => {
+  try {
+    let foundPatients = await File.find({ active: false });
+    console.log(foundPatients);
+    if (foundPatients.length > 0) {
+      res.json({
+        serverError: 0,
+        message: "New Patient Requests found",
+        data: {
+          success: 1,
+          foundPatients: foundPatients,
+        },
+      });
+    } else {
+      res.json({
+        serverError: 0,
+        message: "New Patient Requests not found",
+        data: {
+          success: 1,
+          foundPatients: foundPatients,
+        },
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.json({
+      serverError: 0,
+      message: "something went wrong",
+      data: {
+        success: 0,
+      },
+    });
+  }
+};
+
+const pendingAppointments = async (req, res) => {
+  try {
+    let pending = await Appointment.find({ status: "Pending" });
+    console.log(pending);
+    if (pending.length > 0) {
+      res.json({
+        serverError: 0,
+        message: "Pending Appointments found",
+        data: {
+          success: 1,
+          pending: pending,
+        },
+      });
+    } else {
+      res.json({
+        serverError: 0,
+        message: "No Pending Appointments",
+        data: {
+          success: 1,
+        },
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.json({
+      serverError: 0,
+      message: "something went wrong",
+      data: {
+        success: 0,
+      },
+    });
+  }
+};
+
 module.exports = {
   signup,
   login,
@@ -3991,4 +4097,7 @@ module.exports = {
   showBookingDetails,
   getAppointmentById,
   rescheduleBookingReq,
+  activePatients,
+  newPatientReq,
+  pendingAppointments,
 };

@@ -221,12 +221,13 @@ const getChatCount = async (conversationId) => {
   console.log(conversationId, "id in chat count");
   let foundMessages = await Message.find({
     //isSeen: "0",
-    $and: [{ conversationId: conversationId }, { isSeen: "0" }],
+    $and: [{ conversationId: conversationId }, { isRead: "0" }],
   });
   console.log(foundMessages.length, "in count");
   //foundMessages = foundMessages.length;
   return foundMessages.length;
 };
+
 const getReceiverId = async (conversationId) => {
   console.log(conversationId, "in get rec");
   let foundMessages = await Message.find({ conversationId: conversationId });
@@ -354,20 +355,35 @@ const getConversations = async (req, res) => {
 
 const getConversationMessages = async (req, res) => {
   console.log(req.body);
-  const { conversationId, bottomHit, userId } = req.body;
+  const { conversationId, bottomHit, userId, isSeen, isRead } = req.body;
   try {
     console.log("sea");
-    Message.updateMany(
-      { conversationId: conversationId },
-      { $set: { isSeen: "1" } },
-      (err, data) => {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log("data updated", data);
+    if (isRead === "1") {
+      Message.updateMany(
+        { conversationId: conversationId },
+        { $set: { isRead: "1" } },
+        (err, data) => {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log("data updated", data);
+          }
         }
-      }
-    );
+      );
+    }
+    // else {
+    //   Message.updateMany(
+    //     { conversationId: conversationId },
+    //     { $set: { isSeen: "1" } },
+    //     (err, data) => {
+    //       if (err) {
+    //         console.log(err);
+    //       } else {
+    //         console.log("data updated", data);
+    //       }
+    //     }
+    //   );
+    // }
     let foundMessages = await Message.find({ conversationId: conversationId });
     // .sort({ _id: -1 })
     // .skip(bottomHit > 0 ? (bottomHit - 1) * 10 : 0)
@@ -386,6 +402,7 @@ const getConversationMessages = async (req, res) => {
         format: msg.format,
         scanId: msg.scanId,
         isSeen: msg.isSeen,
+        isRead: msg.isRead,
         createdAt: msg.createdAt,
         updatedAt: msg.updatedAt,
         isSender: msg.senderId === userId ? "1" : "0",
@@ -429,8 +446,17 @@ const getConversationMessages = async (req, res) => {
 const newMessage = async (req, res) => {
   console.log(req.body, "i am body");
   console.log(req.files, "i am files");
-  const { conversationId, senderId, recId, message, scanId, format, type } =
-    req.body;
+  const {
+    conversationId,
+    senderId,
+    recId,
+    message,
+    scanId,
+    format,
+    type,
+    isSeen,
+    isRead,
+  } = req.body;
   let receiverId = "";
   let name = "";
   let image = "";
@@ -601,33 +627,72 @@ const newMessage = async (req, res) => {
           throw new Error("Something went wrong while resolving messages");
         }
       } else {
-        let msgObj = {
-          conversationId: conversationId,
-          senderId: senderId,
-          receiverId: receiverId,
-          recId: recId,
-          name: name,
-          message: message,
-          image: image,
-          format: format,
-          scanId: scanId?.length > 0 ? scanId : "",
-          isSeen: "0",
-          createdAt: moment(Date.now()).format("DD-MM-YY HH:mm"),
-          updatedAt: moment(Date.now()).format("DD-MM-YY HH:mm"),
-        };
-        let createdMessage = new Message(
-          msgObj
-          //{
-          //   conversationId: conversationId,
-          //   senderId: senderId,
-          //   message: message,
-          //   format: format,
-          //   scanId: scanId?.length > 0 ? scanId : "",
-          //   createdAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
-          //   updatedAt: moment(Date.now()).format("DD-MM-YY hh:mm"),
-          // }
-        );
-
+        const sender = await User.find({ _id: senderId });
+        console.log(sender, "sender");
+        if (sender.length > 0) {
+          let msgObj = {
+            conversationId: conversationId,
+            senderId: senderId,
+            receiverId: receiverId,
+            recId: recId,
+            name: name,
+            patientName: `${sender[0]?.firstName} ${sender[0].lastName}`,
+            message: message,
+            image: image,
+            format: format,
+            scanId: scanId?.length > 0 ? scanId : "",
+            isSeen: isSeen,
+            createdAt: moment(Date.now()).format("DD-MM-YY HH:mm"),
+            updatedAt: moment(Date.now()).format("DD-MM-YY HH:mm"),
+          };
+          let createdMessage = new Message(msgObj);
+          createdMessage.save((err) => {
+            if (err) {
+              throw new Error("Error Creating the message");
+            } else {
+              res.json({
+                serverError: 0,
+                message: "Message Sent",
+                data: {
+                  success: 1,
+                  data: { ...msgObj },
+                },
+              });
+              return;
+            }
+          });
+        } else {
+          let msgObj = {
+            conversationId: conversationId,
+            senderId: senderId,
+            receiverId: receiverId,
+            recId: recId,
+            name: name,
+            message: message,
+            image: image,
+            format: format,
+            scanId: scanId?.length > 0 ? scanId : "",
+            isRead: isRead,
+            createdAt: moment(Date.now()).format("DD-MM-YY HH:mm"),
+            updatedAt: moment(Date.now()).format("DD-MM-YY HH:mm"),
+          };
+          let createdMessage = new Message(msgObj);
+          createdMessage.save((err) => {
+            if (err) {
+              throw new Error("Error Creating the message");
+            } else {
+              res.json({
+                serverError: 0,
+                message: "Message Sent",
+                data: {
+                  success: 1,
+                  data: { ...msgObj },
+                },
+              });
+              return;
+            }
+          });
+        }
         // const doctorFound = await Doctor.find({ _id: senderId });
         // console.log(doctorFound, "123");
         // if (doctorFound.length > 0) {
@@ -649,22 +714,6 @@ const newMessage = async (req, res) => {
         //     console.log(doctorFound, "doctor in else");
         //   }
         // }
-
-        createdMessage.save((err) => {
-          if (err) {
-            throw new Error("Error Creating the message");
-          } else {
-            res.json({
-              serverError: 0,
-              message: "Message Sent",
-              data: {
-                success: 1,
-                data: { ...msgObj },
-              },
-            });
-            return;
-          }
-        });
       }
       return;
     }
@@ -1025,6 +1074,40 @@ const getCon = async (req, res) => {
   }
 };
 
+const unSeenMessages = async (req, res) => {
+  try {
+    let foundMessages = await Message.find({ isSeen: "0" });
+    console.log(foundMessages, "in count");
+    if (foundMessages.length > 0) {
+      res.json({
+        serverError: 0,
+        message: "Found messages",
+        data: {
+          success: 1,
+          messages: foundMessages,
+        },
+      });
+    } else {
+      res.json({
+        serverError: 0,
+        message: " No Found messages",
+        data: {
+          success: 0,
+        },
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.json({
+      serverError: 0,
+      message: "something went wrong",
+      data: {
+        success: 0,
+      },
+    });
+  }
+};
+
 module.exports = {
   newChat,
   getConversations,
@@ -1035,4 +1118,5 @@ module.exports = {
   createMessage,
   getDoctorInfo,
   getCon,
+  unSeenMessages,
 };

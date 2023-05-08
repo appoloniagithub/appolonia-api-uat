@@ -10,6 +10,7 @@ const notificationSchema = new Schema({
   actionId: { type: String },
   actionName: { type: String },
   isRead: { type: String },
+  sendTo: { type: String },
   created: {
     type: Date,
     default: Date.now,

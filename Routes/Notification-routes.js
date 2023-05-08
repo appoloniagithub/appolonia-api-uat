@@ -22,4 +22,5 @@ router.delete(
   "/deleteschnotification",
   notificationController.deleteSchNotification
 );
+router.post("/send-notification", notificationController.sendNotification);
 module.exports = router;

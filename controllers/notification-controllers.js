@@ -104,6 +104,42 @@ const createNotification = async (req, res) => {
   }
 };
 
+const sendNotification = async (req, res) => {
+  const { title, body, sendTo } = req.body;
+  console.log(req.body);
+  try {
+    let notification = new Notification({
+      title: title,
+      body: body,
+      sendTo: sendTo,
+    });
+    notification.save((err, data) => {
+      if (err) {
+        console.log(err);
+        throw new Error("Error saving the Notification");
+      } else {
+        console.log(data);
+        res.json({
+          serverError: 0,
+          message: "New Notification added.",
+          data: {
+            success: 1,
+            notification: data,
+          },
+        });
+        return;
+      }
+    });
+  } catch (err) {
+    console.log(err);
+    res.send({
+      serverError: 1,
+      message: err.message,
+      data: { success: 0 },
+    });
+  }
+};
+
 const schNotification = async (req, res) => {
   try {
     const payload = {
@@ -173,4 +209,5 @@ module.exports = {
   schNotification,
   getSchNotification,
   deleteSchNotification,
+  sendNotification,
 };
