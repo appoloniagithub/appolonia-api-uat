@@ -7,6 +7,7 @@ const Cryptr = require("cryptr");
 const logger = require("../services/loggerService");
 const cryptr = new Cryptr("myTotallySecretKey");
 const { verifyRefresh } = require("../Middleware/verifyRefresh");
+const uuid = require("uuid");
 const { encrypt, decrypt, randomKey } = require("lab46-encrypt");
 const {
   JWTKEY,
@@ -15,7 +16,7 @@ const {
   accountSid,
   authToken,
 } = require("../Config/config");
-const sendPushNotification = require("../services/sendPushNotification");
+const { sendPushNotification } = require("../services/sendPush");
 const moment = require("moment");
 const Appointment = require("../Models/Appointment");
 // const cloudinary = require("cloudinary").v2;
@@ -3303,6 +3304,7 @@ const sendBookingReq = async (req, res) => {
       email,
       emiratesId,
       clinicName,
+      //roomId,
       serviceName,
       consultationType,
       doctorId,
@@ -3321,6 +3323,8 @@ const sendBookingReq = async (req, res) => {
         clinicName: clinicName,
         consultationType: consultationType,
         serviceName: serviceName,
+
+        roomId: consultationType == "Remote Consultation" ? uuid.v1() : "",
         //doctorId: doctorId,
         //doctorName: doctorName,
         //date: moment(date).format("DD-MM-YYYY HH:mm"),
@@ -3427,14 +3431,17 @@ const getAllBookings = async (req, res) => {
       console.log(confirmed, "confirmed");
       let tempFinished = [];
       for (let i = 0; i < allBookings.length; i++) {
-        let date = moment(new Date()).format("YYYY-MM-DD");
-        // console.log(date);
-        // console.log(allBookings[i].date < date);
+        let date = moment(new Date()).format("DD-MM-YYYY");
+        console.log(date, "today");
+        //console.log(allBookings[i].date);
+        let allDates = moment(allBookings[i].date).format("DD-MM-YYYY");
+        console.log(allDates, "all");
+        console.log(allDates < date);
         let finished = await Appointment.find({
           $and: [
             { userId: userId },
             {
-              date: allBookings[i]?.date < date,
+              date: allDates < date,
             },
           ],
         });
