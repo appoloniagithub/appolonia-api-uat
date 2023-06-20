@@ -6,6 +6,8 @@ const Schema = mongoose.Schema;
 const scansSchema = new Schema({
   userId: { type: String },
   patientName: { type: String },
+  days: { type: Number },
+  scanType: { type: String },
   doctorId: { type: String },
   doctorName: { type: String },
   Department: { type: String },

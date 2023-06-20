@@ -4,9 +4,9 @@ const File = require("../Models/File");
 const Settings = require("../Models/Settings");
 const Scans = require("../Models/Scans");
 const fs = require("fs");
+var cron = require("node-cron");
 const moment = require("moment");
 const Notification = require("../Models/Notification");
-const sendPushNotification = require("../services/sendPushNotification");
 const ScheduledNotification = require("../Models/ScheduledNotification");
 // const Upscaler = require("upscaler/node");
 // const upscaler = new Upscaler();
@@ -15,6 +15,7 @@ const chatController = require("./chat-controllers");
 const AWS = require("aws-sdk");
 const S3 = require("aws-sdk/clients/s3");
 const Doctor = require("../Models/Doctor");
+const { sendPushNotification } = require("../services/sendPush");
 AWS.config.loadFromPath("./s3_config.json");
 const s3Bucket = new S3({
   params: {
@@ -233,9 +234,10 @@ const submitScans = async function (body) {
                   body: "Your Scan is Due",
                 },
                 time: "16:00",
-                days: [0],
+                days: [15],
                 userId: userFound[0]?._id,
                 isRead: "0",
+                isSent: false,
               });
               scheduledNoti.save(async (err, data) => {
                 if (err) {
@@ -456,9 +458,226 @@ const getScanId = async (req, res) => {
     console.log(err);
   }
 };
+
+const scanFrequency = async (req, res) => {
+  const { days, scanType, userId } = req.body;
+  console.log(req.body);
+  try {
+    const userFound = await User.find({ _id: userId });
+    console.log(userFound);
+    // if (req.days === "Everyday") {
+    //   days = 1;
+    // }
+    // if (req.days === "7 days") {
+    //   days = 7;
+    // }
+    // if (req.days === "15 days") {
+    //   days = 15;
+    // }
+    // if (req.days === "Monthly") {
+    //   days = 30;
+    // }
+    // if (req.days === "Quarterly") {
+    //   days = 90;
+    // }
+    // if (req.days === "Half Yearly") {
+    //   days = 182;
+    // }
+    // if (req.days === "Yearly") {
+    //   days = 365;
+    // }
+    if ((userFound, days, scanType)) {
+      let lastScanDate = userFound[0]?.lastScan;
+      console.log(lastScanDate);
+      let date = new Date(lastScanDate);
+      console.log(typeof date);
+      let d2 = date.setDate(date.getDate() + days);
+
+      //let d3 = new Date(d2);
+      let d3 = moment(d2).format("DD-MM-YYYY");
+      console.log(d3, "d3");
+      let date1 = new Date();
+      let myDate = moment(date1).format("DD-MM-YYYY");
+      console.log(myDate);
+      console.log(d3 == myDate);
+
+      Scans.updateOne(
+        { userId: userId },
+        { $set: { days: days, scanType: scanType } },
+        (err) => {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log("user updated");
+          }
+        }
+      );
+      if (d3 == myDate) {
+        let inAppNoti = new Notification({
+          title: "Scan Due Today",
+          body: "Your Scan is Due Today,please send Face & Teeth Scan to Doctor",
+          actionId: "3",
+          actionName: "Scan",
+          userId: userFound[0]?._id,
+          isRead: "0",
+        });
+        inAppNoti.save(async (err, data) => {
+          if (err) {
+            console.log(err);
+            throw new Error("Error saving the notification");
+          } else {
+            console.log(data);
+          }
+        });
+        // let message = createMsg(
+        //   userFound[0]?.device_token,
+        //   "Scan Due Today",
+        //   "Your Scan is Due Today, please send Face & Teeth Scan to Doctor"
+        // );
+        // sendPushNotification(message);
+      }
+      res.json({
+        serverError: 0,
+        message: `Scan alert is set on ${d3}`,
+        data: {
+          success: 1,
+        },
+      });
+    } else {
+      res.json({
+        serverError: 0,
+        message: "user not found",
+        data: {
+          success: 0,
+        },
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.json({
+      serverError: 1,
+      message: err.message,
+      data: {
+        success: 0,
+      },
+    });
+  }
+};
+
+const cronSchedule = async (req, res) => {
+  const { days, scanType, userId } = req.body;
+  console.log(req.body);
+
+  const task = cron.schedule("*/1 * * * *", async () => {
+    console.log("enter in get data");
+    try {
+      const userFound = await User.find({ _id: userId });
+      console.log(userFound);
+      // if (req.days === "Everyday") {
+      //   days = 1;
+      // }
+      // if (req.days === "7 days") {
+      //   days = 7;
+      // }
+      // if (req.days === "15 days") {
+      //   days = 15;
+      // }
+      // if (req.days === "Monthly") {
+      //   days = 30;
+      // }
+      // if (req.days === "Quarterly") {
+      //   days = 90;
+      // }
+      // if (req.days === "Half Yearly") {
+      //   days = 182;
+      // }
+      // if (req.days === "Yearly") {
+      //   days = 365;
+      // }
+      if ((userFound, days, scanType)) {
+        let lastScanDate = userFound[0]?.lastScan;
+        console.log(lastScanDate);
+        let date = new Date(lastScanDate);
+        console.log(typeof date);
+        let d2 = date.setDate(date.getDate() + days);
+
+        //let d3 = new Date(d2);
+        let d3 = moment(d2).format("DD-MM-YYYY");
+        console.log(d3, "d3");
+        let date1 = new Date();
+        let myDate = moment(date1).format("DD-MM-YYYY");
+        console.log(myDate);
+        console.log(d3 == myDate);
+
+        // Scans.updateOne(
+        //   { userId: userId },
+        //   { $set: { days: days, scanType: scanType } },
+        //   (err) => {
+        //     if (err) {
+        //       console.log(err);
+        //     } else {
+        //       console.log("user updated");
+        //     }
+        //   }
+        // );
+        if (d3 == myDate) {
+          let inAppNoti = new Notification({
+            title: "Scan Due Today",
+            body: "Your Scan is Due Today,please send Face & Teeth Scan to Doctor",
+            actionId: "3",
+            actionName: "Scan",
+            userId: userFound[0]?._id,
+            isRead: "0",
+          });
+          inAppNoti.save(async (err, data) => {
+            if (err) {
+              console.log(err);
+              throw new Error("Error saving the notification");
+            } else {
+              console.log(data);
+            }
+          });
+          // let message = createMsg(
+          //   userFound[0]?.device_token,
+          //   "Scan Due Today",
+          //   "Your Scan is Due Today, please send Face & Teeth Scan to Doctor"
+          // );
+          // sendPushNotification(message);
+        }
+        task.stop();
+        // res.json({
+        //   serverError: 0,
+        //   message: `Scan alert is set on ${d3}`,
+        //   data: {
+        //     success: 1,
+        //   },
+        // });
+      } else {
+        res.json({
+          serverError: 0,
+          message: "user not found",
+          data: {
+            success: 0,
+          },
+        });
+      }
+    } catch (err) {
+      console.log(err);
+      res.json({
+        serverError: 1,
+        message: err.message,
+        data: {
+          success: 0,
+        },
+      });
+    }
+  });
+};
 module.exports = {
   submitScans,
   getMyScans,
   getAllScans,
   getScanId,
+  scanFrequency,
+  cronSchedule,
 };
