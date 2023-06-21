@@ -3309,6 +3309,7 @@ const sendBookingReq = async (req, res) => {
       consultationType,
       doctorId,
       doctorName,
+      image,
       //date,
     } = req.body;
     console.log(req.body);
@@ -3323,7 +3324,8 @@ const sendBookingReq = async (req, res) => {
         clinicName: clinicName,
         consultationType: consultationType,
         serviceName: serviceName,
-
+        image:
+          "https://www.clipartmax.com/png/middle/344-3442642_clip-art-freeuse-library-profile-man-user-people-icon-icono-de-login.png",
         roomId: consultationType == "Remote Consultation" ? uuid.v1() : "",
         //doctorId: doctorId,
         //doctorName: doctorName,
@@ -3649,6 +3651,8 @@ const getBookingData = async (req, res) => {
 const confirmBooking = async (req, res) => {
   let { bookingId, doctorId, date, time } = req.body;
   try {
+    const foundBooking = await Appointment.find({ _id: bookingId });
+    console.log(foundBooking, "test");
     if (bookingId && doctorId && date && time) {
       const foundDoctor = await Doctor.find({ _id: doctorId });
       console.log(foundDoctor);
@@ -3659,7 +3663,10 @@ const confirmBooking = async (req, res) => {
             status: "Confirmed",
             doctorId: foundDoctor[0]?._id,
             doctorName: `${foundDoctor[0]?.firstName} ${foundDoctor[0].lastName}`,
-            image: foundDoctor[0]?.image[0],
+            image:
+              foundBooking[0]?.status === "Pending"
+                ? "https://www.clipartmax.com/png/middle/344-3442642_clip-art-freeuse-library-profile-man-user-people-icon-icono-de-login.png"
+                : foundDoctor[0]?.image[0],
             //date: moment(date).format("DD-MM-YYYY"),
             date: date,
             time: time,
