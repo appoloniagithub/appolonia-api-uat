@@ -3659,6 +3659,7 @@ const confirmBooking = async (req, res) => {
             status: "Confirmed",
             doctorId: foundDoctor[0]?._id,
             doctorName: `${foundDoctor[0]?.firstName} ${foundDoctor[0].lastName}`,
+            image: foundDoctor[0]?.image[0],
             //date: moment(date).format("DD-MM-YYYY"),
             date: date,
             time: time,
@@ -3684,18 +3685,18 @@ const confirmBooking = async (req, res) => {
               userId: foundAppointement[0]?.userId,
             });
             console.log(userFound, "user");
-            if (userFound) {
-              let message = createMsg(
-                userFound[0]?.device_token,
-                "Appolonia",
-                `Your Booking with ${foundDoctor[0]?.firstName} ${
-                  foundDoctor[0].lastName
-                } on ${moment(date).format("DD-MM-YYYY")} at ${moment(
-                  time
-                ).format("h:mm A")} is Confirmed.`
-              );
-              sendPushNotification(message);
-            }
+            // if (userFound) {
+            //   let message = createMsg(
+            //     userFound[0]?.device_token,
+            //     "Appolonia",
+            //     `Your Booking with ${foundDoctor[0]?.firstName} ${
+            //       foundDoctor[0].lastName
+            //     } on ${moment(date).format("DD-MM-YYYY")} at ${moment(
+            //       time
+            //     ).format("h:mm A")} is Confirmed.`
+            //   );
+            //   sendPushNotification(message);
+            // }
             let inAppNoti = new Notification({
               title: "Appolonia",
               body: `Your Booking with ${foundDoctor[0]?.firstName} ${
