@@ -3326,7 +3326,7 @@ const sendBookingReq = async (req, res) => {
         serviceName: serviceName,
         image:
           "https://www.clipartmax.com/png/middle/344-3442642_clip-art-freeuse-library-profile-man-user-people-icon-icono-de-login.png",
-        roomId: consultationType == "Remote Consultation" ? uuid.v1() : "",
+        roomId: consultationType == "Remote" ? uuid.v1() : "",
         //doctorId: doctorId,
         //doctorName: doctorName,
         //date: moment(date).format("DD-MM-YYYY HH:mm"),
@@ -3605,7 +3605,7 @@ const deleteBooking = async (req, res) => {
 const getBookingData = async (req, res) => {
   try {
     let foundServices = [
-      "Pediatric Dentistry",
+      "Pediatric",
       "Orthodontics",
       "Endodontics",
       "Oral Surgery",
