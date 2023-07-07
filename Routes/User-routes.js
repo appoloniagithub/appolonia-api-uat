@@ -106,5 +106,6 @@ router.post("/reschedule", usersController.rescheduleBookingReq);
 router.get("/activepatients", usersController.activePatients);
 router.get("/newpatientreq", usersController.newPatientReq);
 router.get("/pending", usersController.pendingAppointments);
+router.get("/remote", usersController.remoteSchedule);
 
 module.exports = router;

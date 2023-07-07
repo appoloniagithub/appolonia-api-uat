@@ -4078,6 +4078,76 @@ const pendingAppointments = async (req, res) => {
   }
 };
 
+const remoteSchedule = async (req, res) => {
+  try {
+    const isOver = false;
+    const remoteCalls = await Appointment.find({ consultationType: "Remote" });
+    console.log(remoteCalls);
+    for (i = 0; i < remoteCalls.length; i++) {
+      let time = remoteCalls[i].time;
+      console.log(time);
+      let t1 = new Date(time);
+      console.log(t1);
+      let formatTime = moment(time).format("hh:mm A");
+      console.log(formatTime);
+      const currentTime = t1;
+
+      //targetTime.setHours(12, 0, 0); // Assuming the target time is 12:00 PM
+
+      // Calculate the one hour before and one hour after times
+      const oneHourBefore = new Date(t1.getTime() - 60 * 60 * 1000);
+      const oneHourAfter = new Date(t1.getTime() + 60 * 60 * 1000);
+      console.log(
+        moment(oneHourBefore).format("hh:mm A"),
+        moment(oneHourAfter).format("hh:mm A")
+      );
+      // Check if the current time is within the range
+      if (currentTime >= oneHourBefore && currentTime <= oneHourAfter) {
+        console.log(
+          "The current time is within one hour before or after the target time."
+        );
+        res.json({
+          serverError: 0,
+          message: "Video call has not completed",
+          isOver: true,
+          data: {
+            success: 1,
+          },
+        });
+      } else {
+        console.log("The current time is not within the specified range.");
+        Appointment.updateMany(
+          { ConsultationType: "Remote" },
+          { $set: { status: "Completed" } },
+          (err) => {
+            if (err) {
+              console.log(err);
+            } else {
+              console.log("data updated");
+            }
+          }
+        );
+        res.json({
+          serverError: 0,
+          message: "Video call is completed",
+          data: {
+            success: 1,
+          },
+        });
+      }
+    }
+  } catch (err) {
+    console.log(err);
+    res.json({
+      serverError: 0,
+      message: "something went wrong",
+      data: {
+        success: 0,
+      },
+    });
+  }
+};
+
 module.exports = {
   signup,
   login,
@@ -4115,4 +4185,5 @@ module.exports = {
   activePatients,
   newPatientReq,
   pendingAppointments,
+  remoteSchedule,
 };
