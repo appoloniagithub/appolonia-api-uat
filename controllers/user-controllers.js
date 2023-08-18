@@ -68,11 +68,11 @@ const getUsers = async (req, res, next) => {
 };
 
 const getUserdata = async (req, res) => {
-  logger.info("GET user data is accessed");
+  //logger.info("GET user data is accessed");
   const { userId } = req.body;
   let foundUser = await User.findOne({ _id: userId });
   console.log(foundUser, "i am user");
-  logger.info(foundUser, "i am user");
+  //logger.info(foundUser, "i am user");
   if (foundUser) {
     // let decryptedFileNumber;
     // decryptedFileNumber = CryptoJS.AES.decrypt(foundUser?.fileNumber, "love");
@@ -105,7 +105,9 @@ const getUserdata = async (req, res) => {
       $and: [{ userId: userId }, { isRead: "0" }],
     });
     console.log(notifications.length);
-    logger.info("notification length");
+    // logger.info("notification length");
+    const scans = await Scans.find({ userId: userId });
+    console.log(scans);
     res.json({
       serverError: 0,
       message: "User found",
@@ -113,6 +115,7 @@ const getUserdata = async (req, res) => {
         success: 1,
         userData: foundUser,
         notificationCount: notifications.length,
+        scans: scans,
       },
     });
     return;
@@ -130,24 +133,24 @@ const getUserdata = async (req, res) => {
 };
 
 const updateUserProfile = async (req, res) => {
-  logger.info("update user profile");
+  // logger.info("update user profile");
   console.log(req.body);
   let imageFiles = [];
   if (req?.files?.length > 0) {
     console.log(req.files, "here are the files");
-    logger.info("here are the files");
+    // logger.info("here are the files");
     imageFiles = req.files.map((file) => file.path);
   }
   let emirateFront = [];
   if (req?.files?.length > 0) {
     console.log(req.files, "here are the files");
-    logger.info("here are the files");
+    //  logger.info("here are the files");
     emirateFront = req.files.map((file) => file.path);
   }
   let emirateBack = [];
   if (req?.files?.length > 0) {
     console.log(req.files, "here are the files");
-    logger.info("here are the files");
+    // logger.info("here are the files");
     emirateBack = req.files.map((file) => file.path);
   }
   const {
@@ -206,7 +209,7 @@ const updateUserProfile = async (req, res) => {
     console.log(hashedemiratesId, hashedFileNumber, "i am emirates");
   } catch (err) {
     console.log("Something went wrong while Encrypting Data", err);
-    logger.info("Something went wrong while Encrypting Data");
+    // logger.info("Something went wrong while Encrypting Data");
     throw new Error("Something went wrong while Encrypting Data");
   }
 
@@ -230,7 +233,7 @@ const updateUserProfile = async (req, res) => {
     User.updateOne({ _id: userId }, data, { new: true }, (err) => {
       if (err) {
         console.log(err);
-        logger.info("Error updating the user");
+        //  logger.info("Error updating the user");
         throw new Error("Error updating the user");
       } else {
         if (isFamilyHead === "1") {
@@ -302,7 +305,7 @@ const updateUserProfile = async (req, res) => {
 };
 
 const checkPatient = async (req, res) => {
-  logger.info("check patient api");
+  // logger.info("check patient api");
   console.log(req.body);
   const { isFileNumber, fileNumber, emiratesId } = req.body;
 
@@ -766,7 +769,7 @@ const createUserAndAdminChat = async (
   name,
   image
 ) => {
-  logger.info("create user and admin chat");
+  // logger.info("create user and admin chat");
   let conversations = await Conversation.find({
     members: { $in: [senderId] },
   });
@@ -870,7 +873,7 @@ const createUserAndAdminChat = async (
 };
 
 const signup = async (req, res, next) => {
-  logger.info("sign up api");
+  // logger.info("sign up api");
   const {
     firstName,
     lastName,
@@ -1270,7 +1273,7 @@ const sendPhoneOtp = async (phone, otp) => {
 };
 
 const sendEmailOtp = (email, otp) => {
-  logger.info("send email otp");
+  // logger.info("send email otp");
   console.log(email, otp, "hello gggggg");
   if (otp && email) {
     console.log("Things going good");
@@ -1330,7 +1333,7 @@ const sendEmailOtp = (email, otp) => {
 };
 
 const emailVerify = async (req, res) => {
-  logger.info("email verify");
+  //  logger.info("email verify");
   console.log(req.body);
   const { otp, phoneNumber, fileId } = req.body;
   let user;
@@ -1419,7 +1422,7 @@ const emailVerify = async (req, res) => {
 };
 
 const fileVerify = async (req, res) => {
-  logger.info("file verify");
+  // logger.info("file verify");
   console.log(req.body);
   const { fileNumber, fileId } = req.body;
   let user;
@@ -1867,9 +1870,10 @@ const login = async (req, res, next) => {
             ? userScansResolved[0]?.doctorName
             : `${adminFoundResolved?.firstName} ${adminFoundResolved.lastName}`,
           role: familyHead?.role,
-          image: familyHead?.image
-            ? familyHead?.image
-            : ["uploads/contact/login.jpeg"],
+          image:
+            (familyHead?.image).length === 0
+              ? ["uploads/contact/login.jpeg"]
+              : familyHead?.image,
           scans: userScansResolved,
         };
         User.updateOne(
@@ -1897,6 +1901,7 @@ const login = async (req, res, next) => {
             access_token: access_token,
             refresh_token: refresh_token,
             // familyMembers,
+
             success: 1,
             phoneVerified: existingUser?.phoneVerified === true ? 1 : 0,
             clinicVerified: existingUser?.clinicVerified === true ? 1 : 0,
@@ -2306,8 +2311,9 @@ const login = async (req, res, next) => {
     }
   }
 };
+
 const refreshToken = async (req, res) => {
-  logger.info("refresh token api");
+  // logger.info("refresh token api");
   const { fileId, refreshToken, device_token } = req.body;
   console.log(req.body);
   let foundUser = await File.findOne({ _id: fileId });
@@ -2433,7 +2439,7 @@ const sendOtpIfPhoneNotVerified = async (fileId) => {
 };
 
 const newPassword = async (req, res) => {
-  logger.info("new password API");
+  // logger.info("new password API");
   console.log(req.body);
 
   const { newPassword, fileId, recentOtp } = req.body;
@@ -2587,7 +2593,7 @@ const newPassword = async (req, res) => {
 
 const changePassword = async (req, res) => {
   console.log(req.body);
-  logger.info("change password API");
+  // logger.info("change password API");
   const { passwordUpdate, fileId } = req.body;
   const { oldPassword, newPassword } = passwordUpdate;
 
@@ -2653,7 +2659,7 @@ const changePassword = async (req, res) => {
 };
 
 const requestNewOtp = async (req, res) => {
-  logger.info("request new OTP");
+  // logger.info("request new OTP");
   console.log(req.body);
   const { fileId } = req.body;
   let phoneExist = await File.findOne({ _id: fileId }, [
@@ -2734,7 +2740,7 @@ const requestNewOtp = async (req, res) => {
 };
 
 const requestForgotOtp = async (req, res) => {
-  logger.info("request forgot OTP");
+  //logger.info("request forgot OTP");
   console.log(req.body);
   const { phoneNumber } = req.body;
   let phoneExist = await File.findOne({ phoneNumber: phoneNumber });
@@ -3310,7 +3316,8 @@ const sendBookingReq = async (req, res) => {
       doctorId,
       doctorName,
       image,
-      //date,
+      pdate,
+      ptime,
     } = req.body;
     console.log(req.body);
     const userFound = await User.find({ _id: userId });
@@ -3329,8 +3336,10 @@ const sendBookingReq = async (req, res) => {
         roomId: consultationType == "Remote" ? uuid.v1() : "",
         //doctorId: doctorId,
         //doctorName: doctorName,
-        //date: moment(date).format("DD-MM-YYYY HH:mm"),
-        //time: moment(time, "HH:mm"),
+        // date: moment(date).format("DD-MM-YYYY"),
+        // time: moment(time).format("hh:mm A"),
+        pdate: pdate,
+        ptime: ptime,
       });
       newAppointmentReq.save((err, data) => {
         if (err) {
@@ -3422,35 +3431,70 @@ const getAllBookings = async (req, res) => {
     let userFound = await User.find({ _id: userId });
     if (userFound) {
       let allBookings = await Appointment.find({ userId: userId });
-      console.log(allBookings);
+      console.log(allBookings, "all");
       let pending = await Appointment.find({
-        $and: [{ userId: userId }, { status: "Pending" }],
+        userId: userId,
+        status: "Pending",
       });
       console.log(pending, "pending");
+      let rescheduled = await Appointment.find({
+        $and: [{ userId: userId }, { status: "Reschedule" }],
+      });
+      console.log(rescheduled, "rescheduled");
+
+      let [foundPending, foundRescheduled] = await Promise.all([
+        pending,
+        rescheduled,
+      ]);
+      let temp = [...foundPending, ...foundRescheduled];
+      console.log(temp, "temp");
       let confirmed = await Appointment.find({
         $and: [{ userId: userId }, { status: "Confirmed" }],
       });
       console.log(confirmed, "confirmed");
-      let tempFinished = [];
+      //let tempFinished = [];
+      let tempDate = moment(new Date()).format("YYYY-MM-DD");
+      let tempTime = moment(new Date()).format("hh:mm A");
+
+      console.log(tempDate, "today date");
+      console.log(tempTime, "today time");
       for (let i = 0; i < allBookings.length; i++) {
-        let date = moment(new Date()).format("DD-MM-YYYY");
-        console.log(date, "today");
-        //console.log(allBookings[i].date);
-        let allDates = moment(allBookings[i].date).format("DD-MM-YYYY");
-        console.log(allDates, "all");
-        console.log(allDates < date);
-        let finished = await Appointment.find({
-          $and: [
-            { userId: userId },
-            {
-              date: allDates < date,
-            },
-          ],
-        });
-        console.log(finished, "finished");
-        //return finished;
-        tempFinished.push(finished);
+        // console.log(allBookings[i].time);
+        // let allDates = moment(allBookings[i].time).format("hh:mm A");
+        // console.log(allDates, "all");
+        // console.log(allDates < tempDate);
       }
+      let finished = await Appointment.find({
+        $and: [
+          { userId: userId },
+          { date: { $lt: tempDate } },
+          //,{time: { $lt: tempTime }}
+        ],
+      });
+      console.log(finished, "finished");
+      for (let j = 0; j < finished.length; j++) {
+        Appointment.updateOne(
+          { _id: finished[j]?._id },
+          { $set: { status: "Completed" } },
+          (err) => {
+            if (err) {
+              console.log(err);
+            } else {
+              console.log("data updated");
+            }
+          }
+        );
+      }
+      let tempFinished = await Appointment.find({
+        $and: [{ userId: userId }, { status: "Completed" }],
+      });
+      console.log(tempFinished, "tempfinished");
+      //return finished;
+      //tempFinished.push(finished);
+      let cancelled = await Appointment.find({
+        $and: [{ userId: userId }, { status: "Cancelled" }],
+      });
+      console.log(cancelled, "cancelled");
 
       if (allBookings.length > 0) {
         res.json({
@@ -3459,9 +3503,11 @@ const getAllBookings = async (req, res) => {
           data: {
             success: 1,
             allBookings: allBookings.reverse(),
-            pending: pending.reverse(),
+            pending: temp.reverse(),
             confirmed: confirmed.reverse(),
-            finished: tempFinished,
+            finished: finished.reverse(),
+            cancelled: cancelled.reverse(),
+            //rescheduled:rescheduled.reverse(),
           },
         });
       } else {
@@ -3481,7 +3527,6 @@ const getAllBookings = async (req, res) => {
     });
   }
 };
-
 const updateBooking = async (req, res) => {
   const { bookingId, doctorId, date, time } = req.body;
   console.log(req.body);
@@ -3501,6 +3546,8 @@ const updateBooking = async (req, res) => {
             ...req.body,
             doctorName: `${doctorFound[0]?.firstName} ${doctorFound[0].lastName}`,
             status: "Confirmed",
+            // time: moment(time).format("hh:mm A"),
+            time: time,
           },
         },
         (error, data) => {
@@ -3539,7 +3586,7 @@ const updateBooking = async (req, res) => {
           `Your Booking with ${doctorFound[0]?.firstName} ${
             doctorFound[0].lastName
           } on ${moment(date).format("DD-MM-YYYY")} at ${moment(time).format(
-            "h:mm A"
+            "hh:mm A"
           )} is Updated.`
         );
         sendPushNotification(message);
@@ -3602,10 +3649,58 @@ const deleteBooking = async (req, res) => {
   }
 };
 
+const cancelBooking = async (req, res) => {
+  const { bookingId } = req.body;
+  try {
+    let foundAppointement = await Appointment.find({
+      _id: bookingId,
+    });
+    console.log(foundAppointement);
+    if (foundAppointement) {
+      Appointment.updateOne(
+        { _id: bookingId },
+        { $set: { status: "Cancelled" } },
+        (err) => {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log("data updated");
+          }
+        }
+      );
+      res.json({
+        serverError: 0,
+        message: "Appointment has been cancelled successfully",
+        data: {
+          success: 1,
+        },
+      });
+      return;
+    } else {
+      res.json({
+        serverError: 1,
+        message: "Error in deleting appointment",
+        data: {
+          success: 0,
+        },
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.json({
+      serverError: 1,
+      message: "Something went wrong",
+      data: {
+        success: 0,
+      },
+    });
+  }
+};
+
 const getBookingData = async (req, res) => {
   try {
     let foundServices = [
-      "Pediatric",
+      "Pediatric Dentistry",
       "Orthodontics",
       "Endodontics",
       "Oral Surgery",
@@ -3664,13 +3759,14 @@ const confirmBooking = async (req, res) => {
             doctorId: foundDoctor[0]?._id,
             doctorName: `${foundDoctor[0]?.firstName} ${foundDoctor[0].lastName}`,
             image:
-              foundBooking[0]?.status === "Pending"
-                ? "https://www.clipartmax.com/png/middle/344-3442642_clip-art-freeuse-library-profile-man-user-people-icon-icono-de-login.png"
-                : foundDoctor[0]?.image[0],
+              // foundBooking[0]?.status === "Pending"
+              //  ? "https://www.clipartmax.com/png/middle/344-3442642_clip-art-freeuse-library-profile-man-user-people-icon-icono-de-login.png"
+              foundDoctor[0]?.image[0],
             //date: moment(date).format("DD-MM-YYYY"),
             date: date,
             time: time,
-            //time: moment(time).format("h:mm A"),
+            // time: moment(time).format("h:mm A"),
+            //time: moment(time).format("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
           },
         },
         async (error, data) => {
@@ -3692,25 +3788,25 @@ const confirmBooking = async (req, res) => {
               userId: foundAppointement[0]?.userId,
             });
             console.log(userFound, "user");
-            // if (userFound) {
-            //   let message = createMsg(
-            //     userFound[0]?.device_token,
-            //     "Appolonia",
-            //     `Your Booking with ${foundDoctor[0]?.firstName} ${
-            //       foundDoctor[0].lastName
-            //     } on ${moment(date).format("DD-MM-YYYY")} at ${moment(
-            //       time
-            //     ).format("h:mm A")} is Confirmed.`
-            //   );
-            //   sendPushNotification(message);
-            // }
+            if (userFound) {
+              let message = createMsg(
+                userFound[0]?.device_token,
+                "Appolonia",
+                `Your Booking with ${foundDoctor[0]?.firstName} ${
+                  foundDoctor[0].lastName
+                } on ${moment(date).format("DD-MM-YYYY")} at ${moment(
+                  time
+                ).format("hh:mm A")} is Confirmed.`
+              );
+              sendPushNotification(message);
+            }
             let inAppNoti = new Notification({
               title: "Appolonia",
               body: `Your Booking with ${foundDoctor[0]?.firstName} ${
                 foundDoctor[0].lastName
               } on ${moment(date).format("DD-MM-YYYY")} at ${moment(
                 time
-              ).format("h:mm A")} is Confirmed.`,
+              ).format("hh:mm A")} is Confirmed.`,
               actionId: "4",
               actionName: "Notification",
               userId: userFound[0]?._id,
@@ -3731,7 +3827,7 @@ const confirmBooking = async (req, res) => {
                 success: 1,
                 appointment: {
                   ...foundAppointement,
-                  time: moment(time).format("h:mm A"),
+                  time: moment(time).format("hh:mm A"),
                 },
               },
             });
@@ -3770,7 +3866,7 @@ const showBookingDetails = async (req, res) => {
         message: "Found Booking",
         data: {
           booking: foundBooking,
-          time: moment(foundBooking[0]?.time).format("h:mm A"),
+          time: moment(foundBooking[0]?.time).format("hh:mm A"),
           date: moment(foundBooking[0]?.date).format("DD-MM-YYYY"),
           success: 1,
         },
@@ -3915,7 +4011,19 @@ const getAppointmentById = async (req, res) => {
 };
 
 const rescheduleBookingReq = async (req, res) => {
-  const { bookingId, doctorId, date, time } = req.body;
+  const {
+    bookingId,
+    userId,
+    patientName,
+    phoneNumber,
+    email,
+    emiratesId,
+    clinicName,
+    serviceName,
+    consultationType,
+    ptime,
+    pdate,
+  } = req.body;
   console.log(req.body);
   try {
     //const doctorFound = await Doctor.find({ _id: doctorId });
@@ -4078,76 +4186,6 @@ const pendingAppointments = async (req, res) => {
   }
 };
 
-const remoteSchedule = async (req, res) => {
-  try {
-    const isOver = false;
-    const remoteCalls = await Appointment.find({ consultationType: "Remote" });
-    console.log(remoteCalls);
-    for (i = 0; i < remoteCalls.length; i++) {
-      let time = remoteCalls[i].time;
-      console.log(time);
-      let t1 = new Date(time);
-      console.log(t1);
-      let formatTime = moment(time).format("hh:mm A");
-      console.log(formatTime);
-      const currentTime = t1;
-
-      //targetTime.setHours(12, 0, 0); // Assuming the target time is 12:00 PM
-
-      // Calculate the one hour before and one hour after times
-      const oneHourBefore = new Date(t1.getTime() - 60 * 60 * 1000);
-      const oneHourAfter = new Date(t1.getTime() + 60 * 60 * 1000);
-      console.log(
-        moment(oneHourBefore).format("hh:mm A"),
-        moment(oneHourAfter).format("hh:mm A")
-      );
-      // Check if the current time is within the range
-      if (currentTime >= oneHourBefore && currentTime <= oneHourAfter) {
-        console.log(
-          "The current time is within one hour before or after the target time."
-        );
-        res.json({
-          serverError: 0,
-          message: "Video call has not completed",
-          isOver: true,
-          data: {
-            success: 1,
-          },
-        });
-      } else {
-        console.log("The current time is not within the specified range.");
-        Appointment.updateMany(
-          { ConsultationType: "Remote" },
-          { $set: { status: "Completed" } },
-          (err) => {
-            if (err) {
-              console.log(err);
-            } else {
-              console.log("data updated");
-            }
-          }
-        );
-        res.json({
-          serverError: 0,
-          message: "Video call is completed",
-          data: {
-            success: 1,
-          },
-        });
-      }
-    }
-  } catch (err) {
-    console.log(err);
-    res.json({
-      serverError: 0,
-      message: "something went wrong",
-      data: {
-        success: 0,
-      },
-    });
-  }
-};
-
 module.exports = {
   signup,
   login,
@@ -4173,7 +4211,7 @@ module.exports = {
   sendBookingReq,
   getAllBookings,
   updateBooking,
-  deleteBooking,
+  cancelBooking,
   checkAvailability,
   getBookingData,
   confirmBooking,
@@ -4185,5 +4223,5 @@ module.exports = {
   activePatients,
   newPatientReq,
   pendingAppointments,
-  remoteSchedule,
+  deleteBooking,
 };

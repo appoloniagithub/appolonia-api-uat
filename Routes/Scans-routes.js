@@ -35,5 +35,7 @@ router.post("/getallscans", authCheck, async (req, res) => {
   }
 });
 router.post("/getscanid", authCheck, scansController.getScanId);
+router.post("/scanfrequency", scansController.scanFrequency);
+router.post("/cron", scansController.cronSchedule);
 
 module.exports = router;

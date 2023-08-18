@@ -5,7 +5,8 @@ const Settings = require("../Models/Settings");
 const Library = require("../Models/Library");
 const librarySchema = require("../Models/Library");
 const Notification = require("../Models/Notification");
-const sendPushNotification = require("../services/sendPushNotification");
+//const sendPushNotification = require("../services/sendPush");
+const { sendPushNotification } = require("../services/sendPush");
 
 function createMsg(token, title, body) {
   return {

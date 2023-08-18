@@ -9,6 +9,8 @@ var CryptoJS = require("crypto-js");
 let doctorSchema = require("../Models/Doctor");
 const jwt = require("jsonwebtoken");
 const Scans = require("../Models/Scans");
+const Event = require("../Models/Events");
+const Appointment = require("../Models/Appointment");
 
 const addDoctor = async (req, res) => {
   let imageFiles = [];
@@ -23,6 +25,7 @@ const addDoctor = async (req, res) => {
     emiratesId,
     phoneNumber,
     speciality,
+    clinicName,
     image,
     password,
     role,
@@ -77,6 +80,7 @@ const addDoctor = async (req, res) => {
           image: imageFiles.toString().replace(/\\/g, "/"),
           password: hashedpassword,
           uniqueId: password,
+          phoneNumber: `+${phoneNumber}`,
           //emiratesId: hashedemiratesId,
         },
         (error, data) => {
@@ -216,6 +220,7 @@ const updateDoctor = async (req, res) => {
     email,
     phoneNumber,
     speciality,
+    clinicName,
     image,
     password,
     emiratesId,
@@ -518,6 +523,8 @@ const doctorScans = async (req, res) => {
   // const { doctorId } = req.body;
   //console.log(req.body);
   let foundScans = await Scans.find({ isOpen: "0" });
+  let appointments = await Appointment.find({});
+  console.log(appointments);
   console.log(foundScans, "found scans");
   if (foundScans) {
     res.json({
@@ -526,15 +533,142 @@ const doctorScans = async (req, res) => {
       data: {
         success: 1,
         scans: foundScans,
+        appointments: appointments,
       },
     });
   } else {
     res.json({
       serverError: 1,
-      message: " No Scans found",
+      message: " No Scans or appointments found",
       data: {
         success: 0,
       },
+    });
+  }
+};
+
+const monthlySchedule = async (req, res) => {
+  const { title, date, start, end } = req.body;
+  try {
+    if ((title, date, start, end)) {
+      const newEvent = await Event({
+        title: title,
+        date: date,
+        start: start,
+        end: end,
+      });
+      newEvent.save(async (err, data) => {
+        if (err) {
+          console.log(err);
+          throw new Error("Error saving the event");
+        } else {
+          console.log(data);
+
+          res.json({
+            serverError: 0,
+            message: "New Event added.",
+            data: {
+              success: 1,
+              event: data,
+            },
+          });
+          return;
+        }
+      });
+    } else {
+      res.json({
+        serverError: 0,
+        message: "Something went wrong",
+        data: {
+          success: 0,
+        },
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.json({
+      serverError: 1,
+      message: err.message,
+      data: { success: 0 },
+    });
+  }
+};
+
+const getAllEvents = async (req, res) => {
+  try {
+    const allEvents = await Event.find({});
+    console.log(allEvents);
+    if (allEvents.length > 0) {
+      res.json({
+        serverError: 0,
+        message: "Events found",
+        data: {
+          success: 1,
+          events: allEvents,
+        },
+      });
+      return;
+    } else {
+      res.json({
+        serverError: 0,
+        message: "No events found",
+        data: {
+          success: 0,
+        },
+      });
+      return;
+    }
+  } catch (err) {
+    console.log(err);
+    res.json({
+      serverError: 1,
+      message: err.message,
+      data: {
+        success: 0,
+      },
+    });
+  }
+};
+
+const deleteEvent = async (req, res) => {
+  const { eventId } = req.body;
+  console.log(req.body);
+  try {
+    if (eventId) {
+      const foundEvent = await Event.findByIdAndRemove({ _id: eventId });
+      console.log(foundEvent);
+      if (foundEvent) {
+        res.json({
+          serverError: 0,
+          message: "Event deleted",
+          data: {
+            success: 1,
+          },
+        });
+      } else {
+        res.json({
+          serverError: 0,
+          message: "Event not found",
+          data: {
+            success: 1,
+          },
+        });
+      }
+    } else {
+      res.json({
+        serverError: 0,
+        message: "Something went wrong",
+        data: {
+          success: 0,
+        },
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.json({
+      serverError: 1,
+      message: err.message,
+      data: { success: 0 },
     });
   }
 };
@@ -547,4 +681,7 @@ module.exports = {
   doctorLogin,
   forgotPassword,
   doctorScans,
+  monthlySchedule,
+  getAllEvents,
+  deleteEvent,
 };

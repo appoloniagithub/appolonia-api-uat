@@ -15,6 +15,7 @@ const scansSchema = new Schema({
   teethScanImages: { type: Array },
   logo: { type: String },
   isOpen: { type: String },
+  scanDue: { type: String },
   created: {
     type: Date,
   },

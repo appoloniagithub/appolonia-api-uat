@@ -9,7 +9,8 @@ const Message = require("../Models/Messages");
 const moment = require("moment");
 var CryptoJS = require("crypto-js");
 const Notification = require("../Models/Notification");
-const sendPushNotification = require("../services/sendPushNotification");
+//const sendPushNotification = require("../services/sendPush");
+const { sendPushNotification } = require("../services/sendPush");
 
 function createMsg(token, title, body) {
   return {
@@ -98,7 +99,10 @@ const getFileFamilyMembers = async (req, res) => {
         ? userScansResolved[0]?.doctorName
         : `${adminFoundResolved?.firstName} ${adminFoundResolved.lastName}`,
       role: member?.role,
-      image: member?.image ? member?.image : ["uploads/contact/login.jpeg"],
+      image:
+        (member?.image).length > 0
+          ? member?.image
+          : ["uploads/contact/login.jpeg"],
       scans: [],
     };
   });
@@ -342,8 +346,7 @@ const addFamilyMember = async (req, res) => {
       fileNumber: hashedfileNumber,
       uniqueId1: fileNumber,
       uniqueId2: emiratesId,
-      image:
-        "https://www.clipartmax.com/png/middle/344-3442642_clip-art-freeuse-library-profile-man-user-people-icon-icono-de-login.png",
+      image: "uploads/contact/login.jpeg",
       isHead: 0,
     });
 

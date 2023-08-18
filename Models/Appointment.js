@@ -37,6 +37,12 @@ const appointmentSchema = new mongoose.Schema(
     time: {
       type: String,
     },
+    pdate: {
+      type: String,
+    },
+    ptime: {
+      type: String,
+    },
     status: {
       type: String,
 

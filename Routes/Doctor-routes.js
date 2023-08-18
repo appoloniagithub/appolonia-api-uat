@@ -46,5 +46,7 @@ router.post("/deletedoctor", authCheck, doctorsController.deleteDoctor);
 router.post("/doctorlogin", doctorsController.doctorLogin);
 router.post("/forgotpwd", doctorsController.forgotPassword);
 router.get("/getdoctorscans", doctorsController.doctorScans);
-
+router.post("/event", doctorsController.monthlySchedule);
+router.get("/getallevents", doctorsController.getAllEvents);
+router.post("/deleteevent", doctorsController.deleteEvent);
 module.exports = router;

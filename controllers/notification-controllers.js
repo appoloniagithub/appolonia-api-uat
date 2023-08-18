@@ -143,10 +143,11 @@ const sendNotification = async (req, res) => {
 const schNotification = async (req, res) => {
   try {
     const payload = {
-      time: req.body.time,
+      // time: req.body.time,
       days: req.body.days,
       title: req.body.title,
       body: req.body.body,
+      scanType: req.body.scanType,
     };
     await schedule.createSchedule(payload);
     res.json({

@@ -10,6 +10,7 @@ const schema = new mongoose.Schema({
     type: String,
   },
   notification: {},
+  scanType: { type: String },
   isRead: { type: String },
   isSent: {
     type: Boolean,

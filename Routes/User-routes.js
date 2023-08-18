@@ -95,6 +95,7 @@ router.post("/reqbooking", usersController.sendBookingReq);
 router.get("/getallappointments", usersController.getAllAppointments);
 router.post("/updatebooking", usersController.updateBooking);
 router.post("/deletebooking", usersController.deleteBooking);
+router.post("/cancelbooking", usersController.cancelBooking);
 router.post("/check-booking-availability", usersController.checkAvailability);
 router.get("/getbookingdata", usersController.getBookingData);
 router.post("/confirmbooking", usersController.confirmBooking);
@@ -106,6 +107,5 @@ router.post("/reschedule", usersController.rescheduleBookingReq);
 router.get("/activepatients", usersController.activePatients);
 router.get("/newpatientreq", usersController.newPatientReq);
 router.get("/pending", usersController.pendingAppointments);
-router.get("/remote", usersController.remoteSchedule);
 
 module.exports = router;
