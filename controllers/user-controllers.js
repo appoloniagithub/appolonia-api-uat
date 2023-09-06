@@ -3792,21 +3792,13 @@ const confirmBooking = async (req, res) => {
               let message = createMsg(
                 userFound[0]?.device_token,
                 "Appolonia",
-                `Your Booking with ${foundDoctor[0]?.firstName} ${
-                  foundDoctor[0].lastName
-                } on ${moment(date).format("DD-MM-YYYY")} at ${moment(
-                  time
-                ).format("hh:mm A")} is Confirmed.`
+                `Your Booking with ${foundDoctor[0]?.firstName} ${foundDoctor[0].lastName} on ${date} at ${time} is Confirmed.`
               );
               sendPushNotification(message);
             }
             let inAppNoti = new Notification({
               title: "Appolonia",
-              body: `Your Booking with ${foundDoctor[0]?.firstName} ${
-                foundDoctor[0].lastName
-              } on ${moment(date).format("DD-MM-YYYY")} at ${moment(
-                time
-              ).format("hh:mm A")} is Confirmed.`,
+              body: `Your Booking with ${foundDoctor[0]?.firstName} ${foundDoctor[0].lastName} on ${date} at ${time} is Confirmed.`,
               actionId: "4",
               actionName: "Notification",
               userId: userFound[0]?._id,
@@ -4171,6 +4163,7 @@ const pendingAppointments = async (req, res) => {
         message: "No Pending Appointments",
         data: {
           success: 1,
+          pending: pending,
         },
       });
     }

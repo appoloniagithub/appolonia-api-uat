@@ -404,7 +404,14 @@ const doctorLogin = async (req, res) => {
       let doctorFound = await Doctor.findOne({ phoneNumber: phoneNumber });
       console.log(doctorFound);
       let ValidPassword = false;
-      if (doctorFound) {
+      if (!doctorFound) {
+        res.json({
+          serverError: 1,
+          success: 0,
+          message: "Invalid Login Credentails. Please try again",
+        });
+        return;
+      } else {
         try {
           ValidPassword = await bcrypt.compare(password, doctorFound.password);
           console.log(ValidPassword, "in try");
@@ -416,31 +423,26 @@ const doctorLogin = async (req, res) => {
           //   message: "Wrong Password",
           // });
         }
-      }
-      let access_token;
-      try {
-        access_token = jwt.sign({ userId: doctorFound._id }, JWTKEY, {
-          expiresIn: "1y",
-        });
-      } catch (err) {
-        console.log(err);
-        throw new Error("Something went wrong while creating token");
-      }
-      console.log(ValidPassword, "valid pwd");
-      if (doctorFound && ValidPassword) {
-        res.json({
-          serverError: 0,
-          success: 1,
-          message: "Login succcessfully.",
-          doctorFound: doctorFound,
-          access_token: access_token,
-        });
-      } else {
-        res.json({
-          serverError: 1,
-          success: 0,
-          message: "Invalid Login Credentails. Please try again",
-        });
+
+        let access_token;
+        try {
+          access_token = jwt.sign({ userId: doctorFound._id }, JWTKEY, {
+            expiresIn: "1y",
+          });
+        } catch (err) {
+          console.log(err);
+          throw new Error("Something went wrong while creating token");
+        }
+        console.log(ValidPassword, "valid pwd");
+        if (doctorFound && ValidPassword) {
+          res.json({
+            serverError: 0,
+            success: 1,
+            message: "Login succcessfully.",
+            doctorFound: doctorFound,
+            access_token: access_token,
+          });
+        }
       }
     } catch (err) {
       res.json({
