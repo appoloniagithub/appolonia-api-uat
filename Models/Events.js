@@ -8,6 +8,8 @@ const eventSchema = new Schema({
   date: { type: String },
   start: { type: Date },
   end: { type: Date },
+  doctorId: { type: String },
+  doctorName: { type: String },
 });
 
 // userSchema.plugin(uniqueValidator);

@@ -550,14 +550,18 @@ const doctorScans = async (req, res) => {
 };
 
 const monthlySchedule = async (req, res) => {
-  const { title, date, start, end } = req.body;
+  const { title, date, start, end, doctorId } = req.body;
   try {
+    const doctorFound = await Doctor.find({ _id: doctorId });
+    console.log(doctorFound);
     if ((title, date, start, end)) {
       const newEvent = await Event({
         title: title,
         date: date,
         start: start,
         end: end,
+        doctorId: doctorId,
+        doctorName: `${doctorFound[0]?.firstName} ${doctorFound[0]?.lastName}`,
       });
       newEvent.save(async (err, data) => {
         if (err) {
