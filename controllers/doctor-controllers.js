@@ -7,10 +7,12 @@ const { JWTKEY, SMTPPASS, accountSid, authToken } = require("../Config/config");
 const bcrypt = require("bcryptjs");
 var CryptoJS = require("crypto-js");
 let doctorSchema = require("../Models/Doctor");
+let eventSchema = require("../Models/Events");
 const jwt = require("jsonwebtoken");
 const Scans = require("../Models/Scans");
 const Event = require("../Models/Events");
 const Appointment = require("../Models/Appointment");
+const moment = require("moment");
 
 const addDoctor = async (req, res) => {
   let imageFiles = [];
@@ -550,14 +552,13 @@ const doctorScans = async (req, res) => {
 };
 
 const monthlySchedule = async (req, res) => {
-  const { title, date, start, end, doctorId } = req.body;
+  const { title, start, end, doctorId } = req.body;
   try {
     const doctorFound = await Doctor.find({ _id: doctorId });
     console.log(doctorFound);
-    if ((title, date, start, end)) {
+    if ((title, start, end)) {
       const newEvent = await Event({
         title: title,
-        date: date,
         start: start,
         end: end,
         doctorId: doctorId,
@@ -641,7 +642,7 @@ const deleteEvent = async (req, res) => {
   console.log(req.body);
   try {
     if (eventId) {
-      const foundEvent = await Event.findByIdAndRemove({ _id: eventId });
+      const foundEvent = await Event.deleteOne({ _id: eventId });
       console.log(foundEvent);
       if (foundEvent) {
         res.json({
@@ -678,6 +679,86 @@ const deleteEvent = async (req, res) => {
     });
   }
 };
+const editEvent = async (req, res) => {
+  const { eventId, title, start, end, doctorId } = req.body;
+  try {
+    const doctorFound = await Doctor.find({ _id: doctorId });
+    console.log(doctorFound);
+    const eventFound = await Event.find({ _id: eventId });
+    console.log(eventFound);
+    if (eventFound) {
+      Event.updateMany(
+        { _id: eventId },
+        {
+          $set: {
+            ...req.body,
+            doctorName: `${doctorFound[0]?.firstName} ${doctorFound[0]?.lastName}`,
+          },
+        },
+        (error, data) => {
+          if (error) {
+            return console.log(error);
+          } else {
+            console.log(data, "data");
+            if (!data) {
+              res.json({
+                serverError: 0,
+                message: "Not updated",
+                success: 0,
+              });
+            } else {
+              res.json({
+                serverError: 0,
+                message: "Event updated",
+                success: 1,
+              });
+              return;
+            }
+          }
+        }
+      );
+    }
+  } catch (err) {
+    console.log(err);
+    res.json({
+      serverError: 1,
+      message: err.message,
+      data: { success: 0 },
+    });
+  }
+};
+const getEventById = async (req, res) => {
+  const { eventId } = req.body;
+  try {
+    const eventFound = await Event.find({ _id: eventId });
+    console.log(eventFound);
+    if (eventFound) {
+      res.json({
+        serverError: 0,
+        message: "Event found.",
+        data: {
+          success: 1,
+          event: eventFound,
+        },
+      });
+    } else {
+      res.json({
+        serverError: 0,
+        message: "No Event found.",
+        data: {
+          success: 0,
+        },
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.json({
+      serverError: 1,
+      message: err.message,
+      data: { success: 0 },
+    });
+  }
+};
 module.exports = {
   addDoctor,
   getAllDoctors,
@@ -689,5 +770,7 @@ module.exports = {
   doctorScans,
   monthlySchedule,
   getAllEvents,
+  editEvent,
   deleteEvent,
+  getEventById,
 };

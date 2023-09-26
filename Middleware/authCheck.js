@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 //const User = mongoose.model("User");
 const User = require("../Models/User");
+const File = require("../Models/File");
 const { JWTKEY, REFRESHKEY } = require("../Config/config");
 const Doctor = require("../Models/Doctor");
 
@@ -42,7 +43,7 @@ module.exports = (req, res, next) => {
     let token = req.get("authorization");
     console.log(token, "i am access token");
     if (!token) {
-      return res.status(404).json({
+      return res.json({
         serverError: 0,
         authError: "1",
         data: { success: 0 },
@@ -59,20 +60,44 @@ module.exports = (req, res, next) => {
           data: { success: 0 },
           message: "Token Expired. Login again",
         });
-      }
-      const { userId } = payload;
-      console.log(userId, "i am userId");
+      } else {
+        const { userId } = payload;
+        console.log(userId, "i am userId");
 
-      const user = await User.findById({ _id: userId });
-      if (!user) {
-        const user = await Doctor.findById({ _id: userId });
-        req.user = user;
+        const user = await File.find({ _id: userId });
+        console.log(user, "foundUser");
+        if (!user.length > 0) {
+          const user = await Doctor.find({ _id: userId });
+          console.log(user, "doctor");
+          req.user = user;
+          next();
+        } else if (user.length > 0) {
+          console.log(token, "token");
+          console.log(user[0]?.access_token, "user[0]");
+          //req.user = user;
+          if (user[0]?.access_token !== token) {
+            return res.json({
+              serverError: 0,
+              authError: "1",
+              data: { success: 0 },
+              message: "Token is invalid",
+            });
+          } else {
+            req.user = user;
+            next();
+          }
+        } else {
+          return res.json({
+            serverError: 0,
+            authError: "1",
+            data: { success: 0 },
+            message: "Token is invalid.User deleted",
+          });
+        }
       }
-      req.user = user;
-      next();
     });
   } catch (error) {
-    return res.status(401).json({ success: false, msg: error.message });
+    return res.json({ success: false, msg: error.message });
     // console.error(error);
   }
 };

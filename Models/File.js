@@ -25,6 +25,7 @@ const fileSchema = new Schema({
 
   fileNumber: { type: String },
   uniId: { type: String }, //fileno
+  access_token: { type: String },
 });
 
 // userSchema.plugin(uniqueValidator);

@@ -49,4 +49,6 @@ router.get("/getdoctorscans", doctorsController.doctorScans);
 router.post("/event", doctorsController.monthlySchedule);
 router.get("/getallevents", doctorsController.getAllEvents);
 router.post("/deleteevent", doctorsController.deleteEvent);
+router.post("/editevent", doctorsController.editEvent);
+router.post("/getevent", doctorsController.getEventById);
 module.exports = router;

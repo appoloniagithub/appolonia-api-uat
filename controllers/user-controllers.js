@@ -134,7 +134,7 @@ const getUserdata = async (req, res) => {
 
 const updateUserProfile = async (req, res) => {
   // logger.info("update user profile");
-  console.log(req.body);
+  console.log(req.body, "REQ UPDATE");
   let imageFiles = [];
   if (req?.files?.length > 0) {
     console.log(req.files, "here are the files");
@@ -224,74 +224,88 @@ const updateUserProfile = async (req, res) => {
     city,
     uniqueId1: fileNumber,
     uniqueId2: emiratesId,
-    image: imageFiles.toString().replace(/\\/g, "/"),
+    image,
+    //image: imageFiles.toString().replace(/\\/g, "/"),
     // emiratesIdFront: emirateFront,
     // emiratesIdBack: emirateBack,
   };
 
   try {
-    User.updateOne({ _id: userId }, data, { new: true }, (err) => {
-      if (err) {
-        console.log(err);
-        //  logger.info("Error updating the user");
-        throw new Error("Error updating the user");
-      } else {
-        if (isFamilyHead === "1") {
-          File.updateOne(
-            { _id: fileId },
-            { $set: { uniqueId: emiratesId, emiratesId: hashedemiratesId } },
-            (err) => {
-              if (err) {
-                console.log(err);
-                throw new Error("Error updating the user");
-              } else {
-                File.updateOne(
-                  { _id: fileId, "familyMembers.userId": userId },
-                  {
-                    $set: {
-                      "familyMembers.$.memberEmiratesId": hashedemiratesId,
-                      "familyMembers.$.uniqueId": emiratesId,
-                    },
-                  },
-                  (err) => {
-                    if (err) {
-                      throw new Error("Error updating the user");
-                    } else {
-                      res.json({
-                        serverError: 0,
-                        message: "User data updated",
-                        data: { success: 1 },
-                      });
-                    }
-                  }
-                );
-              }
-            }
-          );
+    User.updateOne(
+      { _id: userId },
+      {
+        $set: {
+          ...data,
+          image:
+            imageFiles.length > 0
+              ? imageFiles.toString().replace(/\\/g, "/")
+              : image,
+        },
+      },
+      { new: true },
+      (err) => {
+        if (err) {
+          console.log(err);
+          //  logger.info("Error updating the user");
+          throw new Error("Error updating the user");
         } else {
-          File.updateOne(
-            { _id: fileId, "familyMembers.userId": userId },
-            {
-              $set: {
-                "familyMembers.$.memberEmiratesId": hashedemiratesId,
-                "familyMembers.$.uniqueId": emiratesId,
-              },
-            },
-            (err) => {
-              if (err) {
-                throw new Error("Error updating the user");
-              } else {
-                res.json({
-                  serverError: 0,
-                  message: "User data updated",
-                  data: { success: 1 },
-                });
+          if (isFamilyHead === "1") {
+            File.updateOne(
+              { _id: fileId },
+              { $set: { uniqueId: emiratesId, emiratesId: hashedemiratesId } },
+              (err) => {
+                if (err) {
+                  console.log(err);
+                  throw new Error("Error updating the user");
+                } else {
+                  File.updateOne(
+                    { _id: fileId, "familyMembers.userId": userId },
+                    {
+                      $set: {
+                        "familyMembers.$.memberEmiratesId": hashedemiratesId,
+                        "familyMembers.$.uniqueId": emiratesId,
+                      },
+                    },
+                    (err) => {
+                      if (err) {
+                        throw new Error("Error updating the user");
+                      } else {
+                        res.json({
+                          serverError: 0,
+                          message: "User data updated",
+                          data: { success: 1 },
+                        });
+                      }
+                    }
+                  );
+                }
               }
-            }
-          );
+            );
+          } else {
+            File.updateOne(
+              { _id: fileId, "familyMembers.userId": userId },
+              {
+                $set: {
+                  "familyMembers.$.memberEmiratesId": hashedemiratesId,
+                  "familyMembers.$.uniqueId": emiratesId,
+                },
+              },
+              (err) => {
+                if (err) {
+                  throw new Error("Error updating the user");
+                } else {
+                  res.json({
+                    serverError: 0,
+                    message: "User data updated",
+                    data: { success: 1 },
+                  });
+                }
+              }
+            );
+          }
         }
       }
-    });
+    );
   } catch (err) {
     console.log(err);
     res.json({
@@ -2207,6 +2221,7 @@ const login = async (req, res, next) => {
         let familyHead = existingUser?.familyMembers?.find(
           (member) => member.uniqueId === existingUser.uniqueId
         );
+        console.log(familyHead, "head");
         familyHead = await User.findOne({ _id: familyHead?.userId });
         console.log("i am familyHead", familyHead);
         let userScans = Scans.find({ userId: familyHead?._id }).limit(5);
@@ -2249,15 +2264,31 @@ const login = async (req, res, next) => {
             : adminFoundResolved?.image[0],
           role: familyHead?.role,
           //image: imgObj,
-          image:
-            (familyHead?.image).length === 0
+
+          image: familyHead
+            ? (familyHead?.image).length === 0
               ? ["uploads/contact/login.jpeg"]
-              : familyHead?.image,
+              : familyHead?.image
+            : null,
           //scans: userScansResolved,
         };
+
         User.updateOne(
           { _id: familyHead?._id },
           { $set: { device_token: device_token } },
+          function (err) {
+            if (err) {
+              throw new Error(
+                "Somthing went wrong while verifiying Phone Number"
+              );
+            } else {
+              console.log("data updated");
+            }
+          }
+        );
+        File.updateOne(
+          { _id: existingUser?._id },
+          { $set: { access_token: access_token } },
           function (err) {
             if (err) {
               throw new Error(
@@ -2316,7 +2347,7 @@ const refreshToken = async (req, res) => {
   // logger.info("refresh token api");
   const { fileId, refreshToken, device_token } = req.body;
   console.log(req.body);
-  let foundUser = await File.findOne({ _id: fileId });
+  //let foundUser = await File.findOne({ _id: fileId });
   //console.log(foundUser[0]?._id, "i am found user");
 
   const isValid = verifyRefresh(fileId, refreshToken);
@@ -3318,6 +3349,7 @@ const sendBookingReq = async (req, res) => {
       image,
       pdate,
       ptime,
+      pdoctorId,
     } = req.body;
     console.log(req.body);
     const userFound = await User.find({ _id: userId });
@@ -3340,6 +3372,7 @@ const sendBookingReq = async (req, res) => {
         // time: moment(time).format("hh:mm A"),
         pdate: pdate,
         ptime: ptime,
+        pdoctorId: pdoctorId,
       });
       newAppointmentReq.save((err, data) => {
         if (err) {
@@ -4015,6 +4048,7 @@ const rescheduleBookingReq = async (req, res) => {
     consultationType,
     ptime,
     pdate,
+    pdoctorId,
   } = req.body;
   console.log(req.body);
   try {

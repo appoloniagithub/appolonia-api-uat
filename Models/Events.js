@@ -5,9 +5,15 @@ const Schema = mongoose.Schema;
 
 const eventSchema = new Schema({
   title: { type: String },
-  date: { type: String },
+  // date: { type: String },
   start: { type: Date },
   end: { type: Date },
+
+  // Id: { type: Number },
+  // Subject: { type: String },
+  // StartTime: { type: Date },
+  // EndTime: { type: Date },
+  // IsAllDay: { type: Boolean },
   doctorId: { type: String },
   doctorName: { type: String },
 });
