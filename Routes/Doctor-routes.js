@@ -51,4 +51,5 @@ router.get("/getallevents", doctorsController.getAllEvents);
 router.post("/deleteevent", doctorsController.deleteEvent);
 router.post("/editevent", doctorsController.editEvent);
 router.post("/getevent", doctorsController.getEventById);
+router.post("/gettime", doctorsController.getDoctorsByTime);
 module.exports = router;

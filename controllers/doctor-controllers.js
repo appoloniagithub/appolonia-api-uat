@@ -759,6 +759,51 @@ const getEventById = async (req, res) => {
     });
   }
 };
+
+const getDoctorsByTime = async (req, res) => {
+  const { date, time } = req.body;
+  const date1 = new Date(date);
+  const time1 = new Date(time);
+  console.log(date1, time1);
+  try {
+    if (date) {
+      const foundTimes = await Event.find({ start: date });
+      console.log(foundTimes);
+      if (foundTimes) {
+        res.json({
+          serverError: 0,
+          message: "Doctors found at requested date and time",
+          data: {
+            success: 1,
+            foundTimes: foundTimes,
+          },
+        });
+      } else {
+        res.json({
+          serverError: 0,
+          message: "No Doctors found at requested date and time",
+          data: {
+            success: 0,
+            event: eventFound,
+          },
+        });
+      }
+    } else {
+      res.json({
+        serverError: 1,
+        message: "send all data",
+        data: { success: 0 },
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.json({
+      serverError: 1,
+      message: err.message,
+      data: { success: 0 },
+    });
+  }
+};
 module.exports = {
   addDoctor,
   getAllDoctors,
@@ -773,4 +818,5 @@ module.exports = {
   editEvent,
   deleteEvent,
   getEventById,
+  getDoctorsByTime,
 };
