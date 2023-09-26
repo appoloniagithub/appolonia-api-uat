@@ -417,13 +417,15 @@ const doctorLogin = async (req, res) => {
         try {
           ValidPassword = await bcrypt.compare(password, doctorFound.password);
           console.log(ValidPassword, "in try");
+          if (!ValidPassword) {
+            res.json({
+              serverError: 1,
+              success: 0,
+              message: "Wrong Password",
+            });
+          }
         } catch (err) {
           console.log(err);
-          // res.json({
-          //   serverError: 1,
-          //   success: 0,
-          //   message: "Wrong Password",
-          // });
         }
 
         let access_token;
@@ -562,7 +564,11 @@ const monthlySchedule = async (req, res) => {
         start: start,
         end: end,
         doctorId: doctorId,
-        doctorName: `${doctorFound[0]?.firstName} ${doctorFound[0]?.lastName}`,
+        //doctorName: `${doctorFound[0]?.firstName} ${doctorFound[0]?.lastName}`,
+        firstName: `${doctorFound[0]?.firstName}`,
+        lastName: `${doctorFound[0]?.lastName}`,
+        image: doctorFound[0]?.image,
+        speciality: doctorFound[0]?.speciality,
       });
       newEvent.save(async (err, data) => {
         if (err) {
@@ -763,11 +769,14 @@ const getEventById = async (req, res) => {
 const getDoctorsByTime = async (req, res) => {
   const { date, time } = req.body;
   const date1 = new Date(date);
-  const time1 = new Date(time);
-  console.log(date1, time1);
+  //const time1 = new Date(YYYY-mm-ddTHH:MM:ss);
+  const d = "2023-09-26T10:00:00.000+0000";
+  console.log(d.toString());
+  console.log(date1);
+
   try {
     if (date) {
-      const foundTimes = await Event.find({ start: date });
+      const foundTimes = await Event.find({ end: date1 });
       console.log(foundTimes);
       if (foundTimes) {
         res.json({
