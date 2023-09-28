@@ -237,6 +237,14 @@ const getReceiverId = async (conversationId) => {
   let lastRec = foundMessages[foundMessages.length - 1];
   return lastRec.receiverId;
 };
+const getCreatedAt = async (conversationId) => {
+  console.log(conversationId, "in get rec");
+  let foundMessages = await Message.find({ conversationId: conversationId });
+  console.log(foundMessages);
+  //foundMessages = foundMessages.reverse();
+  let created = foundMessages[foundMessages.length - 1];
+  return created.createdAt;
+};
 const getConversations = async (req, res) => {
   console.log(req.body, "i am body");
 
@@ -263,8 +271,8 @@ const getConversations = async (req, res) => {
         chatCount: await getChatCount(conversations[i]._id),
         lastReceiverId: await getReceiverId(conversations[i]._id),
         //name: conversations[i].name,
-        createdAt: conversations[i].createdAt,
-        updatedAt: conversations[i].updatedAt,
+        createdAt: await getCreatedAt(conversations[i]._id),
+        updatedAt: await getCreatedAt(conversations[i]._id),
       };
       conversationsFiltered.push(convoObj);
     }

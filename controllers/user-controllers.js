@@ -225,6 +225,7 @@ const updateUserProfile = async (req, res) => {
     uniqueId1: fileNumber,
     uniqueId2: emiratesId,
     image,
+
     //image: imageFiles.toString().replace(/\\/g, "/"),
     // emiratesIdFront: emirateFront,
     // emiratesIdBack: emirateBack,
@@ -1893,6 +1894,19 @@ const login = async (req, res, next) => {
         User.updateOne(
           { _id: familyHead?._id },
           { $set: { device_token: device_token } },
+          function (err) {
+            if (err) {
+              throw new Error(
+                "Somthing went wrong while verifiying Phone Number"
+              );
+            } else {
+              console.log("data updated");
+            }
+          }
+        );
+        File.updateOne(
+          { _id: existingUser?._id },
+          { $set: { access_token: access_token } },
           function (err) {
             if (err) {
               throw new Error(
@@ -3692,7 +3706,13 @@ const cancelBooking = async (req, res) => {
     if (foundAppointement) {
       Appointment.updateOne(
         { _id: bookingId },
-        { $set: { status: "Cancelled" } },
+        {
+          $set: {
+            status: "Cancelled",
+            doctorName: "Not Assigned",
+            image: "/uploads/contact/login.jpeg",
+          },
+        },
         (err) => {
           if (err) {
             console.log(err);

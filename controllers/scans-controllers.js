@@ -147,7 +147,7 @@ const submitScans = async function (body) {
             teethScanImages: updatedTeethScanImages,
             logo: logo,
             isOpen: 0,
-            created: Date.now(),
+            created: moment(Date.now()).format("DD-MM-YY HH:mm"),
           });
 
           await updatedScan.save(async (err, doc) => {
@@ -498,7 +498,7 @@ const scanFrequency = async (req, res) => {
       console.log(d3, "d3");
       let date1 = new Date();
       let myDate = moment(date1).format("DD-MM-YYYY");
-      console.log(myDate);
+      console.log(myDate, "mydate");
       console.log(d3 == myDate);
 
       Scans.updateOne(
@@ -563,6 +563,10 @@ const scanFrequency = async (req, res) => {
     });
   }
 };
+function addDays(date, days) {
+  date.setDate(date.getDate() + days);
+  return date;
+}
 
 const cronSchedule = async (req, res) => {
   const { days, scanType, userId } = req.body;
@@ -573,33 +577,14 @@ const cronSchedule = async (req, res) => {
     try {
       const userFound = await User.find({ _id: userId });
       console.log(userFound);
-      // if (req.days === "Everyday") {
-      //   days = 1;
-      // }
-      // if (req.days === "7 days") {
-      //   days = 7;
-      // }
-      // if (req.days === "15 days") {
-      //   days = 15;
-      // }
-      // if (req.days === "Monthly") {
-      //   days = 30;
-      // }
-      // if (req.days === "Quarterly") {
-      //   days = 90;
-      // }
-      // if (req.days === "Half Yearly") {
-      //   days = 182;
-      // }
-      // if (req.days === "Yearly") {
-      //   days = 365;
-      // }
+
       if ((userFound, days, scanType)) {
         let lastScanDate = userFound[0]?.lastScan;
         console.log(lastScanDate);
         let date = new Date(lastScanDate);
         console.log(typeof date);
-        let d2 = date.setDate(date.getDate() + days);
+        console.log(typeof parseInt(days));
+        let d2 = date.setDate(date.getDate() + parseInt(days));
 
         //let d3 = new Date(d2);
         let d3 = moment(d2).format("DD-MM-YYYY");
@@ -609,17 +594,17 @@ const cronSchedule = async (req, res) => {
         console.log(myDate);
         console.log(d3 == myDate);
 
-        // Scans.updateOne(
-        //   { userId: userId },
-        //   { $set: { days: days, scanType: scanType } },
-        //   (err) => {
-        //     if (err) {
-        //       console.log(err);
-        //     } else {
-        //       console.log("user updated");
-        //     }
-        //   }
-        // );
+        Scans.updateOne(
+          { userId: userId },
+          { $set: { days: days, scanType: scanType, scanDue: "0" } },
+          (err) => {
+            if (err) {
+              console.log(err);
+            } else {
+              console.log("user updated");
+            }
+          }
+        );
         if (d3 == myDate) {
           let inAppNoti = new Notification({
             title: "Scan Due Today",
@@ -637,12 +622,23 @@ const cronSchedule = async (req, res) => {
               console.log(data);
             }
           });
-          // let message = createMsg(
-          //   userFound[0]?.device_token,
-          //   "Scan Due Today",
-          //   "Your Scan is Due Today, please send Face & Teeth Scan to Doctor"
-          // );
-          // sendPushNotification(message);
+          Scans.updateOne(
+            { userId: userId },
+            { $set: { scanDue: "1" } },
+            (err) => {
+              if (err) {
+                console.log(err);
+              } else {
+                console.log("user updated");
+              }
+            }
+          );
+          let message = createMsg(
+            userFound[0]?.device_token,
+            "Scan Due Today",
+            "Your Scan is Due Today, please send Face & Teeth Scan to Doctor"
+          );
+          sendPushNotification(message);
         }
         task.stop();
         // res.json({
@@ -653,13 +649,13 @@ const cronSchedule = async (req, res) => {
         //   },
         // });
       } else {
-        res.json({
-          serverError: 0,
-          message: "user not found",
-          data: {
-            success: 0,
-          },
-        });
+        // res.json({
+        //   serverError: 0,
+        //   message: "user not found",
+        //   data: {
+        //     success: 0,
+        //   },
+        // });
       }
     } catch (err) {
       console.log(err);

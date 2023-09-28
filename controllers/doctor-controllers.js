@@ -770,8 +770,8 @@ const getDoctorsByTime = async (req, res) => {
   const { date, time } = req.body;
   const date1 = new Date(date);
   //const time1 = new Date(YYYY-mm-ddTHH:MM:ss);
-  const d = "2023-09-26T10:00:00.000+0000";
-  console.log(d.toString());
+  const d = "2023-09-26T16:32:41.006";
+  console.log(moment(d).format("MM-DD-YYYY hh:mm a"));
   console.log(date1);
 
   try {
@@ -793,7 +793,6 @@ const getDoctorsByTime = async (req, res) => {
           message: "No Doctors found at requested date and time",
           data: {
             success: 0,
-            event: eventFound,
           },
         });
       }

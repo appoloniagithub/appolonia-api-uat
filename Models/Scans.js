@@ -17,7 +17,7 @@ const scansSchema = new Schema({
   isOpen: { type: String },
   scanDue: { type: String },
   created: {
-    type: Date,
+    type: String,
   },
 });
 
