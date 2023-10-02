@@ -57,6 +57,12 @@ const appointmentSchema = new mongoose.Schema(
     pdoctorId: {
       type: String,
     },
+    pdoctorName: {
+      type: String,
+    },
+    pimage: {
+      type: String,
+    },
   },
   {
     timestamps: true,

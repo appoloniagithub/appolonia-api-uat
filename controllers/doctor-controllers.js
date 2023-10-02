@@ -766,41 +766,61 @@ const getEventById = async (req, res) => {
   }
 };
 
+function fetchTimeFromRange(startTime, endTime, targetTime) {
+  // Convert the start time, end time, and target time to milliseconds since epoch
+  const startTimestamp = startTime.getTime();
+  const endTimestamp = endTime.getTime();
+  const targetTimestamp = targetTime.getTime();
+
+  const time1 = targetTimestamp >= startTimestamp;
+  const time2 = targetTimestamp <= endTimestamp;
+  console.log(time1, time2);
+  // Check if the target time is within the range
+  if (time1 == true && time2 == true) {
+    console.log(targetTimestamp, "target");
+    return startTime;
+  } else {
+    return null; // Return null if the target time is outside the range
+  }
+}
+
 const getDoctorsByTime = async (req, res) => {
-  const { date, time } = req.body;
+  const { date } = req.body;
   const date1 = new Date(date);
-  //const time1 = new Date(YYYY-mm-ddTHH:MM:ss);
-  const d = "2023-09-26T16:32:41.006";
-  console.log(moment(d).format("MM-DD-YYYY hh:mm a"));
   console.log(date1);
 
   try {
-    if (date) {
-      const foundTimes = await Event.find({ end: date1 });
-      console.log(foundTimes);
-      if (foundTimes) {
-        res.json({
-          serverError: 0,
-          message: "Doctors found at requested date and time",
-          data: {
-            success: 1,
-            foundTimes: foundTimes,
-          },
-        });
-      } else {
-        res.json({
-          serverError: 0,
-          message: "No Doctors found at requested date and time",
-          data: {
-            success: 0,
-          },
-        });
+    const foundTimes = await Event.find({});
+    console.log(foundTimes);
+    const temp = [];
+    for (let i = 0; i < foundTimes.length; i++) {
+      const startTimes = foundTimes[i].start;
+      const endTimes = foundTimes[i].end;
+      //console.log("start:", startTimes, "end:", endTimes);
+      const result = fetchTimeFromRange(startTimes, endTimes, date1);
+      console.log(result, "result");
+      if (result) {
+        const times = await Event.find({ start: result });
+        console.log(times, "times");
+        temp.push(times);
       }
+    }
+    if (temp.length > 0) {
+      res.json({
+        serverError: 0,
+        message: "Doctors found at requested date and time",
+        data: {
+          success: 1,
+          times: temp,
+        },
+      });
     } else {
       res.json({
-        serverError: 1,
-        message: "send all data",
-        data: { success: 0 },
+        serverError: 0,
+        message: "No Doctors found at requested date and time",
+        data: {
+          success: 0,
+        },
       });
     }
   } catch (err) {

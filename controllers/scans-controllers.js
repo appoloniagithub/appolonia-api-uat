@@ -147,7 +147,8 @@ const submitScans = async function (body) {
             teethScanImages: updatedTeethScanImages,
             logo: logo,
             isOpen: 0,
-            created: moment(Date.now()).format("DD-MM-YY HH:mm"),
+            created: Date.now(),
+            updated: moment(Date.now()).format("MMM d,yy HH:mm"),
           });
 
           await updatedScan.save(async (err, doc) => {

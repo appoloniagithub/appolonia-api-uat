@@ -17,8 +17,9 @@ const scansSchema = new Schema({
   isOpen: { type: String },
   scanDue: { type: String },
   created: {
-    type: String,
+    type: Date,
   },
+  updated: { type: String },
 });
 
 // roleSchema.plugin(uniqueValidator);

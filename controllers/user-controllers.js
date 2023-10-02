@@ -230,20 +230,19 @@ const updateUserProfile = async (req, res) => {
     // emiratesIdFront: emirateFront,
     // emiratesIdBack: emirateBack,
   };
-
+  console.log(image, "img in update");
+  let updateImage =
+    imageFiles.length > 0 ? imageFiles.toString().replace(/\\/g, "/") : image;
   try {
     User.updateOne(
       { _id: userId },
       {
         $set: {
           ...data,
-          image:
-            imageFiles.length > 0
-              ? imageFiles.toString().replace(/\\/g, "/")
-              : image,
+          image: updateImage,
         },
       },
-      { new: true },
+      // { new: true },
       (err) => {
         if (err) {
           console.log(err);
@@ -1036,7 +1035,7 @@ const signup = async (req, res, next) => {
         uniqueId1: fileNumber,
         uniqueId2: emiratesId,
         isHead: 1,
-        //image: image,
+        image: "uploads/contact/login.jpeg",
       });
 
       const createdFile = new File({
@@ -3356,6 +3355,7 @@ const sendBookingReq = async (req, res) => {
       emiratesId,
       clinicName,
       //roomId,
+      city,
       serviceName,
       consultationType,
       doctorId,
@@ -3367,7 +3367,8 @@ const sendBookingReq = async (req, res) => {
     } = req.body;
     console.log(req.body);
     const userFound = await User.find({ _id: userId });
-    //const doctorFound = await Doctor.find({ _id: doctorId });
+    const doctorFound = await Doctor.find({ _id: pdoctorId });
+    console.log(doctorFound, "pdoctorId");
     if (userFound) {
       const newAppointmentReq = new Appointment({
         userId: userId,
@@ -3387,6 +3388,8 @@ const sendBookingReq = async (req, res) => {
         pdate: pdate,
         ptime: ptime,
         pdoctorId: pdoctorId,
+        pdoctorName: `${doctorFound[0]?.firstName} ${doctorFound[0]?.lastName}`,
+        pimage: doctorFound[0]?.image[0],
       });
       newAppointmentReq.save((err, data) => {
         if (err) {
@@ -3709,8 +3712,8 @@ const cancelBooking = async (req, res) => {
         {
           $set: {
             status: "Cancelled",
-            doctorName: "Not Assigned",
-            image: "/uploads/contact/login.jpeg",
+            //doctorName: "Not Assigned",
+            //image: "/uploads/contact/login.jpeg",
           },
         },
         (err) => {
@@ -4024,12 +4027,16 @@ const getAppointmentById = async (req, res) => {
   try {
     if (bookingId) {
       const foundAppointement = await Appointment.find({ _id: bookingId });
-      console.log(foundAppointement);
+      console.log(foundAppointement, "found app");
       if (foundAppointement) {
         res.json({
           serverError: 0,
           message: "Appointment found",
-          data: { success: 1, foundAppointement: foundAppointement },
+          data: {
+            success: 1,
+            foundAppointement: foundAppointement,
+            // pdate: moment(foundAppointement[0]?.pdate).format("YYYY-MM-DD"),
+          },
         });
       } else {
         res.json({
