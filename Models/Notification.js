@@ -11,6 +11,9 @@ const notificationSchema = new Schema({
   actionName: { type: String },
   isRead: { type: String },
   sendTo: { type: String },
+  conversationId: { type: String },
+  doctorName: { type: String },
+  image: { type: String },
   created: {
     type: Date,
     default: Date.now,

@@ -69,8 +69,29 @@ module.exports = (req, res, next) => {
         if (!user.length > 0) {
           const user = await Doctor.find({ _id: userId });
           console.log(user, "doctor");
-          req.user = user;
-          next();
+          console.log(token, "token");
+          console.log(user[0]?.access_token, "user[0]");
+          //req.user = user;
+          if (user) {
+            if (user[0]?.access_token !== token) {
+              return res.json({
+                serverError: 0,
+                authError: "1",
+                data: { success: 0 },
+                message: "Token is invalid",
+              });
+            } else {
+              req.user = user;
+              next();
+            }
+          } else {
+            return res.json({
+              serverError: 0,
+              authError: "1",
+              data: { success: 0 },
+              message: "Token is invalid.User deleted",
+            });
+          }
         } else if (user.length > 0) {
           console.log(token, "token");
           console.log(user[0]?.access_token, "user[0]");

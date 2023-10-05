@@ -82,7 +82,7 @@ const addDoctor = async (req, res) => {
           image: imageFiles.toString().replace(/\\/g, "/"),
           password: hashedpassword,
           uniqueId: password,
-          phoneNumber: `+${phoneNumber}`,
+          phoneNumber: phoneNumber,
           //emiratesId: hashedemiratesId,
         },
         (error, data) => {
@@ -137,9 +137,9 @@ const getAllDoctors = async (req, res) => {
     } else {
       res.json({
         serverError: 0,
-        message: "Doctors Found",
+        message: "Doctors not Found",
         data: {
-          doctors: foundDoctors,
+          //doctors: foundDoctors,
           success: 1,
         },
       });
@@ -383,12 +383,35 @@ const doctorLogin = async (req, res) => {
           throw new Error("Something went wrong");
         }
         console.log(ValidPassword, "valid pwd");
+
+        let access_token;
+        try {
+          access_token = jwt.sign({ userId: existingDoctor._id }, JWTKEY, {
+            expiresIn: "1y",
+          });
+        } catch (err) {
+          console.log(err);
+          throw new Error("Something went wrong while creating token");
+        }
+
+        doctorSchema.findByIdAndUpdate(
+          { _id: existingDoctor?._id },
+          { $set: { access_token: access_token } },
+          function (err) {
+            if (err) {
+              throw new Error("Something went wrong");
+            } else {
+              console.log("data updated");
+            }
+          }
+        );
         if (existingDoctor && ValidPassword) {
           res.json({
             serverError: 0,
             success: 1,
             message: "Login succcessfully.",
             doctorFound: existingDoctor,
+            access_token: access_token,
           });
         } else {
           res.json({
@@ -404,7 +427,7 @@ const doctorLogin = async (req, res) => {
   } else {
     try {
       let doctorFound = await Doctor.findOne({ phoneNumber: phoneNumber });
-      console.log(doctorFound);
+      console.log(doctorFound, "doctor");
       let ValidPassword = false;
       if (!doctorFound) {
         res.json({
@@ -437,6 +460,17 @@ const doctorLogin = async (req, res) => {
           console.log(err);
           throw new Error("Something went wrong while creating token");
         }
+        doctorSchema.findByIdAndUpdate(
+          { _id: doctorFound?._id },
+          { $set: { access_token: access_token } },
+          function (err) {
+            if (err) {
+              throw new Error("Something went wrong");
+            } else {
+              console.log("data updated");
+            }
+          }
+        );
         console.log(ValidPassword, "valid pwd");
         if (doctorFound && ValidPassword) {
           res.json({
@@ -567,7 +601,7 @@ const monthlySchedule = async (req, res) => {
         //doctorName: `${doctorFound[0]?.firstName} ${doctorFound[0]?.lastName}`,
         firstName: `${doctorFound[0]?.firstName}`,
         lastName: `${doctorFound[0]?.lastName}`,
-        image: doctorFound[0]?.image,
+        doctorImage: doctorFound[0]?.image[0],
         speciality: doctorFound[0]?.speciality,
       });
       newEvent.save(async (err, data) => {
@@ -786,8 +820,9 @@ function fetchTimeFromRange(startTime, endTime, targetTime) {
 
 const getDoctorsByTime = async (req, res) => {
   const { date } = req.body;
+  console.log(req.body, "date in req");
   const date1 = new Date(date);
-  console.log(date1);
+  console.log(date1, "date1");
 
   try {
     const foundTimes = await Event.find({});
@@ -796,22 +831,25 @@ const getDoctorsByTime = async (req, res) => {
     for (let i = 0; i < foundTimes.length; i++) {
       const startTimes = foundTimes[i].start;
       const endTimes = foundTimes[i].end;
-      //console.log("start:", startTimes, "end:", endTimes);
+      console.log("start:", startTimes, "end:", endTimes);
       const result = fetchTimeFromRange(startTimes, endTimes, date1);
       console.log(result, "result");
       if (result) {
-        const times = await Event.find({ start: result });
-        console.log(times, "times");
-        temp.push(times);
+        if (result) {
+          //const times = await Event.find({ start: result });
+          //console.log(times, "times");
+          temp.push(foundTimes[i]);
+        }
       }
     }
+    console.log(temp[0], "temp");
     if (temp.length > 0) {
       res.json({
         serverError: 0,
         message: "Doctors found at requested date and time",
         data: {
           success: 1,
-          times: temp,
+          doctors: temp,
         },
       });
     } else {

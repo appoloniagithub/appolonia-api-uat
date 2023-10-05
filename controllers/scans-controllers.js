@@ -212,42 +212,42 @@ const submitScans = async function (body) {
               // }
               const userFound = await User.find({ _id: userId });
               console.log(userFound, "user");
-              let inAppNoti = new Notification({
-                title: "Appolonia",
-                body: "Your Scan is Due",
-                actionId: "3",
-                actionName: "Scan",
-                userId: userFound[0]?._id,
-                isRead: "0",
-              });
-              inAppNoti.save(async (err, data) => {
-                if (err) {
-                  console.log(err);
-                  throw new Error("Error saving the notification");
-                } else {
-                  console.log(data);
-                }
-              });
+              // let inAppNoti = new Notification({
+              //   title: "Appolonia",
+              //   body: "Your Scan is Due",
+              //   actionId: "3",
+              //   actionName: "Scan",
+              //   userId: userFound[0]?._id,
+              //   isRead: "0",
+              // });
+              // inAppNoti.save(async (err, data) => {
+              //   if (err) {
+              //     console.log(err);
+              //     throw new Error("Error saving the notification");
+              //   } else {
+              //     console.log(data);
+              //   }
+              // });
 
-              let scheduledNoti = new ScheduledNotification({
-                notification: {
-                  title: "Appolonia",
-                  body: "Your Scan is Due",
-                },
-                time: "16:00",
-                days: [15],
-                userId: userFound[0]?._id,
-                isRead: "0",
-                isSent: false,
-              });
-              scheduledNoti.save(async (err, data) => {
-                if (err) {
-                  console.log(err);
-                  throw new Error("Error saving the scheduled notification");
-                } else {
-                  console.log(data);
-                }
-              });
+              // let scheduledNoti = new ScheduledNotification({
+              //   notification: {
+              //     title: "Appolonia",
+              //     body: "Your Scan is Due",
+              //   },
+              //   time: "16:00",
+              //   days: [15],
+              //   userId: userFound[0]?._id,
+              //   isRead: "0",
+              //   isSent: false,
+              // });
+              // scheduledNoti.save(async (err, data) => {
+              //   if (err) {
+              //     console.log(err);
+              //     throw new Error("Error saving the scheduled notification");
+              //   } else {
+              //     console.log(data);
+              //   }
+              // });
               console.log(updateText, "update message in submit scan");
               resolve({
                 serverError: 0,
@@ -424,16 +424,16 @@ const getScanId = async (req, res) => {
               console.log("data updated", foundScans[0]);
               const temp = await Scans.find({ _id: scanId });
 
-              // const userFound = await User.find({ _id: userId });
-              // console.log(userFound, "user");
-              // if (userFound) {
-              //   let message = createMsg(
-              //     userFound[0]?.device_token,
-              //     "Appolonia",
-              //     "Your Scans are reviewed by Doctor"
-              //   );
-              //   sendPushNotification(message);
-              // }
+              const userFound = await User.find({ _id: userId });
+              console.log(userFound, "user");
+              if (userFound) {
+                let message = createMsg(
+                  userFound[0]?.device_token,
+                  "Appolonia",
+                  "Your Scans are reviewed by Doctor"
+                );
+                sendPushNotification(message);
+              }
               res.json({
                 serverError: 0,
                 message: "Scans found",
@@ -530,12 +530,12 @@ const scanFrequency = async (req, res) => {
             console.log(data);
           }
         });
-        // let message = createMsg(
-        //   userFound[0]?.device_token,
-        //   "Scan Due Today",
-        //   "Your Scan is Due Today, please send Face & Teeth Scan to Doctor"
-        // );
-        // sendPushNotification(message);
+        let message = createMsg(
+          userFound[0]?.device_token,
+          "Scan Due Today",
+          "Your Scan is Due Today, please send Face & Teeth Scan to Doctor"
+        );
+        sendPushNotification(message);
       }
       res.json({
         serverError: 0,

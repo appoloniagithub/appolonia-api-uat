@@ -5,6 +5,7 @@ const Conversation = require("../Models/Conversations");
 const Message = require("../Models/Messages");
 const moment = require("moment");
 const Doctor = require("../Models/Doctor");
+const Notification = require("../Models/Notification");
 //const sendPushNotification = require("../services/sendPush");
 const { sendPushNotification } = require("../services/sendPush");
 
@@ -702,27 +703,48 @@ const newMessage = async (req, res) => {
             }
           });
         }
-        // const doctorFound = await Doctor.find({ _id: senderId });
-        // console.log(doctorFound, "123");
-        // if (doctorFound.length > 0) {
-        //   const userFound = await User.find({ _id: recId });
-        //   console.log(userFound, "456");
-        //   if (userFound) {
-        //     let message = createMsg(
-        //       userFound[0]?.device_token,
-        //       "Appolonia",
-        //       "New Message Received"
-        //     );
-        //     sendPushNotification(message);
-        //   }
-        // } else {
-        //   const userFound = await User.find({ _id: senderId });
-        //   console.log(userFound, "user in else");
-        //   if (userFound) {
-        //     const doctorFound = await Doctor.find({ _id: recId });
-        //     console.log(doctorFound, "doctor in else");
-        //   }
-        // }
+        const conFound = await Conversation.find({ _id: conversationId });
+        console.log(conFound, "con found");
+        const doctorFound = await Doctor.find({ _id: senderId });
+        console.log(doctorFound, "123");
+        if (doctorFound.length > 0) {
+          const userFound = await User.find({ _id: recId });
+          console.log(userFound, "456");
+          if (userFound) {
+            let message = createMsg(
+              userFound[0]?.device_token,
+              "Appolonia",
+              "New Message Received"
+            );
+            sendPushNotification(message);
+          }
+          let inAppNoti = new Notification({
+            title: "Appolonia",
+            body: `New message received from ${doctorFound[0]?.firstName} ${doctorFound[0].lastName}.`,
+            actionId: "4",
+            actionName: "Chat",
+            userId: userFound[0]?._id,
+            conversationId: conFound[0]?._id,
+            doctorName: `${doctorFound[0]?.firstName} ${doctorFound[0].lastName}`,
+            image: doctorFound[0].image[0],
+            isRead: "0",
+          });
+          inAppNoti.save(async (err, data) => {
+            if (err) {
+              console.log(err);
+              throw new Error("Error saving the notification");
+            } else {
+              console.log(data);
+            }
+          });
+        } else {
+          const userFound = await User.find({ _id: senderId });
+          console.log(userFound, "user in else");
+          if (userFound) {
+            const doctorFound = await Doctor.find({ _id: recId });
+            console.log(doctorFound, "doctor in else");
+          }
+        }
       }
       return;
     }
@@ -731,13 +753,13 @@ const newMessage = async (req, res) => {
     // }
   } catch (err) {
     console.log(err);
-    res.json({
-      serverError: 1,
-      message: err.message,
-      data: {
-        success: 0,
-      },
-    });
+    // res.json({
+    //   serverError: 1,
+    //   message: err.message,
+    //   data: {
+    //     success: 0,
+    //   },
+    // });
   }
 };
 const createMessage = async (data) => {

@@ -19,6 +19,9 @@ const doctorSchema = new Schema({
   certifications: { type: String },
   education: { type: String },
   uniqueId: { type: String },
+  doctorImage: { type: String },
+  access_token: { type: String },
+  clinicName: { type: String },
 });
 
 module.exports = mongoose.model("Doctor", doctorSchema);

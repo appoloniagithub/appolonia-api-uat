@@ -392,22 +392,26 @@ const addFamilyMember = async (req, res) => {
                 clinicResolved[0]?.clinicName,
                 adminFoundResolved?.image[0]
               );
-              // let userFound = await User.find({ phoneNumber: phoneNumber });
-              // console.log(userFound, "user");
-              // if (userFound) {
-              //   let message = createMsg(
-              //     userFound[0]?.device_token,
-              //     "Appolonia",
-              //     "Family Member Added"
-              //   );
-              //   sendPushNotification(message);
-              // }
+              let userFound = await File.find({ phoneNumber: phoneNumber });
+              console.log(userFound[0].familyMembers[0].userId, "user");
+              const user = userFound[0].familyMembers[0].userId;
+              let userFound1 = await User.find({ _id: user });
+              console.log(userFound1, "user1");
+              if (userFound) {
+                let message = createMsg(
+                  userFound1[0]?.device_token,
+                  "Appolonia",
+                  "Family Member Added"
+                );
+                sendPushNotification(message);
+              }
               let inAppNoti = new Notification({
                 title: "Appolonia",
                 body: "Family Member Added",
                 actionId: "2",
                 actionName: "Family",
-                userId: userDoc._id.toString(),
+                //userId: userDoc._id.toString(),
+                userId: user,
                 isRead: "0",
               });
               inAppNoti.save(async (err, data) => {
@@ -442,7 +446,6 @@ const addFamilyMember = async (req, res) => {
     });
   }
 };
-
 const clinicVerify = async (req, res) => {
   const { phoneNumber } = req.body;
   console.log(req.body);
@@ -461,6 +464,11 @@ const clinicVerify = async (req, res) => {
 const updateClinicDetails = async (req, res) => {
   const { fileId, clinicVerified, active, connected } = req.body;
   const foundFile = await File.findOne({ _id: fileId });
+  console.log(foundFile);
+  const userFound = await User.findOne({
+    _id: foundFile?.familyMembers[0]?.userId,
+  });
+  console.log(userFound);
   if (foundFile) {
     File.updateOne(
       { _id: foundFile._id },
@@ -489,6 +497,31 @@ const updateClinicDetails = async (req, res) => {
         }
       }
     );
+    if (userFound) {
+      let message = createMsg(
+        userFound?.device_token,
+        "Appolonia",
+        "Family Member Approved"
+      );
+      sendPushNotification(message);
+    }
+    let inAppNoti = new Notification({
+      title: "Appolonia",
+      body: "Family Member Approved",
+      actionId: "2",
+      actionName: "Family",
+      //userId: userDoc._id.toString(),
+      userId: userFound?._id,
+      isRead: "0",
+    });
+    inAppNoti.save(async (err, data) => {
+      if (err) {
+        console.log(err);
+        throw new Error("Error saving the notification");
+      } else {
+        console.log(data);
+      }
+    });
   } else {
     res.json({
       serverError: 1,

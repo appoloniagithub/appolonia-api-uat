@@ -184,6 +184,21 @@ const updateUserProfile = async (req, res) => {
       });
       return;
     }
+    // else{
+    //   User.updateOne(
+    //     { _id: userId },
+    //     {
+    //       $set: {
+    //         ...data,
+    //        uniqueId1 : fileNumber,fileNumber:hashedFileNumber,
+    //       },
+    //     },
+    //   )
+    //   File.updateOne(
+    //     { _id: fileId },
+    //     { $set: {  uniId : fileNumber } },
+    //   )
+    // }
   }
 
   if (isEmiratesIdChanged === "1") {
@@ -205,7 +220,9 @@ const updateUserProfile = async (req, res) => {
 
   try {
     hashedemiratesId = CryptoJS.AES.encrypt(emiratesId, "love").toString();
-    hashedFileNumber = CryptoJS.AES.encrypt(fileNumber, "love").toString();
+    if (fileNumber.length > 0) {
+      hashedFileNumber = CryptoJS.AES.encrypt(fileNumber, "love").toString();
+    }
     console.log(hashedemiratesId, hashedFileNumber, "i am emirates");
   } catch (err) {
     console.log("Something went wrong while Encrypting Data", err);
@@ -240,6 +257,7 @@ const updateUserProfile = async (req, res) => {
         $set: {
           ...data,
           image: updateImage,
+          //uniqueId1 : fileNumber,fileNumber:hashedFileNumber,
         },
       },
       // { new: true },
@@ -974,13 +992,28 @@ const signup = async (req, res, next) => {
         return;
       }
 
-      userPhoneExist = await File.findOne({ uniId: fileNumber });
-      if (userPhoneExist && fileNumber.length > 0) {
+      // userPhoneExist = await File.findOne({ uniId: fileNumber });
+      // if (userPhoneExist && fileNumber.length > 0) {
+      //   // throw new Error("Emirates Id Already Exist");
+      //   res.json({
+      //     serverError: 0,
+      //     message:
+      //       "This File Number already associated with a family account",
+      //     data: {
+      //       success: 0,
+      //       phoneVerified: userPhoneExist?.phoneVerified === true ? 1 : 0,
+      //       isExisting: 1,
+      //     },
+      //   });
+      //   return;
+      // }
+
+      userPhoneExist = await File.findOne({ uniqueId1: fileNumber });
+      if (userPhoneExist && fileNumber && fileNumber.length > 0) {
         // throw new Error("Emirates Id Already Exist");
         res.json({
           serverError: 0,
-          message:
-            "This File Number Already already associated with a family account",
+          message: "This File Number already associated with a family account",
           data: {
             success: 0,
             phoneVerified: userPhoneExist?.phoneVerified === true ? 1 : 0,
@@ -1051,8 +1084,8 @@ const signup = async (req, res, next) => {
         city,
         emiratesId: hashedemiratesId,
         uniqueId: emiratesId,
-        fileNumber: hashedFileNumber,
-        uniId: fileNumber,
+        //fileNumber: hashedFileNumber,
+        //uniId: fileNumber,
       });
 
       createdUser.save((err, userDoc) => {
@@ -1895,9 +1928,7 @@ const login = async (req, res, next) => {
           { $set: { device_token: device_token } },
           function (err) {
             if (err) {
-              throw new Error(
-                "Somthing went wrong while verifiying Phone Number"
-              );
+              throw new Error("Somthing went wrong");
             } else {
               console.log("data updated");
             }
@@ -1908,9 +1939,7 @@ const login = async (req, res, next) => {
           { $set: { access_token: access_token } },
           function (err) {
             if (err) {
-              throw new Error(
-                "Somthing went wrong while verifiying Phone Number"
-              );
+              throw new Error("Somthing went wrong");
             } else {
               console.log("data updated");
             }
@@ -3365,7 +3394,7 @@ const sendBookingReq = async (req, res) => {
       ptime,
       pdoctorId,
     } = req.body;
-    console.log(req.body);
+    console.log(req.body, "req in create booking");
     const userFound = await User.find({ _id: userId });
     const doctorFound = await Doctor.find({ _id: pdoctorId });
     console.log(doctorFound, "pdoctorId");
@@ -3595,6 +3624,7 @@ const updateBooking = async (req, res) => {
           $set: {
             ...req.body,
             doctorName: `${doctorFound[0]?.firstName} ${doctorFound[0].lastName}`,
+            image: doctorFound[0]?.image[0],
             status: "Confirmed",
             // time: moment(time).format("hh:mm A"),
             time: time,
@@ -3806,7 +3836,7 @@ const confirmBooking = async (req, res) => {
     console.log(foundBooking, "test");
     if (bookingId && doctorId && date && time) {
       const foundDoctor = await Doctor.find({ _id: doctorId });
-      console.log(foundDoctor);
+      console.log(foundDoctor, "doctor in confirm");
       Appointment.updateOne(
         { _id: bookingId },
         {
@@ -3841,9 +3871,9 @@ const confirmBooking = async (req, res) => {
             });
             console.log(foundAppointement, "appt");
             const userFound = await User.find({
-              userId: foundAppointement[0]?.userId,
+              _id: foundAppointement[0]?.userId,
             });
-            console.log(userFound, "user");
+            console.log(userFound, "user in confirm push");
             if (userFound) {
               let message = createMsg(
                 userFound[0]?.device_token,
@@ -3856,7 +3886,7 @@ const confirmBooking = async (req, res) => {
               title: "Appolonia",
               body: `Your Booking with ${foundDoctor[0]?.firstName} ${foundDoctor[0].lastName} on ${date} at ${time} is Confirmed.`,
               actionId: "4",
-              actionName: "Notification",
+              actionName: "Appointment",
               userId: userFound[0]?._id,
               isRead: "0",
             });
@@ -4077,10 +4107,10 @@ const rescheduleBookingReq = async (req, res) => {
     pdate,
     pdoctorId,
   } = req.body;
-  console.log(req.body);
+  console.log(req.body, "in reschedule");
   try {
-    //const doctorFound = await Doctor.find({ _id: doctorId });
-    //console.log(doctorFound, "doctor");
+    const doctorFound = await Doctor.find({ _id: pdoctorId });
+    console.log(doctorFound, "doctor");
     //if (doctorFound) {
     Appointment.updateMany(
       { _id: bookingId },
@@ -4088,7 +4118,8 @@ const rescheduleBookingReq = async (req, res) => {
         $set: {
           ...req.body,
           status: "Reschedule",
-          // doctorName: `${doctorFound[0]?.firstName} ${doctorFound[0].lastName}`,
+          pdoctorName: `${doctorFound[0]?.firstName} ${doctorFound[0].lastName}`,
+          pimage: doctorFound[0]?.image[0],
         },
       },
       async (error, data) => {

@@ -16,7 +16,7 @@ const eventSchema = new Schema({
   // IsAllDay: { type: Boolean },
   doctorId: { type: String },
   firstName: { type: String },
-  image: { type: String },
+  doctorImage: { type: String },
   speciality: { type: String },
   lastName: { type: String },
 });
