@@ -107,5 +107,5 @@ router.post("/reschedule", usersController.rescheduleBookingReq);
 router.get("/activepatients", usersController.activePatients);
 router.get("/newpatientreq", usersController.newPatientReq);
 router.get("/pending", usersController.pendingAppointments);
-
+router.get("/getcontacts", usersController.getContacts);
 module.exports = router;
