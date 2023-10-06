@@ -3899,14 +3899,14 @@ const cancelBooking = async (req, res) => {
       if (userFound) {
         let message = createMsg(
           userFound[0]?.device_token,
-          "Appolonia",
-          "Your Appointment is Cancelled"
+          "Booking Cancelled",
+          `Your Booking No.${foundAppointement[0]?._id} has been cancelled. Please call clinic if its not cancelled by you.`
         );
         sendPushNotification(message);
       }
       let inAppNoti = new Notification({
-        title: "Appolonia",
-        body: "Your Booking is cancelled",
+        title: "Booking Cancelled",
+        body: `Your Booking No.${foundAppointement[0]?._id} has been cancelled. Please call clinic if its not cancelled by you.`,
         actionId: "3",
         actionName: "Appointment",
         userId: userFound[0]?._id,
