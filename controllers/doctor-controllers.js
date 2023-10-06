@@ -79,7 +79,9 @@ const addDoctor = async (req, res) => {
       doctorSchema.create(
         {
           ...req.body,
-          image: imageFiles.toString().replace(/\\/g, "/"),
+          image: image
+            ? imageFiles.toString().replace(/\\/g, "/")
+            : "uploads/contact/login.jpeg",
           password: hashedpassword,
           uniqueId: password,
           phoneNumber: phoneNumber,
@@ -819,14 +821,16 @@ function fetchTimeFromRange(startTime, endTime, targetTime) {
 }
 
 const getDoctorsByTime = async (req, res) => {
-  const { date } = req.body;
+  const { date, speciality, clinicName } = req.body;
   console.log(req.body, "date in req");
   const date1 = new Date(date);
   console.log(date1, "date1");
 
   try {
-    const foundTimes = await Event.find({});
-    console.log(foundTimes);
+    const foundTimes = await Event.find({
+      $and: [{ title: clinicName }, { speciality: speciality }],
+    });
+    console.log(foundTimes, "found");
     const temp = [];
     for (let i = 0; i < foundTimes.length; i++) {
       const startTimes = foundTimes[i].start;
@@ -842,7 +846,7 @@ const getDoctorsByTime = async (req, res) => {
         }
       }
     }
-    console.log(temp[0], "temp");
+    console.log(temp, "temp");
     if (temp.length > 0) {
       res.json({
         serverError: 0,

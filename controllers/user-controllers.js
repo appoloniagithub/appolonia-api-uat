@@ -132,9 +132,211 @@ const getUserdata = async (req, res) => {
   }
 };
 
+// const updateUserProfile = async (req, res) => {
+//   // logger.info("update user profile");
+//   console.log(req.body, "REQ UPDATE");
+//   let imageFiles = [];
+//   if (req?.files?.length > 0) {
+//     console.log(req.files, "here are the files");
+//     // logger.info("here are the files");
+//     imageFiles = req.files.map((file) => file.path);
+//   }
+//   let emirateFront = [];
+//   if (req?.files?.length > 0) {
+//     console.log(req.files, "here are the files");
+//     //  logger.info("here are the files");
+//     emirateFront = req.files.map((file) => file.path);
+//   }
+//   let emirateBack = [];
+//   if (req?.files?.length > 0) {
+//     console.log(req.files, "here are the files");
+//     // logger.info("here are the files");
+//     emirateBack = req.files.map((file) => file.path);
+//   }
+//   const {
+//     firstName,
+//     lastName,
+//     emiratesId,
+//     fileNumber,
+//     gender,
+//     dob,
+//     email,
+//     city,
+//     isEmiratesIdChanged,
+//     isFileNumberChanged,
+//     isFamilyHead,
+//     userId,
+//     fileId,
+//     image,
+//     emiratesIdFront,
+//     emiratesIdBack,
+//   } = req.body;
+
+//   if (isFileNumberChanged === "1") {
+//     let existing = await User.findOne({ uniqueId1: fileNumber });
+//     if (existing) {
+//       res.json({
+//         serverError: 0,
+//         message: "File Number Already Exist",
+//         data: {
+//           success: 0,
+//         },
+//       });
+//       return;
+//     }
+//     // else{
+//     //   User.updateOne(
+//     //     { _id: userId },
+//     //     {
+//     //       $set: {
+//     //         ...data,
+//     //        uniqueId1 : fileNumber,fileNumber:hashedFileNumber,
+//     //       },
+//     //     },
+//     //   )
+//     //   File.updateOne(
+//     //     { _id: fileId },
+//     //     { $set: {  uniId : fileNumber } },
+//     //   )
+//     // }
+//   }
+
+//   if (isEmiratesIdChanged === "1") {
+//     let existing = await User.findOne({ uniqueId2: emiratesId });
+//     if (existing) {
+//       res.json({
+//         serverError: 0,
+//         message: "Emirates Id Already Exist",
+//         data: {
+//           success: 0,
+//         },
+//       });
+//       return;
+//     }
+//   }
+
+//   let hashedemiratesId;
+//   let hashedFileNumber;
+
+//   try {
+//     hashedemiratesId = CryptoJS.AES.encrypt(emiratesId, "love").toString();
+//     if (fileNumber.length > 0) {
+//       hashedFileNumber = CryptoJS.AES.encrypt(fileNumber, "love").toString();
+//     }
+//     console.log(hashedemiratesId, hashedFileNumber, "i am emirates");
+//   } catch (err) {
+//     console.log("Something went wrong while Encrypting Data", err);
+//     // logger.info("Something went wrong while Encrypting Data");
+//     throw new Error("Something went wrong while Encrypting Data");
+//   }
+
+//   let data = {
+//     firstName,
+//     lastName,
+//     emiratesId: hashedemiratesId,
+//     fileNumber: hashedFileNumber,
+//     gender,
+//     dob,
+//     email,
+//     city,
+//     uniqueId1: fileNumber,
+//     uniqueId2: emiratesId,
+//     image,
+
+//     //image: imageFiles.toString().replace(/\\/g, "/"),
+//     // emiratesIdFront: emirateFront,
+//     // emiratesIdBack: emirateBack,
+//   };
+//   console.log(image, "img in update");
+//   let updateImage =
+//     imageFiles.length > 0 ? imageFiles.toString().replace(/\\/g, "/") : image;
+//   try {
+//     User.updateOne(
+//       { _id: userId },
+//       {
+//         $set: {
+//           ...data,
+//           image: updateImage,
+//           //uniqueId1 : fileNumber,fileNumber:hashedFileNumber,
+//         },
+//       },
+//       // { new: true },
+//       (err) => {
+//         if (err) {
+//           console.log(err);
+//           //  logger.info("Error updating the user");
+//           throw new Error("Error updating the user");
+//         } else {
+//           if (isFamilyHead === "1") {
+//             File.updateOne(
+//               { _id: fileId },
+//               { $set: { uniqueId: emiratesId, emiratesId: hashedemiratesId } },
+//               (err) => {
+//                 if (err) {
+//                   console.log(err);
+//                   throw new Error("Error updating the user");
+//                 } else {
+//                   File.updateOne(
+//                     { _id: fileId, "familyMembers.userId": userId },
+//                     {
+//                       $set: {
+//                         "familyMembers.$.memberEmiratesId": hashedemiratesId,
+//                         "familyMembers.$.uniqueId": emiratesId,
+//                       },
+//                     },
+//                     (err) => {
+//                       if (err) {
+//                         throw new Error("Error updating the user");
+//                       } else {
+//                         res.json({
+//                           serverError: 0,
+//                           message: "User data updated",
+//                           data: { success: 1 },
+//                         });
+//                       }
+//                     }
+//                   );
+//                 }
+//               }
+//             );
+//           } else {
+//             File.updateOne(
+//               { _id: fileId, "familyMembers.userId": userId },
+//               {
+//                 $set: {
+//                   "familyMembers.$.memberEmiratesId": hashedemiratesId,
+//                   "familyMembers.$.uniqueId": emiratesId,
+//                 },
+//               },
+//               (err) => {
+//                 if (err) {
+//                   throw new Error("Error updating the user");
+//                 } else {
+//                   res.json({
+//                     serverError: 0,
+//                     message: "User data updated",
+//                     data: { success: 1 },
+//                   });
+//                 }
+//               }
+//             );
+//           }
+//         }
+//       }
+//     );
+//   } catch (err) {
+//     console.log(err);
+//     res.json({
+//       serverError: 1,
+//       message: err.message,
+//       data: {
+//         success: 0,
+//       },
+//     });
+//   }
+// };
+
 const updateUserProfile = async (req, res) => {
-  // logger.info("update user profile");
-  console.log(req.body, "REQ UPDATE");
   let imageFiles = [];
   if (req?.files?.length > 0) {
     console.log(req.files, "here are the files");
@@ -162,58 +364,12 @@ const updateUserProfile = async (req, res) => {
     dob,
     email,
     city,
-    isEmiratesIdChanged,
-    isFileNumberChanged,
-    isFamilyHead,
     userId,
-    fileId,
     image,
-    emiratesIdFront,
-    emiratesIdBack,
+    // emiratesIdFront,
+    // emiratesIdBack,
+    // fileId,
   } = req.body;
-
-  if (isFileNumberChanged === "1") {
-    let existing = await User.findOne({ uniqueId1: fileNumber });
-    if (existing) {
-      res.json({
-        serverError: 0,
-        message: "File Number Already Exist",
-        data: {
-          success: 0,
-        },
-      });
-      return;
-    }
-    // else{
-    //   User.updateOne(
-    //     { _id: userId },
-    //     {
-    //       $set: {
-    //         ...data,
-    //        uniqueId1 : fileNumber,fileNumber:hashedFileNumber,
-    //       },
-    //     },
-    //   )
-    //   File.updateOne(
-    //     { _id: fileId },
-    //     { $set: {  uniId : fileNumber } },
-    //   )
-    // }
-  }
-
-  if (isEmiratesIdChanged === "1") {
-    let existing = await User.findOne({ uniqueId2: emiratesId });
-    if (existing) {
-      res.json({
-        serverError: 0,
-        message: "Emirates Id Already Exist",
-        data: {
-          success: 0,
-        },
-      });
-      return;
-    }
-  }
 
   let hashedemiratesId;
   let hashedFileNumber;
@@ -229,7 +385,6 @@ const updateUserProfile = async (req, res) => {
     // logger.info("Something went wrong while Encrypting Data");
     throw new Error("Something went wrong while Encrypting Data");
   }
-
   let data = {
     firstName,
     lastName,
@@ -242,85 +397,31 @@ const updateUserProfile = async (req, res) => {
     uniqueId1: fileNumber,
     uniqueId2: emiratesId,
     image,
-
-    //image: imageFiles.toString().replace(/\\/g, "/"),
-    // emiratesIdFront: emirateFront,
-    // emiratesIdBack: emirateBack,
   };
   console.log(image, "img in update");
   let updateImage =
     imageFiles.length > 0 ? imageFiles.toString().replace(/\\/g, "/") : image;
+
   try {
     User.updateOne(
       { _id: userId },
-      {
-        $set: {
-          ...data,
-          image: updateImage,
-          //uniqueId1 : fileNumber,fileNumber:hashedFileNumber,
-        },
-      },
-      // { new: true },
-      (err) => {
+      { $set: { ...data, image: updateImage } },
+
+      (err, data) => {
         if (err) {
           console.log(err);
-          //  logger.info("Error updating the user");
-          throw new Error("Error updating the user");
+          throw new Error("Error updating the Patient");
         } else {
-          if (isFamilyHead === "1") {
-            File.updateOne(
-              { _id: fileId },
-              { $set: { uniqueId: emiratesId, emiratesId: hashedemiratesId } },
-              (err) => {
-                if (err) {
-                  console.log(err);
-                  throw new Error("Error updating the user");
-                } else {
-                  File.updateOne(
-                    { _id: fileId, "familyMembers.userId": userId },
-                    {
-                      $set: {
-                        "familyMembers.$.memberEmiratesId": hashedemiratesId,
-                        "familyMembers.$.uniqueId": emiratesId,
-                      },
-                    },
-                    (err) => {
-                      if (err) {
-                        throw new Error("Error updating the user");
-                      } else {
-                        res.json({
-                          serverError: 0,
-                          message: "User data updated",
-                          data: { success: 1 },
-                        });
-                      }
-                    }
-                  );
-                }
-              }
-            );
-          } else {
-            File.updateOne(
-              { _id: fileId, "familyMembers.userId": userId },
-              {
-                $set: {
-                  "familyMembers.$.memberEmiratesId": hashedemiratesId,
-                  "familyMembers.$.uniqueId": emiratesId,
-                },
-              },
-              (err) => {
-                if (err) {
-                  throw new Error("Error updating the user");
-                } else {
-                  res.json({
-                    serverError: 0,
-                    message: "User data updated",
-                    data: { success: 1 },
-                  });
-                }
-              }
-            );
-          }
+          console.log(data);
+          res.json({
+            serverError: 0,
+            message: "Patient updated successfully.",
+            data: {
+              success: 1,
+              //data: data,
+            },
+          });
+          return;
         }
       }
     );
@@ -931,7 +1032,7 @@ const signup = async (req, res, next) => {
       let existingUser;
       existingUser = await User.findOne({ uniqueId1: fileNumber });
 
-      if (existingUser && fileNumber.length > 0) {
+      if (existingUser) {
         //throw new Error("User Already Exist");
         res.json({
           serverError: 0,
@@ -1008,20 +1109,20 @@ const signup = async (req, res, next) => {
       //   return;
       // }
 
-      userPhoneExist = await File.findOne({ uniqueId1: fileNumber });
-      if (userPhoneExist && fileNumber && fileNumber.length > 0) {
-        // throw new Error("Emirates Id Already Exist");
-        res.json({
-          serverError: 0,
-          message: "This File Number already associated with a family account",
-          data: {
-            success: 0,
-            phoneVerified: userPhoneExist?.phoneVerified === true ? 1 : 0,
-            isExisting: 1,
-          },
-        });
-        return;
-      }
+      // userPhoneExist = await File.findOne({ uniqueId1: fileNumber });
+      // if (userPhoneExist && fileNumber && fileNumber.length > 0) {
+      //   // throw new Error("Emirates Id Already Exist");
+      //   res.json({
+      //     serverError: 0,
+      //     message: "This File Number already associated with a family account",
+      //     data: {
+      //       success: 0,
+      //       phoneVerified: userPhoneExist?.phoneVerified === true ? 1 : 0,
+      //       isExisting: 1,
+      //     },
+      //   });
+      //   return;
+      // }
 
       let hashedemiratesId;
       let hashedpassword;
@@ -3007,6 +3108,41 @@ const contact = async (req, res) => {
     }
   });
 };
+
+const getContacts = async (req, res) => {
+  try {
+    let foundContacts = await Contact.find({});
+    console.log(foundContacts);
+    if (foundContacts.length > 0) {
+      res.json({
+        serverError: 0,
+        message: "Found Contact issues",
+        data: {
+          success: 1,
+          foundContacts: foundContacts,
+        },
+      });
+    } else {
+      res.json({
+        serverError: 0,
+        message: "Found no Contact issues",
+        data: {
+          success: 0,
+        },
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.json({
+      serverError: 1,
+      message: err.message,
+      data: {
+        success: 0,
+      },
+    });
+  }
+};
+
 const logout = async (req, res) => {
   console.log(req.body);
   res.json({
@@ -3383,6 +3519,7 @@ const sendBookingReq = async (req, res) => {
       email,
       emiratesId,
       clinicName,
+      clinicAddress,
       //roomId,
       city,
       serviceName,
@@ -3405,15 +3542,16 @@ const sendBookingReq = async (req, res) => {
         email: email,
         phoneNumber: phoneNumber,
         clinicName: clinicName,
+        clinicAddress: clinicAddress,
         consultationType: consultationType,
         serviceName: serviceName,
         image:
           "https://www.clipartmax.com/png/middle/344-3442642_clip-art-freeuse-library-profile-man-user-people-icon-icono-de-login.png",
         roomId: consultationType == "Remote" ? uuid.v1() : "",
-        //doctorId: doctorId,
-        //doctorName: doctorName,
-        // date: moment(date).format("DD-MM-YYYY"),
-        // time: moment(time).format("hh:mm A"),
+        doctorId: "",
+        doctorName: "",
+        date: "",
+        time: "",
         pdate: pdate,
         ptime: ptime,
         pdoctorId: pdoctorId,
@@ -3543,31 +3681,31 @@ const getAllBookings = async (req, res) => {
         // console.log(allDates, "all");
         // console.log(allDates < tempDate);
       }
-      let finished = await Appointment.find({
-        $and: [
-          { userId: userId },
-          { date: { $lt: tempDate } },
-          //,{time: { $lt: tempTime }}
-        ],
-      });
-      console.log(finished, "finished");
-      for (let j = 0; j < finished.length; j++) {
-        Appointment.updateOne(
-          { _id: finished[j]?._id },
-          { $set: { status: "Completed" } },
-          (err) => {
-            if (err) {
-              console.log(err);
-            } else {
-              console.log("data updated");
-            }
-          }
-        );
-      }
-      let tempFinished = await Appointment.find({
-        $and: [{ userId: userId }, { status: "Completed" }],
-      });
-      console.log(tempFinished, "tempfinished");
+      // let finished = await Appointment.find({
+      //   $and: [
+      //     { userId: userId },
+      //     { date: { $lt: tempDate } },
+      //     //,{time: { $lt: tempTime }}
+      //   ],
+      // });
+      // console.log(finished, "finished");
+      // for (let j = 0; j < finished.length; j++) {
+      //   Appointment.updateOne(
+      //     { _id: finished[j]?._id },
+      //     { $set: { status: "Completed" } },
+      //     (err) => {
+      //       if (err) {
+      //         console.log(err);
+      //       } else {
+      //         console.log("data updated");
+      //       }
+      //     }
+      //   );
+      // }
+      // let tempFinished = await Appointment.find({
+      //   $and: [{ userId: userId }, { status: "Completed" }],
+      // });
+      // console.log(tempFinished, "tempfinished");
       //return finished;
       //tempFinished.push(finished);
       let cancelled = await Appointment.find({
@@ -3584,7 +3722,7 @@ const getAllBookings = async (req, res) => {
             allBookings: allBookings.reverse(),
             pending: temp.reverse(),
             confirmed: confirmed.reverse(),
-            finished: finished.reverse(),
+            // finished: finished.reverse(),
             cancelled: cancelled.reverse(),
             //rescheduled:rescheduled.reverse(),
           },
@@ -3731,11 +3869,12 @@ const deleteBooking = async (req, res) => {
 
 const cancelBooking = async (req, res) => {
   const { bookingId } = req.body;
+  console.log(bookingId, "booking Id");
   try {
     let foundAppointement = await Appointment.find({
       _id: bookingId,
     });
-    console.log(foundAppointement);
+    console.log(foundAppointement, "fappt");
     if (foundAppointement) {
       Appointment.updateOne(
         { _id: bookingId },
@@ -3754,6 +3893,33 @@ const cancelBooking = async (req, res) => {
           }
         }
       );
+
+      const userFound = await User.find({ _id: foundAppointement[0]?.userId });
+      console.log(userFound, "user");
+      if (userFound) {
+        let message = createMsg(
+          userFound[0]?.device_token,
+          "Appolonia",
+          "Your Appointment is Cancelled"
+        );
+        sendPushNotification(message);
+      }
+      let inAppNoti = new Notification({
+        title: "Appolonia",
+        body: "Your Booking is cancelled",
+        actionId: "3",
+        actionName: "Appointment",
+        userId: userFound[0]?._id,
+        isRead: "0",
+      });
+      inAppNoti.save(async (err, data) => {
+        if (err) {
+          console.log(err);
+          throw new Error("Error saving the notification");
+        } else {
+          console.log(data);
+        }
+      });
       res.json({
         serverError: 0,
         message: "Appointment has been cancelled successfully",
@@ -4101,6 +4267,7 @@ const rescheduleBookingReq = async (req, res) => {
     email,
     emiratesId,
     clinicName,
+    clinicAddress,
     serviceName,
     consultationType,
     ptime,
@@ -4283,6 +4450,7 @@ module.exports = {
   requestForgotOtp,
   verifyForgotOtp,
   contact,
+  getContacts,
   getUserdata,
   changePassword,
   logout,

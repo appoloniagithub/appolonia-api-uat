@@ -22,6 +22,9 @@ const appointmentSchema = new mongoose.Schema(
     clinicName: {
       type: String,
     },
+    clinicAddress: {
+      type: String,
+    },
     serviceName: {
       type: String,
     },

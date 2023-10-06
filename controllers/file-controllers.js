@@ -497,31 +497,31 @@ const updateClinicDetails = async (req, res) => {
         }
       }
     );
-    if (userFound) {
-      let message = createMsg(
-        userFound?.device_token,
-        "Appolonia",
-        "Family Member Approved"
-      );
-      sendPushNotification(message);
-    }
-    let inAppNoti = new Notification({
-      title: "Appolonia",
-      body: "Family Member Approved",
-      actionId: "2",
-      actionName: "Family",
-      //userId: userDoc._id.toString(),
-      userId: userFound?._id,
-      isRead: "0",
-    });
-    inAppNoti.save(async (err, data) => {
-      if (err) {
-        console.log(err);
-        throw new Error("Error saving the notification");
-      } else {
-        console.log(data);
-      }
-    });
+    // if (userFound) {
+    //   let message = createMsg(
+    //     userFound?.device_token,
+    //     "Appolonia",
+    //     "Family Member Approved"
+    //   );
+    //   sendPushNotification(message);
+    // }
+    // let inAppNoti = new Notification({
+    //   title: "Appolonia",
+    //   body: "Family Member Approved",
+    //   actionId: "2",
+    //   actionName: "Family",
+    //   //userId: userDoc._id.toString(),
+    //   userId: userFound?._id,
+    //   isRead: "0",
+    // });
+    // inAppNoti.save(async (err, data) => {
+    //   if (err) {
+    //     console.log(err);
+    //     throw new Error("Error saving the notification");
+    //   } else {
+    //     console.log(data);
+    //   }
+    // });
   } else {
     res.json({
       serverError: 1,
