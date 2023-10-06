@@ -4143,8 +4143,7 @@ const getAllAppointments = async (req, res) => {
       res.json({
         serverError: 0,
         message: "Appointments found",
-        data: { success: 1 },
-        appointments: allAppointments.reverse(),
+        data: { success: 1, appointments: allAppointments.reverse() },
       });
     } else {
       res.json({
@@ -4352,7 +4351,6 @@ const activePatients = async (req, res) => {
         message: "Active Patients not found",
         data: {
           success: 0,
-          foundPatients: foundPatients,
         },
       });
     }
