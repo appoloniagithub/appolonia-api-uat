@@ -20,8 +20,6 @@ const patientRoutes = require("./Routes/Patient-routes");
 const PORT = process.env.PORT || 3001;
 const { db } = require("./Config/config");
 
-const schedule = require("./services/schedule");
-
 const loggerMidleware = expressPinoLogger({
   logger: logger,
   autoLogging: false,
@@ -75,8 +73,6 @@ app.use("/api/uploads", express.static("uploads"));
 app.use("/images", express.static("images"));
 
 app.use("/api", express.static("./"));
-
-schedule.reSchedule();
 
 app.listen(PORT, () => {
   console.log("listening on " + PORT);
