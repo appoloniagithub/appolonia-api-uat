@@ -4284,7 +4284,7 @@ const rescheduleBookingReq = async (req, res) => {
       {
         $set: {
           ...req.body,
-          status: "Reschedule",
+          status: "Pending",
           pdoctorName: `${doctorFound[0]?.firstName} ${doctorFound[0].lastName}`,
           pimage: doctorFound[0]?.image[0],
         },
@@ -4343,7 +4343,7 @@ const activePatients = async (req, res) => {
         message: "Active Patients found",
         data: {
           success: 1,
-          foundPatients: foundPatients,
+          foundPatients: foundPatients.reverse(),
         },
       });
     } else {
@@ -4351,7 +4351,7 @@ const activePatients = async (req, res) => {
         serverError: 0,
         message: "Active Patients not found",
         data: {
-          success: 1,
+          success: 0,
           foundPatients: foundPatients,
         },
       });
@@ -4378,7 +4378,7 @@ const newPatientReq = async (req, res) => {
         message: "New Patient Requests found",
         data: {
           success: 1,
-          foundPatients: foundPatients,
+          foundPatients: foundPatients.reverse(),
         },
       });
     } else {
@@ -4386,8 +4386,8 @@ const newPatientReq = async (req, res) => {
         serverError: 0,
         message: "New Patient Requests not found",
         data: {
-          success: 1,
-          foundPatients: foundPatients,
+          success: 0,
+          //foundPatients: foundPatients,
         },
       });
     }
@@ -4413,7 +4413,7 @@ const pendingAppointments = async (req, res) => {
         message: "Pending Appointments found",
         data: {
           success: 1,
-          pending: pending,
+          pending: pending.reverse(),
         },
       });
     } else {
@@ -4421,8 +4421,8 @@ const pendingAppointments = async (req, res) => {
         serverError: 0,
         message: "No Pending Appointments",
         data: {
-          success: 1,
-          pending: pending,
+          success: 0,
+          //pending: pending,
         },
       });
     }

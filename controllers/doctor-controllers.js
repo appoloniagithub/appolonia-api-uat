@@ -574,8 +574,8 @@ const doctorScans = async (req, res) => {
       message: "Scans found",
       data: {
         success: 1,
-        scans: foundScans,
-        appointments: appointments,
+        scans: foundScans.reverse(),
+        appointments: appointments.reverse(),
       },
     });
   } else {

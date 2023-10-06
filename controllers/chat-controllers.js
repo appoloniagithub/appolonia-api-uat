@@ -1115,7 +1115,7 @@ const unSeenMessages = async (req, res) => {
         message: "Found messages",
         data: {
           success: 1,
-          messages: foundMessages,
+          messages: foundMessages.reverse(),
         },
       });
     } else {
