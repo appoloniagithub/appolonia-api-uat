@@ -16,11 +16,6 @@ router.post(
   //authCheck,
   notificationController.createNotification
 );
-router.post("/notification", notificationController.schNotification);
-router.get("/getschnotification", notificationController.getSchNotification);
-router.delete(
-  "/deleteschnotification",
-  notificationController.deleteSchNotification
-);
+
 router.post("/send-notification", notificationController.sendNotification);
 module.exports = router;
