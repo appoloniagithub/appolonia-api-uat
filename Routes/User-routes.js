@@ -67,8 +67,8 @@ router.post("/verifyforgototp", usersController.verifyForgotOtp);
 router.post("/newpasswordforgot", usersController.newPassword);
 
 router.post("/contact", upload.array("files"), usersController.contact);
-router.post("/profileget", authCheck, usersController.getUserdata);
-router.post("/changepassword", authCheck, usersController.changePassword);
+router.post("/profileget", usersController.getUserdata);
+router.post("/changepassword", usersController.changePassword);
 router.post(
   "/updateprofile",
   upload.array("image"),
@@ -85,9 +85,9 @@ router.post(
 //   usersController.updateUserProfile
 // );
 router.post("/deleteaccount", usersController.deleteAccount);
-router.post("/deletepatient", authCheck, usersController.deletePatient);
-router.get("/getallusers", authCheck, usersController.getUsers);
-router.get("/getalldoctors", authCheck, usersController.getAllDoctors);
+router.post("/deletepatient", usersController.deletePatient);
+router.get("/getallusers", usersController.getUsers);
+router.get("/getalldoctors", usersController.getAllDoctors);
 router.post("/refreshToken", usersController.refreshToken);
 router.post("/createbooking", usersController.createBooking);
 router.post("/newbooking", usersController.newBooking);

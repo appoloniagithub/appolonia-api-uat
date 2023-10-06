@@ -7,7 +7,7 @@ const chatController = require("../controllers/chat-controllers");
 const Conversation = require("../Models/Conversations");
 const router = express.Router();
 
-router.post("/submitscans", authCheck, async (req, res) => {
+router.post("/submitscans", async (req, res) => {
   try {
     let response = await scansController.submitScans(req.body);
     console.log(response);
@@ -16,7 +16,7 @@ router.post("/submitscans", authCheck, async (req, res) => {
     console.log(err);
   }
 });
-router.post("/getmyscans", authCheck, async (req, res) => {
+router.post("/getmyscans", async (req, res) => {
   try {
     let response = await scansController.getMyScans(req.body);
     //console.log(response);
@@ -25,7 +25,7 @@ router.post("/getmyscans", authCheck, async (req, res) => {
     console.log(err);
   }
 });
-router.post("/getallscans", authCheck, async (req, res) => {
+router.post("/getallscans", async (req, res) => {
   try {
     let response = await scansController.getAllScans(req.body);
     //console.log(response);
@@ -34,7 +34,7 @@ router.post("/getallscans", authCheck, async (req, res) => {
     console.log(err);
   }
 });
-router.post("/getscanid", authCheck, scansController.getScanId);
+router.post("/getscanid", scansController.getScanId);
 router.post("/scanfrequency", scansController.scanFrequency);
 router.post("/cron", scansController.cronSchedule);
 

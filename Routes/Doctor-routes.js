@@ -30,19 +30,19 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 const router = express.Router();
 
-router.get("/getalldoctors", authCheck, doctorsController.getAllDoctors);
+router.get("/getalldoctors", doctorsController.getAllDoctors);
 router.post(
   "/createdoctor",
   [upload.array("image")],
   doctorsController.addDoctor
 );
-router.post("/getDoctorById", authCheck, doctorsController.getDoctorById);
+router.post("/getDoctorById", doctorsController.getDoctorById);
 router.put(
   "/updatedoctor",
   [upload.array("image")],
   doctorsController.updateDoctor
 );
-router.post("/deletedoctor", authCheck, doctorsController.deleteDoctor);
+router.post("/deletedoctor", doctorsController.deleteDoctor);
 router.post("/doctorlogin", doctorsController.doctorLogin);
 router.post("/forgotpwd", doctorsController.forgotPassword);
 router.get("/getdoctorscans", doctorsController.doctorScans);

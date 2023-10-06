@@ -34,21 +34,17 @@ const upload = multer({ storage: storage });
 const router = express.Router();
 
 router.post("/newchat", chatController.newChat);
-router.post("/getconversations", authCheck, chatController.getConversations);
-router.post(
-  "/getconversationmessages",
-  authCheck,
-  chatController.getConversationMessages
-);
-router.post("/newmessage", authCheck, chatController.newMessage);
+router.post("/getconversations", chatController.getConversations);
+router.post("/getconversationmessages", chatController.getConversationMessages);
+router.post("/newmessage", chatController.newMessage);
 
 router.post(
   "/newmessageimage",
   [upload.array("message")],
   chatController.newMessage
 );
-router.post("/getdoctorinfo", authCheck, chatController.getDoctorInfo);
-router.post("/getcon", authCheck, chatController.getCon);
+router.post("/getdoctorinfo", chatController.getDoctorInfo);
+router.post("/getcon", chatController.getCon);
 router.get("/unseen", chatController.unSeenMessages);
 
 module.exports = router;

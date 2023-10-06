@@ -7,15 +7,15 @@ const router = express.Router();
 
 router.post(
   "/getfilefamilymembers",
-  authCheck,
+  //authCheck,
   fileController.getFileFamilyMembers
 );
 router.post("/connectmembertofile", fileController.connectMemberToFile);
-router.post("/addtofamily", authCheck, fileController.addFamilyMember);
-router.post("/clinicverify", authCheck, fileController.clinicVerify);
+router.post("/addtofamily", fileController.addFamilyMember);
+router.post("/clinicverify", fileController.clinicVerify);
 router.post(
   "/updateclinicdetails",
-  authCheck,
+  //authCheck,
   fileController.updateClinicDetails
 );
 
