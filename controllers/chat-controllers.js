@@ -710,7 +710,7 @@ const newMessage = async (req, res) => {
         if (doctorFound.length > 0) {
           const userFound = await User.find({ _id: recId });
           console.log(userFound, "456");
-          if (userFound) {
+          if (userFound && userFound[0]?.isHead === "1") {
             let message = createMsg(
               userFound[0]?.device_token,
               "Appolonia",
@@ -718,25 +718,27 @@ const newMessage = async (req, res) => {
             );
             sendPushNotification(message);
           }
-          let inAppNoti = new Notification({
-            title: "Appolonia",
-            body: `New message received from ${doctorFound[0]?.firstName} ${doctorFound[0].lastName}.`,
-            actionId: "4",
-            actionName: "Chat",
-            userId: userFound[0]?._id,
-            conversationId: conFound[0]?._id,
-            doctorName: `${doctorFound[0]?.firstName} ${doctorFound[0].lastName}`,
-            image: doctorFound[0].image[0],
-            isRead: "0",
-          });
-          inAppNoti.save(async (err, data) => {
-            if (err) {
-              console.log(err);
-              throw new Error("Error saving the notification");
-            } else {
-              console.log(data);
-            }
-          });
+          if (userFound && userFound[0]?.isHead === "1") {
+            let inAppNoti = new Notification({
+              title: "Appolonia",
+              body: `New message received from ${doctorFound[0]?.firstName} ${doctorFound[0].lastName}.`,
+              actionId: "4",
+              actionName: "Chat",
+              userId: userFound[0]?._id,
+              conversationId: conFound[0]?._id,
+              doctorName: `${doctorFound[0]?.firstName} ${doctorFound[0].lastName}`,
+              image: doctorFound[0].image[0],
+              isRead: "0",
+            });
+            inAppNoti.save(async (err, data) => {
+              if (err) {
+                console.log(err);
+                throw new Error("Error saving the notification");
+              } else {
+                console.log(data);
+              }
+            });
+          }
         } else {
           const userFound = await User.find({ _id: senderId });
           console.log(userFound, "user in else");

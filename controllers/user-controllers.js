@@ -1032,7 +1032,7 @@ const signup = async (req, res, next) => {
       let existingUser;
       existingUser = await User.findOne({ uniqueId1: fileNumber });
 
-      if (existingUser) {
+      if (existingUser && fileNumber.length > 0) {
         //throw new Error("User Already Exist");
         res.json({
           serverError: 0,
@@ -3393,8 +3393,9 @@ const createBooking = async (req, res) => {
         emiratesId: emiratesId,
         doctorId: doctorFound[0]?._id,
         doctorName: `${doctorFound[0]?.firstName} ${doctorFound[0]?.lastName}`,
-        date: moment(date).format("DD-MM-YYYY"),
-        time: moment(time).format("h:mm A"),
+        date: moment(date).format("YYYY-MM-DD"),
+        //time: moment(time).format("h:mm A"),
+        time: time,
         status: "Confirmed",
       });
       newAppointment.save((err, data) => {
@@ -3468,8 +3469,9 @@ const newBooking = async (req, res) => {
         emiratesId: emiratesId,
         doctorId: doctorFound[0]?._id,
         doctorName: `${doctorFound[0]?.firstName} ${doctorFound[0]?.lastName}`,
-        date: moment(date).format("DD-MM-YYYY"),
-        time: moment(time).format("h:mm A"),
+        date: moment(date).format("YYYY-MM-DD"),
+        //time: moment(time).format("h:mm A"),
+        time: time,
         status: "Confirmed",
       });
       newAppointment.save((err, data) => {
@@ -3797,7 +3799,7 @@ const updateBooking = async (req, res) => {
         userId: foundBooking[0]?.userId,
       });
       console.log(userFound, "user");
-      if (userFound) {
+      if (userFound && userFound[0]?.isHead === "1") {
         let message = createMsg(
           userFound[0]?.device_token,
           "Appolonia",
@@ -3896,30 +3898,31 @@ const cancelBooking = async (req, res) => {
 
       const userFound = await User.find({ _id: foundAppointement[0]?.userId });
       console.log(userFound, "user");
-      if (userFound) {
+      if (userFound && userFound[0]?.isHead === "1") {
         let message = createMsg(
           userFound[0]?.device_token,
           "Booking Cancelled",
           `Your Booking No.${foundAppointement[0]?._id} has been cancelled. Please call clinic if its not cancelled by you.`
         );
         sendPushNotification(message);
+
+        let inAppNoti = new Notification({
+          title: "Booking Cancelled",
+          body: `Your Booking No.${foundAppointement[0]?._id} has been cancelled. Please call clinic if its not cancelled by you.`,
+          actionId: "3",
+          actionName: "Appointment",
+          userId: userFound[0]?._id,
+          isRead: "0",
+        });
+        inAppNoti.save(async (err, data) => {
+          if (err) {
+            console.log(err);
+            throw new Error("Error saving the notification");
+          } else {
+            console.log(data);
+          }
+        });
       }
-      let inAppNoti = new Notification({
-        title: "Booking Cancelled",
-        body: `Your Booking No.${foundAppointement[0]?._id} has been cancelled. Please call clinic if its not cancelled by you.`,
-        actionId: "3",
-        actionName: "Appointment",
-        userId: userFound[0]?._id,
-        isRead: "0",
-      });
-      inAppNoti.save(async (err, data) => {
-        if (err) {
-          console.log(err);
-          throw new Error("Error saving the notification");
-        } else {
-          console.log(data);
-        }
-      });
       res.json({
         serverError: 0,
         message: "Appointment has been cancelled successfully",
@@ -4040,30 +4043,31 @@ const confirmBooking = async (req, res) => {
               _id: foundAppointement[0]?.userId,
             });
             console.log(userFound, "user in confirm push");
-            if (userFound) {
+            if (userFound && userFound[0]?.isHead === "1") {
               let message = createMsg(
                 userFound[0]?.device_token,
                 "Appolonia",
                 `Your Booking with ${foundDoctor[0]?.firstName} ${foundDoctor[0].lastName} on ${date} at ${time} is Confirmed.`
               );
               sendPushNotification(message);
+
+              let inAppNoti = new Notification({
+                title: "Appolonia",
+                body: `Your Booking with ${foundDoctor[0]?.firstName} ${foundDoctor[0].lastName} on ${date} at ${time} is Confirmed.`,
+                actionId: "4",
+                actionName: "Appointment",
+                userId: userFound[0]?._id,
+                isRead: "0",
+              });
+              inAppNoti.save(async (err, data) => {
+                if (err) {
+                  console.log(err);
+                  throw new Error("Error saving the notification");
+                } else {
+                  console.log(data);
+                }
+              });
             }
-            let inAppNoti = new Notification({
-              title: "Appolonia",
-              body: `Your Booking with ${foundDoctor[0]?.firstName} ${foundDoctor[0].lastName} on ${date} at ${time} is Confirmed.`,
-              actionId: "4",
-              actionName: "Appointment",
-              userId: userFound[0]?._id,
-              isRead: "0",
-            });
-            inAppNoti.save(async (err, data) => {
-              if (err) {
-                console.log(err);
-                throw new Error("Error saving the notification");
-              } else {
-                console.log(data);
-              }
-            });
             res.json({
               serverError: 0,
               message: "Booking is confirmed",
@@ -4435,7 +4439,64 @@ const pendingAppointments = async (req, res) => {
     });
   }
 };
+const completeBooking = async (req, res) => {
+  const { bookingId } = req.body;
+  try {
+    if (bookingId) {
+      const foundBooking = await Appointment.find({ _id: bookingId });
+      console.log(foundBooking);
 
+      Appointment.updateOne(
+        { _id: bookingId },
+        { $set: { status: "Completed" } },
+        (err, data) => {
+          if (err) {
+            console.log(err);
+            throw new Error("error in updating data");
+          } else {
+            console.log("data updated");
+
+            // res.json({
+            //   serverError: 0,
+            //   message: "data updated",
+            //   data: {
+            //     success: 1,
+            //   },
+            // });
+          }
+        }
+      );
+      const updatedBooking = await Appointment.find({ _id: bookingId });
+      if (updatedBooking.length > 0) {
+        res.json({
+          serverError: 0,
+          message: "Booking details status changed to complete",
+          data: {
+            success: 1,
+            booking: updatedBooking,
+          },
+        });
+      } else {
+        res.json({
+          serverError: 0,
+          message: "booking not found",
+          data: {
+            success: 0,
+          },
+        });
+      }
+    }
+  } catch (err) {
+    console.log(err);
+    res.json({
+      serverError: 0,
+      message: "something went wrong",
+      data: {
+        success: 0,
+      },
+    });
+  }
+};
 module.exports = {
   signup,
   login,
@@ -4475,4 +4536,5 @@ module.exports = {
   newPatientReq,
   pendingAppointments,
   deleteBooking,
+  completeBooking,
 };

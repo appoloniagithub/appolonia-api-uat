@@ -108,4 +108,5 @@ router.get("/activepatients", usersController.activePatients);
 router.get("/newpatientreq", usersController.newPatientReq);
 router.get("/pending", usersController.pendingAppointments);
 router.get("/getcontacts", usersController.getContacts);
+router.post("/complete", usersController.completeBooking);
 module.exports = router;
