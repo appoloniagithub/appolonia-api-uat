@@ -3079,6 +3079,7 @@ const contact = async (req, res) => {
     appOsVersion,
     source,
     files: filesName,
+    //created: moment(Date.now()).format("DD-MM-YY HH:mm"),
   });
 
   savedContact.save((err) => {
@@ -3126,6 +3127,51 @@ const getContacts = async (req, res) => {
       res.json({
         serverError: 0,
         message: "Found no Contact issues",
+        data: {
+          success: 0,
+        },
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.json({
+      serverError: 1,
+      message: err.message,
+      data: {
+        success: 0,
+      },
+    });
+  }
+};
+
+const getContactById = async (req, res) => {
+  const { contactId } = req.body;
+  try {
+    if (contactId) {
+      const foundContact = await Contact.find({ _id: contactId });
+      console.log(foundContact);
+      if (foundContact.length > 0) {
+        res.json({
+          serverError: 0,
+          message: "Found Contact",
+          data: {
+            success: 1,
+            foundContact: foundContact,
+          },
+        });
+      } else {
+        res.json({
+          serverError: 0,
+          message: "Found no Contact issues",
+          data: {
+            success: 0,
+          },
+        });
+      }
+    } else {
+      res.json({
+        serverError: 0,
+        message: "Contact Id not found",
         data: {
           success: 0,
         },
@@ -4537,4 +4583,5 @@ module.exports = {
   pendingAppointments,
   deleteBooking,
   completeBooking,
+  getContactById,
 };
