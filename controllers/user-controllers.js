@@ -3270,12 +3270,20 @@ const deleteAccount = async (req, res) => {
               });
               let deletedScans = Scans.deleteMany({ userId: memberId });
               let deletedUser = User.deleteOne({ _id: memberId });
+              let deletedAppointments = Appointment.deleteMany({
+                userId: memberId,
+              });
+              let deletedNotifications = Notification.deleteMany({
+                userId: memberId,
+              });
 
               let resolved = await Promise.all([
                 deletedConvo,
                 deletedMessage,
                 deletedScans,
                 deletedUser,
+                deletedAppointments,
+                deletedNotifications,
               ]);
               console.log(resolved, "this is resolved");
               return resolved;
