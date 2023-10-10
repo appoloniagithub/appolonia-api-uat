@@ -1189,6 +1189,28 @@ const signup = async (req, res, next) => {
         //uniId: fileNumber,
       });
 
+      const adminFound = await Doctor.find({ role: "Admin" });
+      console.log(adminFound, "admin");
+      if (adminFound) {
+        let inAppNoti = new Notification({
+          title: "New Patient Registered",
+          body: "New Patient has been registered and is pending to verify.",
+          actionId: "6",
+          actionName: "Sign Up",
+          //userId: userDoc._id.toString(),
+          userId: adminFound[0]?._id,
+          isRead: "0",
+        });
+        inAppNoti.save(async (err, data) => {
+          if (err) {
+            console.log(err);
+            throw new Error("Error saving the notification");
+          } else {
+            console.log(data);
+          }
+        });
+      }
+
       createdUser.save((err, userDoc) => {
         if (err) {
           console.log(err);
@@ -3081,7 +3103,26 @@ const contact = async (req, res) => {
     files: filesName,
     //created: moment(Date.now()).format("DD-MM-YY HH:mm"),
   });
-
+  const adminFound = await Doctor.find({ role: "Admin" });
+  console.log(adminFound, "admin");
+  if (adminFound) {
+    let inAppNoti = new Notification({
+      title: "Help Message",
+      body: `Help message received from ${name}.`,
+      actionId: "5",
+      actionName: "Help",
+      userId: adminFound[0]?._id,
+      isRead: "0",
+    });
+    inAppNoti.save(async (err, data) => {
+      if (err) {
+        console.log(err);
+        throw new Error("Error saving the notification");
+      } else {
+        console.log(data);
+      }
+    });
+  }
   savedContact.save((err) => {
     if (err) {
       console.log(err);
@@ -3120,7 +3161,7 @@ const getContacts = async (req, res) => {
         message: "Found Contact issues",
         data: {
           success: 1,
-          foundContacts: foundContacts,
+          foundContacts: foundContacts.reverse(),
         },
       });
     } else {
@@ -3581,7 +3622,10 @@ const sendBookingReq = async (req, res) => {
     } = req.body;
     console.log(req.body, "req in create booking");
     const userFound = await User.find({ _id: userId });
+    console.log(userFound, "user");
     const doctorFound = await Doctor.find({ _id: pdoctorId });
+    const adminFound = await Doctor.find({ role: "Admin" });
+    console.log(adminFound, "admin");
     console.log(doctorFound, "pdoctorId");
     if (userFound) {
       const newAppointmentReq = new Appointment({
@@ -3606,6 +3650,24 @@ const sendBookingReq = async (req, res) => {
         pdoctorName: `${doctorFound[0]?.firstName} ${doctorFound[0]?.lastName}`,
         pimage: doctorFound[0]?.image[0],
       });
+      if (adminFound) {
+        let inAppNoti = new Notification({
+          title: "New Booking",
+          body: `A New Booking has been requested by patient ${userFound[0].firstName} ${userFound[0].lastName}.`,
+          actionId: "3",
+          actionName: "Appointment",
+          userId: adminFound[0]?._id,
+          isRead: "0",
+        });
+        inAppNoti.save(async (err, data) => {
+          if (err) {
+            console.log(err);
+            throw new Error("Error saving the notification");
+          } else {
+            console.log(data);
+          }
+        });
+      }
       newAppointmentReq.save((err, data) => {
         if (err) {
           console.log(err);
@@ -3845,7 +3907,11 @@ const updateBooking = async (req, res) => {
         userId: foundBooking[0]?.userId,
       });
       console.log(userFound, "user");
-      if (userFound && userFound[0]?.isHead === "1") {
+      if (
+        userFound.length > 0 &&
+        doctorFound.length > 0
+        //&& userFound[0]?.isHead === "1"
+      ) {
         let message = createMsg(
           userFound[0]?.device_token,
           "Appolonia",
@@ -3944,7 +4010,13 @@ const cancelBooking = async (req, res) => {
 
       const userFound = await User.find({ _id: foundAppointement[0]?.userId });
       console.log(userFound, "user");
-      if (userFound && userFound[0]?.isHead === "1") {
+      const adminFound = await Doctor.find({ role: "Admin" });
+      console.log(adminFound, "admin");
+      if (
+        userFound.length > 0 &&
+        foundAppointement.length > 0
+        //&& userFound[0]?.isHead === "1"
+      ) {
         let message = createMsg(
           userFound[0]?.device_token,
           "Booking Cancelled",
@@ -3958,6 +4030,24 @@ const cancelBooking = async (req, res) => {
           actionId: "3",
           actionName: "Appointment",
           userId: userFound[0]?._id,
+          isRead: "0",
+        });
+        inAppNoti.save(async (err, data) => {
+          if (err) {
+            console.log(err);
+            throw new Error("Error saving the notification");
+          } else {
+            console.log(data);
+          }
+        });
+      }
+      if (adminFound.length > 0 && foundAppointement.length > 0) {
+        let inAppNoti = new Notification({
+          title: "Booking Cancelled",
+          body: `Your Booking No.${foundAppointement[0]?._id} has been cancelled. Please call clinic if its not cancelled by you.`,
+          actionId: "3",
+          actionName: "Appointment",
+          userId: adminFound[0]?._id,
           isRead: "0",
         });
         inAppNoti.save(async (err, data) => {
@@ -4089,7 +4179,11 @@ const confirmBooking = async (req, res) => {
               _id: foundAppointement[0]?.userId,
             });
             console.log(userFound, "user in confirm push");
-            if (userFound && userFound[0]?.isHead === "1") {
+            if (
+              userFound.length > 0 &&
+              foundDoctor.length > 0
+              // && userFound[0]?.isHead === "1"
+            ) {
               let message = createMsg(
                 userFound[0]?.device_token,
                 "Appolonia",

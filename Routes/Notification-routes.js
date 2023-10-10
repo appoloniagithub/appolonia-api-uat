@@ -18,4 +18,9 @@ router.post(
 );
 
 router.post("/send-notification", notificationController.sendNotification);
+router.post(
+  "/getnoti",
+  //authCheck,
+  notificationController.getNotifications
+);
 module.exports = router;

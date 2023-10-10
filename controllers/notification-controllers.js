@@ -6,9 +6,6 @@ const User = require("../Models/User");
 const getAllNotifications = async (req, res) => {
   const { userId } = req.body;
   try {
-    // let allNotifications = await Notification.find({
-    //   $or: [{ userId: userId }, { isRead: "0" }],
-    // });
     let foundNotifications = await Notification.find({ userId: userId });
     // let foundUnread = await Notification.find({ isRead: "0" });
     // let [foundNotificationsResolved, foundUnreadResolved] = await Promise.all([
@@ -139,9 +136,34 @@ const sendNotification = async (req, res) => {
     });
   }
 };
-
+const getNotifications = async (req, res) => {
+  const { userId } = req.body;
+  let allNotifications = await Notification.find({
+    $and: [{ userId: userId }, { isRead: "0" }],
+  });
+  console.log(allNotifications);
+  if (allNotifications.length > 0) {
+    res.json({
+      serverError: 0,
+      message: "Notifications Found",
+      data: {
+        success: 1,
+        allNotifications: allNotifications.length,
+      },
+    });
+  } else {
+    res.json({
+      serverError: 0,
+      message: "Found No Notifications",
+      data: {
+        success: 0,
+      },
+    });
+  }
+};
 module.exports = {
   getAllNotifications,
   createNotification,
   sendNotification,
+  getNotifications,
 };

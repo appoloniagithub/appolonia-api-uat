@@ -9,6 +9,8 @@ const Message = require("../Models/Messages");
 const moment = require("moment");
 var CryptoJS = require("crypto-js");
 const Notification = require("../Models/Notification");
+const nodemailer = require("nodemailer");
+const { JWTKEY, SMTPPASS, accountSid, authToken } = require("../Config/config");
 //const sendPushNotification = require("../services/sendPush");
 const { sendPushNotification } = require("../services/sendPush");
 
@@ -331,6 +333,11 @@ const addFamilyMember = async (req, res) => {
     }
 
     // let existingFile = File.findOne({phoneNumber : phoneNumber , "familyMembers.emiratesId" : emiratesId })
+    let userFound = await File.find({ phoneNumber: phoneNumber });
+    console.log(userFound[0].familyMembers[0].userId, "user");
+    const user = userFound[0].familyMembers[0].userId;
+    let userFound1 = await User.find({ _id: user });
+    console.log(userFound1, "user1");
 
     let newMember = new User({
       firstName,
@@ -348,6 +355,7 @@ const addFamilyMember = async (req, res) => {
       uniqueId2: emiratesId,
       image: "uploads/contact/login.jpeg",
       isHead: 0,
+      device_token: userFound1[0]?.device_token,
     });
 
     newMember.save((err, userDoc) => {
@@ -372,7 +380,8 @@ const addFamilyMember = async (req, res) => {
             if (err) {
               throw new Error("Error creating the User");
             } else {
-              let adminFound = Doctor.findOne({ role: "Admin" });
+              let adminFound = await Doctor.findOne({ role: "Admin" });
+              console.log(adminFound, "admin");
               let clinic = Settings.find({}, "clinicName");
               let [adminFoundResolved, clinicResolved] = await Promise.all([
                 adminFound,
@@ -392,36 +401,56 @@ const addFamilyMember = async (req, res) => {
                 clinicResolved[0]?.clinicName,
                 adminFoundResolved?.image[0]
               );
-              let userFound = await File.find({ phoneNumber: phoneNumber });
-              console.log(userFound[0].familyMembers[0].userId, "user");
-              const user = userFound[0].familyMembers[0].userId;
-              let userFound1 = await User.find({ _id: user });
-              console.log(userFound1, "user1");
-              if (userFound) {
+
+              if (
+                userFound1.length > 0
+                //&& userFound1[0]?.isHead === "1"
+              ) {
                 let message = createMsg(
                   userFound1[0]?.device_token,
-                  "Appolonia",
+                  "Family",
                   "Family Member Added"
                 );
                 sendPushNotification(message);
-              }
-              let inAppNoti = new Notification({
-                title: "Appolonia",
-                body: "Family Member Added",
-                actionId: "2",
-                actionName: "Family",
-                //userId: userDoc._id.toString(),
-                userId: user,
-                isRead: "0",
-              });
-              inAppNoti.save(async (err, data) => {
-                if (err) {
-                  console.log(err);
-                  throw new Error("Error saving the notification");
-                } else {
-                  console.log(data);
+                if (user) {
+                  let inAppNoti = new Notification({
+                    title: "Family",
+                    body: "Family Member Added",
+                    actionId: "2",
+                    actionName: "Family",
+                    //userId: userDoc._id.toString(),
+                    userId: user,
+                    isRead: "0",
+                  });
+                  inAppNoti.save(async (err, data) => {
+                    if (err) {
+                      console.log(err);
+                      throw new Error("Error saving the notification");
+                    } else {
+                      console.log(data);
+                    }
+                  });
                 }
-              });
+              }
+              if (adminFound && userFound1.length > 0) {
+                let inAppNoti = new Notification({
+                  title: "Family",
+                  body: `Family Member Added by ${userFound1[0].firstName} ${userFound1[0].lastName}`,
+                  actionId: "2",
+                  actionName: "Family",
+                  //userId: userDoc._id.toString(),
+                  userId: adminFound?._id,
+                  isRead: "0",
+                });
+                inAppNoti.save(async (err, data) => {
+                  if (err) {
+                    console.log(err);
+                    throw new Error("Error saving the notification");
+                  } else {
+                    console.log(data);
+                  }
+                });
+              }
               res.json({
                 serverError: 0,
                 message:
@@ -461,6 +490,42 @@ const clinicVerify = async (req, res) => {
   }
 };
 
+const sendEmail = (email) => {
+  console.log(email, "hello gggggg");
+  if (email) {
+    console.log("Things going good");
+    const output = `
+            <p>Dear Customer,</p>
+            <p>Your account is active now. Please try logging in.</p>
+           
+            `;
+
+    // create reusable transporter object using the default SMTP transport
+    let transporter = nodemailer.createTransport({
+      host: "smtp.google.com",
+      port: 587,
+      secure: false, // true for 465, false for other ports
+      requireTLS: true,
+      service: "gmail",
+      auth: {
+        user: "appoloniaapp@gmail.com", // generated ethereal user
+        pass: SMTPPASS, // generated ethereal password
+      },
+    });
+
+    // setup email data with unicode symbols
+    let mailOptions = {
+      from: '"Appolonia" <appoloniaapp@gmail.com>', // sender address
+      to: email, // list of receivers
+      subject: "Account Information", // Subject line
+      // text: details, // plain text body
+      html: output, // html body
+    };
+
+    return transporter.sendMail(mailOptions);
+  }
+};
+
 const updateClinicDetails = async (req, res) => {
   const { fileId, clinicVerified, active, connected } = req.body;
   const foundFile = await File.findOne({ _id: fileId });
@@ -473,7 +538,7 @@ const updateClinicDetails = async (req, res) => {
     File.updateOne(
       { _id: foundFile._id },
       {
-        $set: { ...req.body },
+        $set: { clinicVerified: true, ...req.body },
       },
       (error, data) => {
         if (error) {
@@ -497,6 +562,9 @@ const updateClinicDetails = async (req, res) => {
         }
       }
     );
+    if (userFound && userFound?.isHead === "1") {
+      sendEmail(userFound?.email);
+    }
     // if (userFound) {
     //   let message = createMsg(
     //     userFound?.device_token,

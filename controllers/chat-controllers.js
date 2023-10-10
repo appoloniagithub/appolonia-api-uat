@@ -707,10 +707,16 @@ const newMessage = async (req, res) => {
         console.log(conFound, "con found");
         const doctorFound = await Doctor.find({ _id: senderId });
         console.log(doctorFound, "123");
+        const adminFound = await Doctor.find({ role: "Admin" });
+        console.log(adminFound, "admin");
+
         if (doctorFound.length > 0) {
           const userFound = await User.find({ _id: recId });
           console.log(userFound, "456");
-          if (userFound && userFound[0]?.isHead === "1") {
+          if (
+            userFound.length > 0
+            //&& userFound[0]?.isHead === "1"
+          ) {
             let message = createMsg(
               userFound[0]?.device_token,
               "Appolonia",
@@ -718,7 +724,10 @@ const newMessage = async (req, res) => {
             );
             sendPushNotification(message);
           }
-          if (userFound && userFound[0]?.isHead === "1") {
+          if (
+            userFound.length > 0
+            // && userFound[0]?.isHead === "1"
+          ) {
             let inAppNoti = new Notification({
               title: "Appolonia",
               body: `New message received from ${doctorFound[0]?.firstName} ${doctorFound[0].lastName}.`,
@@ -742,9 +751,35 @@ const newMessage = async (req, res) => {
         } else {
           const userFound = await User.find({ _id: senderId });
           console.log(userFound, "user in else");
-          if (userFound) {
+          if (userFound.length > 0) {
             const doctorFound = await Doctor.find({ _id: recId });
             console.log(doctorFound, "doctor in else");
+            if (
+              userFound.length > 0 &&
+              adminFound.length > 0 &&
+              conFound.length > 0
+            ) {
+              let inAppNoti = new Notification({
+                title: "New Message",
+                body: `New message received from patient ${userFound[0]?.firstName} ${userFound[0].lastName}.`,
+                actionId: "4",
+                actionName: "Chat",
+                userId: adminFound[0]?._id,
+                conversationId: conFound[0]?._id,
+                patientId: userFound[0]?._id,
+                //doctorName: `${doctorFound[0]?.firstName} ${doctorFound[0].lastName}`,
+                //image: doctorFound[0].image[0],
+                isRead: "0",
+              });
+              inAppNoti.save(async (err, data) => {
+                if (err) {
+                  console.log(err);
+                  throw new Error("Error saving the notification");
+                } else {
+                  console.log(data);
+                }
+              });
+            }
           }
         }
       }
