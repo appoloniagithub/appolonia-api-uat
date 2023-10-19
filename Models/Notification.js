@@ -10,7 +10,7 @@ const notificationSchema = new Schema({
   actionId: { type: String },
   actionName: { type: String },
   isRead: { type: String },
-  sendTo: { type: String },
+  sendTo: { type: Array },
   conversationId: { type: String },
   doctorName: { type: String },
   image: { type: String },

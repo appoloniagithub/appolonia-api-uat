@@ -17,7 +17,7 @@ router.post(
   notificationController.createNotification
 );
 
-router.post("/send-notification", notificationController.sendNotification);
+router.post("/send", notificationController.sendNotification);
 router.post(
   "/getnoti",
   //authCheck,

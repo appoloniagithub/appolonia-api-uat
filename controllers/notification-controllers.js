@@ -2,6 +2,17 @@ const Notification = require("../Models/Notification");
 //const schedule = require("../services/schedule");
 //const ScheduledNotification = require("../Models/ScheduledNotification");
 const User = require("../Models/User");
+const { sendPushNotification } = require("../services/sendPush");
+
+const createMsg = (token, title, body) => {
+  return {
+    token: token,
+    notification: {
+      title: title,
+      body: body,
+    },
+  };
+};
 
 const getAllNotifications = async (req, res) => {
   const { userId } = req.body;
@@ -103,19 +114,31 @@ const createNotification = async (req, res) => {
 
 const sendNotification = async (req, res) => {
   const { title, body, sendTo } = req.body;
-  console.log(req.body);
+  console.log(req.body, "in req");
   try {
     let notification = new Notification({
       title: title,
       body: body,
       sendTo: sendTo,
     });
+
+    for (let i = 0; i < sendTo.length; i++) {
+      const foundUsers = await User.find({ _id: sendTo });
+      console.log(foundUsers, "found");
+      let message = createMsg(
+        foundUsers[i]?.device_token,
+        `${title}`,
+        `${body}`
+      );
+      sendPushNotification(message);
+    }
+
     notification.save((err, data) => {
       if (err) {
         console.log(err);
         throw new Error("Error saving the Notification");
       } else {
-        console.log(data);
+        console.log(data, "data");
         res.json({
           serverError: 0,
           message: "New Notification added.",

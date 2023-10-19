@@ -46,5 +46,6 @@ router.post(
 router.post("/getdoctorinfo", chatController.getDoctorInfo);
 router.post("/getcon", chatController.getCon);
 router.get("/unseen", chatController.unSeenMessages);
+router.post("/createchat", chatController.createNewChat);
 
 module.exports = router;
