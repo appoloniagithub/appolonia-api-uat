@@ -381,19 +381,20 @@ const getConversationMessages = async (req, res) => {
         }
       );
     }
-    // else {
-    //   Message.updateMany(
-    //     { conversationId: conversationId },
-    //     { $set: { isSeen: "1" } },
-    //     (err, data) => {
-    //       if (err) {
-    //         console.log(err);
-    //       } else {
-    //         console.log("data updated", data);
-    //       }
-    //     }
-    //   );
-    // }
+    if (isSeen === "1") {
+      Message.updateMany(
+        { conversationId: conversationId },
+        { $set: { isSeen: "1" } },
+        (err, data) => {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log("data updated", data);
+          }
+        }
+      );
+    }
+
     let foundMessages = await Message.find({ conversationId: conversationId });
     // .sort({ _id: -1 })
     // .skip(bottomHit > 0 ? (bottomHit - 1) * 10 : 0)
