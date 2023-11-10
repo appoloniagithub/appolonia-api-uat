@@ -408,13 +408,13 @@ const addFamilyMember = async (req, res) => {
               ) {
                 let message = createMsg(
                   userFound1[0]?.device_token,
-                  "Family",
+                  "New Family Member",
                   "Family Member Added"
                 );
                 sendPushNotification(message);
                 if (user) {
                   let inAppNoti = new Notification({
-                    title: "Family",
+                    title: "New Family Member",
                     body: "Family Member Added",
                     actionId: "2",
                     actionName: "Family",
@@ -573,23 +573,25 @@ const updateClinicDetails = async (req, res) => {
     //   );
     //   sendPushNotification(message);
     // }
-    // let inAppNoti = new Notification({
-    //   title: "Appolonia",
-    //   body: "Family Member Approved",
-    //   actionId: "2",
-    //   actionName: "Family",
-    //   //userId: userDoc._id.toString(),
-    //   userId: userFound?._id,
-    //   isRead: "0",
-    // });
-    // inAppNoti.save(async (err, data) => {
-    //   if (err) {
-    //     console.log(err);
-    //     throw new Error("Error saving the notification");
-    //   } else {
-    //     console.log(data);
-    //   }
-    // });
+    if (userFound && userFound?.isHead === "0") {
+      let inAppNoti = new Notification({
+        title: "New Family Member",
+        body: "Your family member has been activated. Please check here.",
+        actionId: "2",
+        actionName: "Family",
+        //userId: userDoc._id.toString(),
+        userId: userFound?._id,
+        isRead: "0",
+      });
+      inAppNoti.save(async (err, data) => {
+        if (err) {
+          console.log(err);
+          throw new Error("Error saving the notification");
+        } else {
+          console.log(data);
+        }
+      });
+    }
   } else {
     res.json({
       serverError: 1,

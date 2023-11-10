@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
+const autoIncrement = require("mongoose-sequence")(mongoose);
 const appointmentSchema = new mongoose.Schema(
   {
+    // _id: Number,
     userId: {
       type: String,
     },
@@ -71,5 +73,5 @@ const appointmentSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
+appointmentSchema.plugin(autoIncrement, { inc_field: "appId" });
 module.exports = mongoose.model("Appointment", appointmentSchema);

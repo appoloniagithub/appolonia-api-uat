@@ -124,35 +124,41 @@ const addArticle = async (req, res) => {
     });
     let usersFound = await User.find({});
     console.log(usersFound, "found");
+
     for (let i = 0; i < usersFound.length; i++) {
-      let message = createMsg(
-        usersFound[i]?.device_token,
-        "Appolonia",
-        "New Article Added"
-      );
-      console.log(usersFound[i]?.device_token);
-      sendPushNotification(message);
+      if (usersFound[i]?.device_token) {
+        let message = createMsg(
+          usersFound[i]?.device_token,
+          "Appolonia",
+          "New Article Added"
+        );
+        console.log(usersFound[i]?.device_token);
+        sendPushNotification(message);
+      }
     }
     //let usersFound = await User.find({});
     //console.log(usersFound, "found");
-    for (let i = 0; i < usersFound.length; i++) {
-      let inAppNoti = new Notification({
-        title: "Appolonia",
-        body: "New Article Added",
-        actionId: "1",
-        actionName: "Library",
-        userId: usersFound[i]?._id,
-        isRead: "0",
-      });
 
-      inAppNoti.save(async (err, data) => {
-        if (err) {
-          console.log(err);
-          throw new Error("Error saving the notification");
-        } else {
-          console.log(data);
-        }
-      });
+    for (let i = 0; i < usersFound.length; i++) {
+      if (usersFound[i]?._id) {
+        let inAppNoti = new Notification({
+          title: "Appolonia",
+          body: "New Article Added",
+          actionId: "1",
+          actionName: "Library",
+          userId: usersFound[i]?._id,
+          isRead: "0",
+        });
+
+        inAppNoti.save(async (err, data) => {
+          if (err) {
+            console.log(err);
+            throw new Error("Error saving the notification");
+          } else {
+            console.log(data);
+          }
+        });
+      }
     }
     newArticle.save(async (err, data) => {
       if (err) {

@@ -720,7 +720,7 @@ const newMessage = async (req, res) => {
           ) {
             let message = createMsg(
               userFound[0]?.device_token,
-              "Appolonia",
+              "New Chat Message",
               "New Message Received"
             );
             sendPushNotification(message);
@@ -730,7 +730,7 @@ const newMessage = async (req, res) => {
             // && userFound[0]?.isHead === "1"
           ) {
             let inAppNoti = new Notification({
-              title: "Appolonia",
+              title: "New Chat Message",
               body: `New message received from ${doctorFound[0]?.firstName} ${doctorFound[0].lastName}.`,
               actionId: "4",
               actionName: "Chat",

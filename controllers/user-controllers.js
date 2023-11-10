@@ -3458,6 +3458,7 @@ function createMsg(token, title, body) {
 const createBooking = async (req, res) => {
   try {
     const {
+      id,
       userId,
       //patientName,
       phoneNumber,
@@ -3478,6 +3479,7 @@ const createBooking = async (req, res) => {
     console.log(doctorFound);
     if (userFound) {
       const newAppointment = new Appointment({
+        //id: `APP${id}`,
         userId: userFound[0]?._id,
         patientName: `${userFound[0]?.firstName} ${userFound[0]?.lastName}`,
         email: email,
@@ -3488,6 +3490,7 @@ const createBooking = async (req, res) => {
         emiratesId: emiratesId,
         doctorId: doctorFound[0]?._id,
         doctorName: `${doctorFound[0]?.firstName} ${doctorFound[0]?.lastName}`,
+        image: doctorFound[0]?.image[0],
         date: moment(date).format("YYYY-MM-DD"),
         //time: moment(time).format("h:mm A"),
         time: time,
@@ -3564,6 +3567,7 @@ const newBooking = async (req, res) => {
         emiratesId: emiratesId,
         doctorId: doctorFound[0]?._id,
         doctorName: `${doctorFound[0]?.firstName} ${doctorFound[0]?.lastName}`,
+        image: doctorFound[0]?.image[0],
         date: moment(date).format("YYYY-MM-DD"),
         //time: moment(time).format("h:mm A"),
         time: time,
@@ -3660,7 +3664,7 @@ const sendBookingReq = async (req, res) => {
       });
       if (adminFound) {
         let inAppNoti = new Notification({
-          title: "New Booking",
+          title: "New Appointment",
           body: `A New Booking has been requested by patient ${userFound[0].firstName} ${userFound[0].lastName}.`,
           actionId: "3",
           actionName: "Appointment",
@@ -3831,6 +3835,11 @@ const getAllBookings = async (req, res) => {
       });
       console.log(cancelled, "cancelled");
 
+      let completed = await Appointment.find({
+        $and: [{ userId: userId }, { status: "Completed" }],
+      });
+      console.log(completed, "completed");
+
       if (allBookings.length > 0) {
         res.json({
           serverError: 0,
@@ -3840,7 +3849,7 @@ const getAllBookings = async (req, res) => {
             allBookings: allBookings.reverse(),
             pending: temp.reverse(),
             confirmed: confirmed.reverse(),
-            // finished: finished.reverse(),
+            finished: completed.reverse(),
             cancelled: cancelled.reverse(),
             //rescheduled:rescheduled.reverse(),
           },
@@ -3890,24 +3899,15 @@ const updateBooking = async (req, res) => {
           if (error) {
             return console.log(error);
           } else {
-            //console.log(data, "data");
-            if (!data) {
-              res.json({
-                serverError: 0,
-                message: "Not updated",
-                data: {
-                  success: 0,
-                },
-              });
-            } else {
-              res.json({
-                serverError: 0,
-                message: "Booking details updated",
-                data: {
-                  success: 1,
-                },
-              });
-            }
+            console.log("data updated", data);
+
+            res.json({
+              serverError: 0,
+              message: "Booking details updated",
+              data: {
+                success: 1,
+              },
+            });
           }
         }
       );
@@ -4194,13 +4194,13 @@ const confirmBooking = async (req, res) => {
             ) {
               let message = createMsg(
                 userFound[0]?.device_token,
-                "Appolonia",
+                "Booking Confirmed",
                 `Your Booking with ${foundDoctor[0]?.firstName} ${foundDoctor[0].lastName} on ${date} at ${time} is Confirmed.`
               );
               sendPushNotification(message);
 
               let inAppNoti = new Notification({
-                title: "Appolonia",
+                title: "Booking Confirmed",
                 body: `Your Booking with ${foundDoctor[0]?.firstName} ${foundDoctor[0].lastName} on ${date} at ${time} is Confirmed.`,
                 actionId: "4",
                 actionName: "Appointment",
