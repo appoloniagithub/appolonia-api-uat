@@ -19,6 +19,7 @@ const eventSchema = new Schema({
   doctorImage: { type: String },
   speciality: { type: String },
   lastName: { type: String },
+  allDay: { type: Boolean, default: false },
 });
 
 // userSchema.plugin(uniqueValidator);

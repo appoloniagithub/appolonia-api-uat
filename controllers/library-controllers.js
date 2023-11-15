@@ -104,7 +104,7 @@ const addArticle = async (req, res) => {
   console.log(req.body);
   const {
     title,
-    description,
+    content,
     image,
 
     authorName,
@@ -114,7 +114,7 @@ const addArticle = async (req, res) => {
   try {
     let newArticle = new Library({
       title,
-      description,
+      content,
       image: imageFiles.toString().replace(/\\/g, "/"),
       author: {
         authorName,
@@ -244,7 +244,7 @@ const updateArticle = async (req, res) => {
   const {
     _id,
     title,
-    description,
+    content,
     image,
     authorName,
     //authorImage,

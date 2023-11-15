@@ -3494,6 +3494,7 @@ const createBooking = async (req, res) => {
         date: moment(date).format("YYYY-MM-DD"),
         //time: moment(time).format("h:mm A"),
         time: time,
+        roomId: consultationType == "Remote" ? uuid.v1() : "",
         status: "Confirmed",
       });
       newAppointment.save((err, data) => {
@@ -3569,6 +3570,7 @@ const newBooking = async (req, res) => {
         doctorName: `${doctorFound[0]?.firstName} ${doctorFound[0]?.lastName}`,
         image: doctorFound[0]?.image[0],
         date: moment(date).format("YYYY-MM-DD"),
+        roomId: consultationType == "Remote" ? uuid.v1() : "",
         //time: moment(time).format("h:mm A"),
         time: time,
         status: "Confirmed",
@@ -4429,6 +4431,8 @@ const rescheduleBookingReq = async (req, res) => {
   try {
     const doctorFound = await Doctor.find({ _id: pdoctorId });
     console.log(doctorFound, "doctor");
+    const userFound = await Doctor.find({ _id: userId });
+    console.log(userFound, "user");
     //if (doctorFound) {
     Appointment.updateMany(
       { _id: bookingId },
@@ -4463,6 +4467,24 @@ const rescheduleBookingReq = async (req, res) => {
         }
       }
     );
+    if ((userFound, doctorFound)) {
+      let inAppNoti = new Notification({
+        title: "Booking Rescheduled",
+        body: `Your Booking with ${doctorFound[0]?.firstName} ${doctorFound[0]?.lastName} on ${pdate} at ${ptime} is Rescheduled.`,
+        actionId: "4",
+        actionName: "Appointment",
+        userId: userFound[0]?._id,
+        isRead: "0",
+      });
+      inAppNoti.save(async (err, data) => {
+        if (err) {
+          console.log(err);
+          throw new Error("Error saving the notification");
+        } else {
+          console.log(data);
+        }
+      });
+    }
     // } else {
     //   res.json({
     //     serverError: 0,

@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 const librarySchema = new Schema({
   title: { type: String },
-  description: { type: String },
+  content: { type: String },
   image: { type: Array },
   author: { type: Object },
   date: { type: String },
