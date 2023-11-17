@@ -125,12 +125,14 @@ const sendNotification = async (req, res) => {
     for (let i = 0; i < sendTo.length; i++) {
       const foundUsers = await User.find({ _id: sendTo });
       console.log(foundUsers, "found");
-      let message = createMsg(
-        foundUsers[i]?.device_token,
-        `${title}`,
-        `${body}`
-      );
-      sendPushNotification(message);
+      if (foundUsers[i]?.device_token) {
+        let message = createMsg(
+          foundUsers[i]?.device_token,
+          `${title}`,
+          `${body}`
+        );
+        sendPushNotification(message);
+      }
     }
 
     notification.save((err, data) => {
