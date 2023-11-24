@@ -1192,23 +1192,25 @@ const signup = async (req, res, next) => {
       const adminFound = await Doctor.find({ role: "Admin" });
       console.log(adminFound, "admin");
       if (adminFound) {
-        let inAppNoti = new Notification({
-          title: "New Patient Registered",
-          body: "New Patient has been registered and is pending to verify.",
-          actionId: "6",
-          actionName: "Sign Up",
-          //userId: userDoc._id.toString(),
-          userId: adminFound[0]?._id,
-          isRead: "0",
-        });
-        inAppNoti.save(async (err, data) => {
-          if (err) {
-            console.log(err);
-            throw new Error("Error saving the notification");
-          } else {
-            console.log(data);
-          }
-        });
+        for (let i = 0; i < adminFound.length; i++) {
+          let inAppNoti = new Notification({
+            title: "New Patient Registered",
+            body: "New Patient has been registered and is pending to verify.",
+            actionId: "6",
+            actionName: "Sign Up",
+            //userId: userDoc._id.toString(),
+            userId: adminFound[i]?._id,
+            isRead: "0",
+          });
+          inAppNoti.save(async (err, data) => {
+            if (err) {
+              console.log(err);
+              throw new Error("Error saving the notification");
+            } else {
+              console.log(data);
+            }
+          });
+        }
       }
 
       createdUser.save((err, userDoc) => {
@@ -3106,22 +3108,24 @@ const contact = async (req, res) => {
   const adminFound = await Doctor.find({ role: "Admin" });
   console.log(adminFound, "admin");
   if (adminFound) {
-    let inAppNoti = new Notification({
-      title: "Help Message",
-      body: `Help message received from ${name}.`,
-      actionId: "5",
-      actionName: "Help",
-      userId: adminFound[0]?._id,
-      isRead: "0",
-    });
-    inAppNoti.save(async (err, data) => {
-      if (err) {
-        console.log(err);
-        throw new Error("Error saving the notification");
-      } else {
-        console.log(data);
-      }
-    });
+    for (let i = 0; i < adminFound.length; i++) {
+      let inAppNoti = new Notification({
+        title: "Help Message",
+        body: `Help message received from ${name}.`,
+        actionId: "5",
+        actionName: "Help",
+        userId: adminFound[i]?._id,
+        isRead: "0",
+      });
+      inAppNoti.save(async (err, data) => {
+        if (err) {
+          console.log(err);
+          throw new Error("Error saving the notification");
+        } else {
+          console.log(data);
+        }
+      });
+    }
   }
   savedContact.save((err) => {
     if (err) {
@@ -3467,15 +3471,15 @@ const createBooking = async (req, res) => {
       clinicName,
       serviceName,
       consultationType,
-      doctorId,
+      pdoctorId,
       //doctorName,
-      date,
-      time,
+      pdate,
+      ptime,
     } = req.body;
     console.log(req.body);
     const userFound = await User.find({ _id: userId });
     console.log(userFound, "user");
-    const doctorFound = await Doctor.find({ _id: doctorId });
+    const doctorFound = await Doctor.find({ _id: pdoctorId });
     console.log(doctorFound);
     if (userFound) {
       const newAppointment = new Appointment({
@@ -3488,12 +3492,18 @@ const createBooking = async (req, res) => {
         consultationType: consultationType,
         serviceName: serviceName,
         emiratesId: emiratesId,
+        pdoctorId: doctorFound[0]?._id,
+        pdoctorName: `${doctorFound[0]?.firstName} ${doctorFound[0]?.lastName}`,
+        pimage: doctorFound[0]?.image[0],
         doctorId: doctorFound[0]?._id,
         doctorName: `${doctorFound[0]?.firstName} ${doctorFound[0]?.lastName}`,
         image: doctorFound[0]?.image[0],
-        date: moment(date).format("YYYY-MM-DD"),
+        pdate: moment(pdate).format("YYYY-MM-DD"),
         //time: moment(time).format("h:mm A"),
-        time: time,
+        ptime: ptime,
+        date: moment(pdate).format("YYYY-MM-DD"),
+
+        time: ptime,
         roomId: consultationType == "Remote" ? uuid.v1() : "",
         status: "Confirmed",
       });
@@ -3573,6 +3583,11 @@ const newBooking = async (req, res) => {
         roomId: consultationType == "Remote" ? uuid.v1() : "",
         //time: moment(time).format("h:mm A"),
         time: time,
+        pdoctorId: doctorFound[0]?._id,
+        pdoctorName: `${doctorFound[0]?.firstName} ${doctorFound[0]?.lastName}`,
+        pimage: doctorFound[0]?.image[0],
+        pdate: moment(date).format("YYYY-MM-DD"),
+        ptime: time,
         status: "Confirmed",
       });
       newAppointment.save((err, data) => {
@@ -3665,22 +3680,24 @@ const sendBookingReq = async (req, res) => {
         pimage: doctorFound[0]?.image[0],
       });
       if (adminFound) {
-        let inAppNoti = new Notification({
-          title: "New Appointment",
-          body: `A New Booking has been requested by patient ${userFound[0].firstName} ${userFound[0].lastName}.`,
-          actionId: "3",
-          actionName: "Appointment",
-          userId: adminFound[0]?._id,
-          isRead: "0",
-        });
-        inAppNoti.save(async (err, data) => {
-          if (err) {
-            console.log(err);
-            throw new Error("Error saving the notification");
-          } else {
-            console.log(data);
-          }
-        });
+        for (let i = 0; i < adminFound.length; i++) {
+          let inAppNoti = new Notification({
+            title: "New Appointment",
+            body: `A New Booking has been requested by patient ${userFound[0].firstName} ${userFound[0].lastName}.`,
+            actionId: "3",
+            actionName: "Appointment",
+            userId: adminFound[i]?._id,
+            isRead: "0",
+          });
+          inAppNoti.save(async (err, data) => {
+            if (err) {
+              console.log(err);
+              throw new Error("Error saving the notification");
+            } else {
+              console.log(data);
+            }
+          });
+        }
       }
       newAppointmentReq.save((err, data) => {
         if (err) {
@@ -4030,13 +4047,13 @@ const cancelBooking = async (req, res) => {
         let message = createMsg(
           userFound[0]?.device_token,
           "Booking Cancelled",
-          `Your Booking No.${foundAppointement[0]?._id} has been cancelled. Please call clinic if its not cancelled by you.`
+          `Your Booking No.${foundAppointement[0]?.appId} has been cancelled. Please call clinic if its not cancelled by you.`
         );
         sendPushNotification(message);
 
         let inAppNoti = new Notification({
           title: "Booking Cancelled",
-          body: `Your Booking No.${foundAppointement[0]?._id} has been cancelled. Please call clinic if its not cancelled by you.`,
+          body: `Your Booking No.${foundAppointement[0]?.appId} has been cancelled. Please call clinic if its not cancelled by you.`,
           actionId: "3",
           actionName: "Appointment",
           userId: userFound[0]?._id,
@@ -4052,22 +4069,24 @@ const cancelBooking = async (req, res) => {
         });
       }
       if (adminFound.length > 0 && foundAppointement.length > 0) {
-        let inAppNoti = new Notification({
-          title: "Booking Cancelled",
-          body: `Your Booking No.${foundAppointement[0]?._id} has been cancelled. Please call clinic if its not cancelled by you.`,
-          actionId: "3",
-          actionName: "Appointment",
-          userId: adminFound[0]?._id,
-          isRead: "0",
-        });
-        inAppNoti.save(async (err, data) => {
-          if (err) {
-            console.log(err);
-            throw new Error("Error saving the notification");
-          } else {
-            console.log(data);
-          }
-        });
+        for (let i = 0; i < adminFound.length; i++) {
+          let inAppNoti = new Notification({
+            title: "Booking Cancelled",
+            body: `Your Booking No.${foundAppointement[0]?.appId} has been cancelled. Please call clinic if its not cancelled by you.`,
+            actionId: "3",
+            actionName: "Appointment",
+            userId: adminFound[i]?._id,
+            isRead: "0",
+          });
+          inAppNoti.save(async (err, data) => {
+            if (err) {
+              console.log(err);
+              throw new Error("Error saving the notification");
+            } else {
+              console.log(data);
+            }
+          });
+        }
       }
       res.json({
         serverError: 0,

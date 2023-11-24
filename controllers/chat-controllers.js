@@ -729,25 +729,25 @@ const newMessage = async (req, res) => {
             userFound.length > 0
             // && userFound[0]?.isHead === "1"
           ) {
-            let inAppNoti = new Notification({
-              title: "New Chat Message",
-              body: `New message received from ${doctorFound[0]?.firstName} ${doctorFound[0].lastName}.`,
-              actionId: "4",
-              actionName: "Chat",
-              userId: userFound[0]?._id,
-              conversationId: conFound[0]?._id,
-              doctorName: `${doctorFound[0]?.firstName} ${doctorFound[0].lastName}`,
-              image: doctorFound[0].image[0],
-              isRead: "0",
-            });
-            inAppNoti.save(async (err, data) => {
-              if (err) {
-                console.log(err);
-                throw new Error("Error saving the notification");
-              } else {
-                console.log(data);
-              }
-            });
+            // let inAppNoti = new Notification({
+            //   title: "New Chat Message",
+            //   body: `New message received from ${doctorFound[0]?.firstName} ${doctorFound[0].lastName}.`,
+            //   actionId: "4",
+            //   actionName: "Chat",
+            //   userId: userFound[0]?._id,
+            //   conversationId: conFound[0]?._id,
+            //   doctorName: `${doctorFound[0]?.firstName} ${doctorFound[0].lastName}`,
+            //   image: doctorFound[0].image[0],
+            //   isRead: "0",
+            // });
+            // inAppNoti.save(async (err, data) => {
+            //   if (err) {
+            //     console.log(err);
+            //     throw new Error("Error saving the notification");
+            //   } else {
+            //     console.log(data);
+            //   }
+            // });
           }
         } else {
           const userFound = await User.find({ _id: senderId });
@@ -760,26 +760,28 @@ const newMessage = async (req, res) => {
               adminFound.length > 0 &&
               conFound.length > 0
             ) {
-              let inAppNoti = new Notification({
-                title: "New Message",
-                body: `New message received from patient ${userFound[0]?.firstName} ${userFound[0].lastName}.`,
-                actionId: "4",
-                actionName: "Chat",
-                userId: adminFound[0]?._id,
-                conversationId: conFound[0]?._id,
-                patientId: userFound[0]?._id,
-                //doctorName: `${doctorFound[0]?.firstName} ${doctorFound[0].lastName}`,
-                //image: doctorFound[0].image[0],
-                isRead: "0",
-              });
-              inAppNoti.save(async (err, data) => {
-                if (err) {
-                  console.log(err);
-                  throw new Error("Error saving the notification");
-                } else {
-                  console.log(data);
-                }
-              });
+              for (let i = 0; i < adminFound.length; i++) {
+                let inAppNoti = new Notification({
+                  title: "New Message",
+                  body: `New message received from patient ${userFound[0]?.firstName} ${userFound[0].lastName}.`,
+                  actionId: "4",
+                  actionName: "Chat",
+                  userId: adminFound[i]?._id,
+                  conversationId: conFound[0]?._id,
+                  patientId: userFound[0]?._id,
+                  //doctorName: `${doctorFound[0]?.firstName} ${doctorFound[0].lastName}`,
+                  //image: doctorFound[0].image[0],
+                  isRead: "0",
+                });
+                inAppNoti.save(async (err, data) => {
+                  if (err) {
+                    console.log(err);
+                    throw new Error("Error saving the notification");
+                  } else {
+                    console.log(data);
+                  }
+                });
+              }
             }
           }
         }

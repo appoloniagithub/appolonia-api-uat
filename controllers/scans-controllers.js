@@ -212,22 +212,43 @@ const submitScans = async function (body) {
               // }
               const userFound = await User.find({ _id: userId });
               console.log(userFound, "user");
-              // let inAppNoti = new Notification({
-              //   title: "Appolonia",
-              //   body: "Your Scan is Due",
-              //   actionId: "3",
-              //   actionName: "Scan",
-              //   userId: userFound[0]?._id,
-              //   isRead: "0",
-              // });
-              // inAppNoti.save(async (err, data) => {
-              //   if (err) {
-              //     console.log(err);
-              //     throw new Error("Error saving the notification");
-              //   } else {
-              //     console.log(data);
-              //   }
-              // });
+              const adminFound = await Doctor.find({ role: "Admin" });
+              console.log(adminFound, "admin");
+              for (let i = 0; i < adminFound.length; i++) {
+                let inAppNoti = new Notification({
+                  title: "New Scans",
+                  body: `New Scans received from patient ${userFound[0]?.firstName} ${userFound[0]?.lastName}`,
+                  actionId: "3",
+                  actionName: "Scan",
+                  userId: adminFound[i]?._id,
+                  isRead: "0",
+                });
+                inAppNoti.save(async (err, data) => {
+                  if (err) {
+                    console.log(err);
+                    throw new Error("Error saving the notification");
+                  } else {
+                    console.log(data);
+                  }
+                });
+              }
+              let inAppNoti = new Notification({
+                title: "New Scans",
+                body: `New Scans received for ${doctorFound[0]?.firstName} ${doctorFound[0]?.lastName} from patient ${userFound[0]?.firstName} ${userFound[0]?.lastName}`,
+                actionId: "3",
+                actionName: "Scan",
+                userId: doctorId,
+                patientId: userId,
+                isRead: "0",
+              });
+              inAppNoti.save(async (err, data) => {
+                if (err) {
+                  console.log(err);
+                  throw new Error("Error saving the notification");
+                } else {
+                  console.log(data);
+                }
+              });
 
               // let scheduledNoti = new ScheduledNotification({
               //   notification: {

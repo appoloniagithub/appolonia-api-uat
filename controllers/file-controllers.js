@@ -413,13 +413,34 @@ const addFamilyMember = async (req, res) => {
                 );
                 sendPushNotification(message);
                 if (user) {
+                  // let inAppNoti = new Notification({
+                  //   title: "New Family Member",
+                  //   body: "Family Member Added",
+                  //   actionId: "2",
+                  //   actionName: "Family",
+                  //   //userId: userDoc._id.toString(),
+                  //   userId: user,
+                  //   isRead: "0",
+                  // });
+                  // inAppNoti.save(async (err, data) => {
+                  //   if (err) {
+                  //     console.log(err);
+                  //     throw new Error("Error saving the notification");
+                  //   } else {
+                  //     console.log(data);
+                  //   }
+                  // });
+                }
+              }
+              if (adminFound && userFound1.length > 0) {
+                for (let i = 0; i < adminFound.length; i++) {
                   let inAppNoti = new Notification({
-                    title: "New Family Member",
-                    body: "Family Member Added",
+                    title: "Family Member",
+                    body: `Family Member Added by ${userFound1[0].firstName} ${userFound1[0].lastName}`,
                     actionId: "2",
                     actionName: "Family",
                     //userId: userDoc._id.toString(),
-                    userId: user,
+                    userId: adminFound[i]?._id,
                     isRead: "0",
                   });
                   inAppNoti.save(async (err, data) => {
@@ -431,25 +452,6 @@ const addFamilyMember = async (req, res) => {
                     }
                   });
                 }
-              }
-              if (adminFound && userFound1.length > 0) {
-                let inAppNoti = new Notification({
-                  title: "Family",
-                  body: `Family Member Added by ${userFound1[0].firstName} ${userFound1[0].lastName}`,
-                  actionId: "2",
-                  actionName: "Family",
-                  //userId: userDoc._id.toString(),
-                  userId: adminFound?._id,
-                  isRead: "0",
-                });
-                inAppNoti.save(async (err, data) => {
-                  if (err) {
-                    console.log(err);
-                    throw new Error("Error saving the notification");
-                  } else {
-                    console.log(data);
-                  }
-                });
               }
               res.json({
                 serverError: 0,
@@ -573,7 +575,7 @@ const updateClinicDetails = async (req, res) => {
     //   );
     //   sendPushNotification(message);
     // }
-    if (userFound && userFound?.isHead === "0") {
+    if (userFound && userFound?.isHead === "1") {
       let inAppNoti = new Notification({
         title: "New Family Member",
         body: "Your family member has been activated. Please check here.",
